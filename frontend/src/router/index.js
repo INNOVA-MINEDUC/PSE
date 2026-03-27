@@ -53,11 +53,7 @@ const router = createRouter({
   ]
 })
 
-/**
- * ⛔ Guard global de navegación
- * - Si la ruta requiere auth y no está logueado → lo manda a /login
- * - Si ya está logueado e intenta ir a /login → lo manda a /admin
- */
+/
 router.beforeEach((to, from, next) => {
   if (to.meta.requiresAuth && !isAuthenticated.value) {
     next({
