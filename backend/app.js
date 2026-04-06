@@ -2,18 +2,20 @@ import dotenv from "dotenv";
 import mysql from "mysql2/promise";
 import express from "express";
 import cors from "cors";
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
+import axios from "axios";
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// CORS
 app.use(
   cors({
-    origin: ["http://localhost:5173", "http://10.101.2.14:5173"],
+    origin: [
+      "http://localhost:5173",
+      "http://10.101.2.14:5173",
+      "http://10.101.2.6:5173",
+    ],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials: true,
   })
@@ -42,77 +44,138 @@ app.get("/api/db-check", async (req, res) => {
   }
 });
 
-/**
- * LOGIN REAL (con BD)
- * Body: { email, password }
- * Respuesta:
- *  - ok: true/false
- *  - user: { id, email, full_name, role }
- *  - token: JWT
- */
+// Login con ASISTO
 app.post("/api/auth/login", async (req, res) => {
   try {
-    const email = String(req.body.email || "").trim().toLowerCase();
-    const password = String(req.body.password || "").trim();
+    console.log("BODY LOGIN:", req.body);
 
-    if (!email || !password) {
+    const correoElectronico = String(req.body.correoElectronico || "").trim();
+    const clave = String(req.body.clave || "").trim();
+
+    if (!correoElectronico || !clave) {
       return res.status(400).json({
-        ok: false,
-        message: "Email y contraseña son requeridos.",
+        success: false,
+        error: "Correo y contraseña son requeridos.",
       });
     }
 
-    // Buscar usuario
-    const [rows] = await db.query(
-      `SELECT id, email, password_hash, full_name, role
-       FROM users
-       WHERE email = ?
-       LIMIT 1`,
-      [email]
+    const mutation = `
+      mutation IniciarSesion {
+        iniciarSesion(
+          clave: "${clave}"
+          correoElectronico: "${correoElectronico}"
+          sistemaClave: "ASISTO"
+        ) {
+          token
+        }
+      }
+    `;
+
+    const response = await axios.post(
+      process.env.API,
+      {
+        query: mutation,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
     );
 
-    if (rows.length === 0) {
-      return res.status(401).json({
-        ok: false,
-        message: "Credenciales incorrectas",
-      });
-    }
-
-    const user = rows[0];
-
-    // Comparar contraseña (hash)
-    const match = await bcrypt.compare(password, user.password_hash);
-    if (!match) {
-      return res.status(401).json({
-        ok: false,
-        message: "Credenciales incorrectas",
-      });
-    }
-
-    // JWT (si no hay JWT_SECRET, usamos uno “dev” para que no truene en local)
-    const secret = process.env.JWT_SECRET || "dev-secret-change-me";
-    const token = jwt.sign(
-      { sub: user.id, email: user.email, role: user.role },
-      secret,
-      { expiresIn: "8h" }
+    console.log(
+      "RESPUESTA GRAPHQL LOGIN:",
+      JSON.stringify(response.data, null, 2)
     );
+
+    if (response.data.errors) {
+      return res.status(401).json({
+        success: false,
+        error: response.data.errors[0].message || "Credenciales incorrectas",
+      });
+    }
+
+    const token = response?.data?.data?.iniciarSesion?.token;
+
+    if (!token) {
+      return res.status(401).json({
+        success: false,
+        error: "No se recibió token desde ASISTO",
+      });
+    }
 
     return res.json({
-      ok: true,
-      message: "Login correcto ✅",
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.full_name,
-        role: user.role,
-      },
+      success: true,
       token,
     });
   } catch (err) {
-    console.error("Error en /api/auth/login:", err);
+    console.error("ERROR LOGIN:", err.response?.data || err.message);
+
     return res.status(500).json({
-      ok: false,
-      message: "Error interno en login",
+      success: false,
+      error: "Error interno en login",
+    });
+  }
+});
+
+// Usuario actual
+app.get("/api/auth/me", async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader) {
+      return res.status(401).json({
+        success: false,
+        error: "Token no proporcionado",
+      });
+    }
+
+    const query = `
+      query {
+        usuarioActual {
+          nombres
+          apellidos
+          roles {
+            clave
+            nombre
+          }
+        }
+      }
+    `;
+
+    const response = await axios.post(
+      process.env.API,
+      { query },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: authHeader,
+        },
+      }
+    );
+
+    console.log(
+      "RESPUESTA GRAPHQL ME:",
+      JSON.stringify(response.data, null, 2)
+    );
+
+    if (response.data.errors) {
+      return res.status(401).json({
+        success: false,
+        error: response.data.errors[0].message || "Token inválido",
+      });
+    }
+
+    return res.json({
+      success: true,
+      user: response?.data?.data?.usuarioActual || null,
+    });
+  } catch (err) {
+    console.error("ERROR /me:", err.response?.data || err.message);
+
+    return res.status(500).json({
+      success: false,
+      error: "Error al validar sesión",
     });
   }
 });
@@ -129,7 +192,7 @@ async function start() {
   });
 
   app.listen(PORT, "0.0.0.0", () => {
-  console.log(`Servidor corriendo en http://localhost:${PORT}`);
+    console.log(`Servidor corriendo en http://localhost:${PORT}`);
   });
 }
 

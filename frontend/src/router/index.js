@@ -53,7 +53,6 @@ const router = createRouter({
   ]
 })
 
-/
 router.beforeEach((to, from, next) => {
   if (to.meta.requiresAuth && !isAuthenticated.value) {
     next({
@@ -72,4 +71,3 @@ router.beforeEach((to, from, next) => {
 })
 
 export default router
-

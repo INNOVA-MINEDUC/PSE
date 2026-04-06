@@ -2,19 +2,16 @@
 <template>
   <main class="login-page">
     <div class="login-card">
-      <!-- LOGO -->
       <div class="login-logo">
         <img :src="logoMinisterio" alt="Ministerio de Educación" />
       </div>
 
       <h1 class="login-title">Iniciar sesión</h1>
 
-      <!-- MENSAJE DE ERROR -->
       <p v-if="error" class="login-error">
         {{ error }}
       </p>
 
-      <!-- FORMULARIO -->
       <form class="login-form" @submit.prevent="handleSubmit">
         <div class="field">
           <label for="email">Correo electrónico</label>
@@ -22,7 +19,7 @@
             id="email"
             v-model="email"
             type="email"
-            placeholder="admin@mineduc.edu.gt"
+            placeholder="usuario@mineduc.edu.gt"
             required
           />
         </div>
@@ -41,11 +38,6 @@
         <button type="submit" class="btn-login" :disabled="loading">
           {{ loading ? "Ingresando..." : "Ingresar" }}
         </button>
-
-        <p class="hint">
-          Usuario de prueba: <strong>admin@mineduc.edu.gt</strong> / Contraseña:
-          <strong>admin123</strong>
-        </p>
       </form>
 
       <p class="login-footer">
@@ -75,25 +67,24 @@ const handleSubmit = async () => {
   try {
     const res = await fetch("http://localhost:3000/api/auth/login", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify({
-        email: email.value.trim(),
-        password: password.value.trim(),
+        correoElectronico: email.value.trim(),
+        clave: password.value.trim(),
       }),
     });
 
     const data = await res.json();
 
     if (!res.ok) {
-      error.value = data.message || "Correo o contraseña incorrectos.";
+      error.value = data.error || "Correo o contraseña incorrectos.";
       return;
     }
 
-    // Guardar sesión (temporal)
     localStorage.setItem("token", data.token);
-    localStorage.setItem("user", JSON.stringify(data.user));
 
-    // Si venía redirigido desde una ruta protegida, volver allí.
     const redirect = route.query.redirect || "/admin";
     router.push(redirect);
   } catch (e) {
@@ -198,12 +189,6 @@ const handleSubmit = async () => {
   opacity: 0.65;
   cursor: not-allowed;
   transform: none;
-}
-
-.hint {
-  font-size: 0.7rem;
-  color: #6b7280;
-  margin-top: 8px;
 }
 
 .login-footer {
