@@ -59,12 +59,6 @@ router.beforeEach((to, from, next) => {
     return
   }
 
-  // Si entra a raíz y no tiene sesión, mandarlo a login
-  if (to.path === '/' && !token) {
-    next('/login')
-    return
-  }
-
   // Si ya tiene sesión y quiere ir a login, mandarlo a admin
   if (to.name === 'login' && token) {
     next({ name: 'admin' })

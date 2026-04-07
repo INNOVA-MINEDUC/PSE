@@ -6,11 +6,11 @@
         <div class="promo-hero-inner">
           <p class="promo-kicker">MÓDULO 1 · PROMOCIÓN Y PREVENCIÓN</p>
 
-          <h4 class="promo-title">
+          <h1 class="promo-title">
             Promoción de la salud y
             prevención de enfermedades
-            en centros educativos
-          </h4>
+            en <span class="highlight">centros educativos</span>
+          </h1>
 
           <p class="promo-text">
             El PSE refuerza las acciones de prevención y promoción de la salud dentro de los
@@ -18,13 +18,6 @@
             estudiantil. Estas acciones se desarrollan de forma progresiva y coordinada por
             el Ministerio de Salud Pública y Asistencia Social y el Ministerio de Educación.
           </p>
-
-          <div class="promo-dots">
-            <span class="promo-dot active"></span>
-            <span class="promo-dot"></span>
-            <span class="promo-dot"></span>
-            <span class="promo-dot"></span>
-          </div>
         </div>
       </div>
     </section>
@@ -270,9 +263,9 @@ const actividades = [
 }
 
 .promo-hero-inner {
-  max-width: 1720px;
+  max-width: 1440px;
   margin: 0 auto;
-  padding: 34px 54px;
+  padding: 34px 44px;
   width: 100%;
 }
 
@@ -286,13 +279,32 @@ const actividades = [
 }
 
 .promo-title {
-  max-width: 760px;
-  font-size: clamp(56px, 5vw, 90px);
-  line-height: 1;
+  max-width: 620px;
+  width: 100%;
+  font-size: 56px;
+  line-height: 1.02;
   font-weight: 900;
   color: #ffffff;
   margin: 0 0 18px;
   text-wrap: balance;
+}
+
+.highlight {
+  color: #ffffff;
+  position: relative;
+  display: inline-block;
+}
+
+.highlight::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 6px;
+  width: 100%;
+  height: 10px;
+  background: #15c9e8;
+  z-index: -1;
+  border-radius: 2px;
 }
 
 .promo-text {
@@ -305,34 +317,21 @@ const actividades = [
 }
 
 .promo-dots {
-  display: flex;
-  gap: 8px;
-  margin-top: 18px;
-  justify-content: center;
-}
-
-.promo-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.45);
-}
-
-.promo-dot.active {
-  background: #ffffff;
+  display: none;
 }
 
 /* SECCIONES */
 .promo-news-section,
 .promo-actions-section {
-  padding: 24px 38px 34px;
+  padding: 60px 38px 60px;
   background: #f2f5f8;
 }
 
 .promo-news-inner,
 .promo-actions-inner {
-  max-width: 1440px;
-  margin: 0 auto;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
 }
 
 /* TITULOS */
@@ -356,7 +355,7 @@ const actividades = [
 
 /* NOTICIAS */
 .news-header {
-  margin-bottom: 18px;
+  margin-bottom: 32px;
 }
 
 .news-subtitle {
@@ -376,7 +375,8 @@ const actividades = [
 }
 
 .news-featured {
-  height: 340px;
+  width: 100%;
+  height: 420px;
   background-size: cover;
   background-position: center;
   position: relative;
@@ -390,7 +390,7 @@ const actividades = [
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  padding: 0 94px 28px;
+  padding: 0 120px 40px;
   background: linear-gradient(
     to top,
     rgba(0, 52, 92, 0.96),
@@ -443,11 +443,11 @@ const actividades = [
 }
 
 .news-arrow-left {
-  left: 10px;
+  left: 30px;
 }
 
 .news-arrow-right {
-  right: 10px;
+  right: 30px;
 }
 
 .news-grid {
@@ -513,6 +513,8 @@ const actividades = [
   background: #dfe8ee;
   border-radius: 18px;
   padding: 28px 32px 24px;
+  max-width: 1440px;
+  margin: 0 auto;
 }
 
 .actions-top {
@@ -662,7 +664,7 @@ const actividades = [
   }
 
   .promo-title {
-    font-size: clamp(44px, 5vw, 66px);
+    font-size: 46px;
   }
 
   .promo-text {
@@ -682,7 +684,7 @@ const actividades = [
   }
 
   .promo-title {
-    font-size: 38px;
+    font-size: 34px;
   }
 
   .promo-text {
