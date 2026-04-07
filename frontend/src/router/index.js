@@ -1,9 +1,5 @@
-// src/router/index.js
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
-import { useAuth } from '@/helpers/useAuth'
-
-const { isAuthenticated } = useAuth()
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -52,7 +48,10 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
-  if (to.meta.requiresAuth && !isAuthenticated.value) {
+  const token = localStorage.getItem('token')
+
+  // Si entra a una ruta protegida y no tiene token
+  if (to.meta.requiresAuth && !token) {
     next({
       name: 'login',
       query: { redirect: to.fullPath }
@@ -60,7 +59,14 @@ router.beforeEach((to, from, next) => {
     return
   }
 
-  if (to.name === 'login' && isAuthenticated.value) {
+  // Si entra a raíz y no tiene sesión, mandarlo a login
+  if (to.path === '/' && !token) {
+    next('/login')
+    return
+  }
+
+  // Si ya tiene sesión y quiere ir a login, mandarlo a admin
+  if (to.name === 'login' && token) {
     next({ name: 'admin' })
     return
   }

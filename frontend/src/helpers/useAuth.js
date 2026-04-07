@@ -1,4 +1,3 @@
-// src/helpers/useAuth.js
 import { ref } from "vue";
 
 const isAuthenticated = ref(!!localStorage.getItem("token"));

@@ -1,4 +1,4 @@
-// src/main.js
+
 import { createApp } from 'vue'
 
 // Vuetify
@@ -21,8 +21,7 @@ import '@fontsource/roboto/500.css'
 import '@fontsource/roboto/700.css'
 import '@fontsource/roboto/900.css'
 
-// ⚠️ Por ahora SIN CSS global para no enredar más
-// import './styles/main.css'
+
 
 const vuetify = createVuetify({
   components,
