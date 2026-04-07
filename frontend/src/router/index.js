@@ -1,15 +1,15 @@
 // src/router/index.js
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
-import { isAuthenticated } from '@/helpers/useAuth'
+import { useAuth } from '@/helpers/useAuth'
+
+const { isAuthenticated } = useAuth()
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
-    // PÁGINA PÚBLICA
     { path: '/', name: 'home', component: HomeView },
 
-    // Páginas públicas de los módulos
     {
       path: '/promocion',
       name: 'promocion',
@@ -36,14 +36,12 @@ const router = createRouter({
       component: () => import('../views/FunerariosView.vue')
     },
 
-    // LOGIN (pública)
     {
       path: '/login',
       name: 'login',
       component: () => import('../views/LoginView.vue')
     },
 
-    // ADMIN (protegida)
     {
       path: '/admin',
       name: 'admin',
