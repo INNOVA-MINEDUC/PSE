@@ -1,5 +1,6 @@
 <template>
   <main class="page">
+    <!-- HERO -->
     <section class="hero">
       <div class="hero-content">
         <p class="hero-kicker">
@@ -13,9 +14,19 @@
           llamadas, suministro de medicamentos, promoción de la salud y apoyos
           funerarios para estudiantes del sistema educativo nacional.
         </p>
+
+        <div class="hero-search">
+          <input
+            type="text"
+            class="hero-search-input"
+            placeholder="Buscar información del programa..."
+          />
+          <button class="hero-search-btn" type="button">Buscar</button>
+        </div>
       </div>
     </section>
 
+    <!-- FRANJA LOGOS -->
     <section class="logo-franja">
       <img
         class="logo-franja-img"
@@ -24,24 +35,34 @@
       />
     </section>
 
+    <!-- BENEFICIOS -->
     <section class="beneficios">
       <div class="section-shell">
         <div class="beneficios-wrapper">
           <h2 class="section-title beneficios-title">Beneficios del PSE</h2>
 
           <p class="section-text beneficios-text">
-            El Portal de Salud PSE del Ministerio de Educación es una plataforma integral diseñada para
-            garantizar el bienestar de los estudiantes del sistema educativo nacional, centralizando
-            servicios médicos, apoyo preventivo y asistencia en momentos críticos.
+            El Portal de Salud PSE del Ministerio de Educación es una plataforma integral
+            diseñada para garantizar el bienestar de los estudiantes del sistema educativo
+            nacional, centralizando servicios médicos, apoyo preventivo y asistencia en
+            momentos críticos.
           </p>
 
           <div class="modulos-area">
             <button class="slider-arrow slider-arrow-left" type="button">‹</button>
 
             <div class="modulos-grid">
-              <article v-for="modulo in modulos" :key="modulo.id" class="modulo-card">
+              <article
+                v-for="modulo in modulos"
+                :key="modulo.id"
+                class="modulo-card"
+              >
                 <div class="modulo-image-wrap">
-                  <img :src="modulo.imagen" :alt="modulo.titulo" class="modulo-image" />
+                  <img
+                    :src="modulo.imagen"
+                    :alt="modulo.titulo"
+                    class="modulo-image"
+                  />
                 </div>
 
                 <div class="modulo-overlay"></div>
@@ -50,7 +71,10 @@
                   <p class="modulo-id">MÓDULO {{ modulo.id }}</p>
                   <h3 class="modulo-title">{{ modulo.titulo }}</h3>
                   <p class="modulo-desc">{{ modulo.descripcion }}</p>
-                  <button class="modulo-btn">Más información</button>
+
+                  <RouterLink :to="modulo.ruta" class="modulo-btn-link">
+                    <button class="modulo-btn" type="button">Más información</button>
+                  </RouterLink>
                 </div>
               </article>
             </div>
@@ -75,9 +99,7 @@
                     :key="itemIndex"
                     class="resultado-line"
                   >
-                    <span class="resultado-emoji">
-                      {{ item.icono }}
-                    </span>
+                    <span class="resultado-emoji">{{ item.icono }}</span>
 
                     <div class="resultado-copy">
                       <p class="resultado-label">{{ item.label }}</p>
@@ -102,9 +124,7 @@
                     :key="index"
                     class="resultado-line"
                   >
-                    <span class="resultado-emoji">
-                      {{ item.icono }}
-                    </span>
+                    <span class="resultado-emoji">{{ item.icono }}</span>
 
                     <div class="resultado-copy">
                       <p class="resultado-label">{{ item.label }}</p>
@@ -127,9 +147,7 @@
                     :key="index"
                     class="resultado-line"
                   >
-                    <span class="resultado-emoji">
-                      {{ item.icono }}
-                    </span>
+                    <span class="resultado-emoji">{{ item.icono }}</span>
 
                     <div class="resultado-copy">
                       <p class="resultado-label">{{ item.label }}</p>
@@ -145,10 +163,78 @@
         </div>
       </div>
     </section>
+
+    <!-- NOTICIAS -->
+    <section class="noticias">
+      <div class="section-shell noticias-shell">
+        <h2 class="section-title noticias-title">Noticias y actividades</h2>
+
+        <p class="section-text noticias-text">
+          El Portal de Salud PSE del Ministerio de Educación es una plataforma integral diseñada para garantizar el
+          bienestar de los estudiantes del sistema educativo nacional, centralizando servicios médicos, apoyo preventivo y
+          asistencia en momentos críticos.
+        </p>
+
+        <div class="noticias-wrap">
+          <button class="noticias-arrow noticias-arrow-left" type="button">‹</button>
+
+          <article class="noticia-card">
+            <img
+              :src="noticiaDestacada.imagen"
+              :alt="noticiaDestacada.titulo"
+              class="noticia-img"
+            />
+
+            <div class="noticia-overlay"></div>
+
+            <div class="noticia-body">
+              <p class="noticia-fecha">{{ noticiaDestacada.fecha }}</p>
+              <p class="noticia-categoria">{{ noticiaDestacada.categoria }}</p>
+              <h3 class="noticia-titulo">{{ noticiaDestacada.titulo }}</h3>
+              <p class="noticia-desc">{{ noticiaDestacada.descripcion }}</p>
+            </div>
+          </article>
+
+          <button class="noticias-arrow noticias-arrow-right" type="button">›</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+      <div class="section-shell footer-grid">
+        <div class="footer-col">
+          <h4 class="footer-title">Programa de Salud Escolar (PSE)</h4>
+          <p class="footer-text">
+            Plataforma institucional orientada a acompañar la salud integral de las y los estudiantes del sistema educativo nacional.
+          </p>
+        </div>
+
+        <div class="footer-col">
+          <h4 class="footer-title">Secciones</h4>
+          <RouterLink to="/" class="footer-link">Inicio</RouterLink>
+          <RouterLink to="/promocion" class="footer-link">Promoción y prevención</RouterLink>
+          <RouterLink to="/atencion" class="footer-link">Atención a enfermedades</RouterLink>
+          <RouterLink to="/medicamentos" class="footer-link">Suministro de medicamentos</RouterLink>
+          <RouterLink to="/llamadas" class="footer-link">Centro de llamadas 1528</RouterLink>
+          <RouterLink to="/funerarios" class="footer-link">Apoyo funerario</RouterLink>
+        </div>
+
+        <div class="footer-col">
+          <h4 class="footer-title">Contacto</h4>
+          <p class="footer-text">Ministerio de Educación de Guatemala</p>
+          <p class="footer-text">Dirección General de Gestión de Calidad Educativa</p>
+          <p class="footer-text">Subdirección de Innovación Educativa</p>
+          <p class="footer-text">Correo: saludescolar@mineduc.gob.gt</p>
+        </div>
+      </div>
+    </footer>
   </main>
 </template>
 
 <script setup>
+import { RouterLink } from 'vue-router'
+
 const logoFranja = '/Home/LOGOS/logo-franja.png'
 
 const modulos = [
@@ -156,31 +242,36 @@ const modulos = [
     id: 1,
     titulo: 'Promoción y Prevención',
     descripcion: 'Acciones para promover la salud y prevenir enfermedades en los centros educativos.',
-    imagen: '/Home/IMAGENES/noticia-jornada-salud.png'
+    imagen: '/Home/IMAGENES/noticia-jornada-salud.png',
+    ruta: '/promocion'
   },
   {
     id: 2,
     titulo: 'Atención a enfermedades',
     descripcion: 'Registro de atenciones médicas y seguimiento de casos de las y los estudiantes.',
-    imagen: '/Home/IMAGENES/noticia-virus.png'
+    imagen: '/Home/IMAGENES/noticia-virus.png',
+    ruta: '/atencion'
   },
   {
     id: 3,
     titulo: 'Suministro de medicamentos',
     descripcion: 'Inventario y distribución de medicamentos del programa a los establecimientos.',
-    imagen: '/Home/IMAGENES/mod-medicamentos.png'
+    imagen: '/Home/IMAGENES/mod-medicamentos.png',
+    ruta: '/medicamentos'
   },
   {
     id: 4,
     titulo: 'Centro de llamadas 1528',
     descripcion: 'Llamadas recibidas, derivaciones y seguimiento de casos relacionados con PSE.',
-    imagen: '/Home/IMAGENES/mod-llamadas.png'
+    imagen: '/Home/IMAGENES/mod-llamadas.png',
+    ruta: '/llamadas'
   },
   {
     id: 5,
     titulo: 'Apoyo funerario',
     descripcion: 'Gestión y apoyo en casos funerarios para estudiantes del sistema educativo nacional.',
-    imagen: '/Home/IMAGENES/noticia-vacunacion.png'
+    imagen: '/Home/IMAGENES/noticia-vacunacion.png',
+    ruta: '/funerarios'
   }
 ]
 
@@ -233,6 +324,15 @@ const resultadoBottom2 = {
   ],
   footer: 'Monto total entregado: Q2,467,000'
 }
+
+const noticiaDestacada = {
+  fecha: '03 FEBRERO 2026',
+  categoria: 'PROMOCIÓN Y PREVENCIÓN',
+  titulo: 'Jornada de vacunación en escuela Rural',
+  descripcion:
+    'Se realizó una jornada de vacunación, desparasitación y control de crecimiento para niñas y niños de preprimaria y primaria.',
+  imagen: '/Home/IMAGENES/noticia-vacunacion.png'
+}
 </script>
 
 <style scoped>
@@ -269,7 +369,7 @@ const resultadoBottom2 = {
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: rgba(0, 224, 255, 0.6);
+  color: rgba(0, 224, 255, 0.7);
   max-width: 760px;
 }
 
@@ -288,6 +388,49 @@ const resultadoBottom2 = {
   font-size: 18px;
   line-height: 1.6;
   color: rgba(255, 255, 255, 0.94);
+}
+
+.hero-search {
+  display: flex;
+  gap: 12px;
+  margin-top: 28px;
+  max-width: 560px;
+}
+
+.hero-search-input {
+  flex: 1;
+  height: 48px;
+  border: none;
+  border-radius: 999px;
+  padding: 0 18px;
+  font-size: 14px;
+  outline: none;
+  color: #10233f;
+  background: #ffffff;
+}
+
+.hero-search-input::placeholder {
+  color: #7b8ea5;
+}
+
+.hero-search-btn {
+  height: 48px;
+  padding: 0 24px;
+  border: none;
+  border-radius: 999px;
+  background: #17c4e8;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 8px 18px rgba(23, 196, 232, 0.25);
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.hero-search-btn:hover {
+  transform: translateY(-1px);
+  opacity: 0.95;
 }
 
 /* FRANJA */
@@ -448,6 +591,11 @@ const resultadoBottom2 = {
   color: rgba(255, 255, 255, 0.92);
 }
 
+.modulo-btn-link {
+  align-self: center;
+  text-decoration: none;
+}
+
 .modulo-btn {
   align-self: center;
   border: 1px solid rgba(23, 196, 232, 0.8);
@@ -598,6 +746,195 @@ const resultadoBottom2 = {
   color: rgba(255, 255, 255, 0.84);
 }
 
+/* NOTICIAS */
+/* NOTICIAS */
+.noticias {
+  padding: 56px 0 0;
+  background: #ffffff;
+}
+
+.noticias-shell {
+  max-width: 100%;
+  padding: 0;
+}
+
+.noticias-title {
+  margin-bottom: 14px;
+  padding: 0 28px;
+}
+
+.noticias-text {
+  max-width: 1180px;
+  margin: 0 auto 34px;
+  font-size: 15px;
+  line-height: 1.7;
+  color: #35577d;
+  padding: 0 28px;
+}
+
+.noticias-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+}
+
+/* 🔥 AQUI ESTA LA CLAVE */
+.noticia-card {
+  position: relative;
+  width: 100%;
+  height: 420px; /* controla altura real */
+  border-radius: 0;
+  overflow: hidden;
+  background: #0a4675;
+}
+
+/* 🔥 IMAGEN CONTROLADA */
+.noticia-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.noticia-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(2, 19, 37, 0.02) 0%,
+    rgba(2, 19, 37, 0.28) 48%,
+    rgba(2, 19, 37, 0.92) 100%
+  );
+}
+
+/* 🔥 TEXTO MÁS ARRIBA */
+.noticia-body {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 0 180px 30px;
+  color: #ffffff;
+}
+
+.noticia-fecha {
+  margin: 0 0 12px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.96);
+}
+
+.noticia-categoria {
+  margin: 0 0 10px;
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #17c4e8;
+}
+
+.noticia-titulo {
+  margin: 0 0 10px;
+  font-size: clamp(28px, 3vw, 56px);
+  line-height: 1.05;
+  font-weight: 900;
+  color: #ffffff;
+  max-width: 980px;
+}
+
+.noticia-desc {
+  margin: 0;
+  max-width: 820px;
+  font-size: 15px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.96);
+}
+
+/* FLECHAS */
+.noticias-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 5;
+  width: 52px;
+  height: 52px;
+  border-radius: 999px;
+  border: none;
+  background: rgba(255, 255, 255, 0.95);
+  color: #6a7d94;
+  font-size: 34px;
+  cursor: pointer;
+  box-shadow: 0 8px 18px rgba(16, 35, 63, 0.15);
+}
+
+.noticias-arrow-left {
+  left: 56px;
+}
+
+.noticias-arrow-right {
+  right: 56px;
+}
+
+/* FOOTER */
+.footer {
+  margin-top: 0;
+  padding: 0;
+  background: #031a33;
+  color: #ffffff;
+  position: relative;
+}
+
+.footer::before {
+  content: "";
+  display: block;
+  width: 100%;
+  height: 10px;
+  background: #17c4e8;
+}
+
+.footer-grid {
+  max-width: 1720px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.35fr 1fr 1fr;
+  gap: 36px;
+  padding: 34px 28px 18px;
+}
+
+.footer-title {
+  margin: 0 0 14px;
+  font-size: 16px;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.footer-text {
+  margin: 0 0 8px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.84);
+}
+
+.footer-link {
+  display: block;
+  margin: 0 0 8px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.84);
+  text-decoration: none;
+}
+
+.footer-link:hover {
+  color: #17c4e8;
+}
+
+.footer-col:last-child .footer-text:last-child {
+  margin-bottom: 0;
+}
+
 /* RESPONSIVE */
 @media (max-width: 1400px) {
   .modulos-grid {
@@ -637,6 +974,22 @@ const resultadoBottom2 = {
   .resultados-grid-bottom {
     grid-template-columns: 1fr;
   }
+
+  .footer-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .noticia-body {
+    padding: 0 80px 24px;
+  }
+
+  .noticias-arrow-left {
+    left: 24px;
+  }
+
+  .noticias-arrow-right {
+    right: 24px;
+  }
 }
 
 @media (max-width: 1024px) {
@@ -649,6 +1002,14 @@ const resultadoBottom2 = {
 
   .hero-content {
     padding: 0 20px;
+  }
+
+  .noticia-card {
+    height: 360px;
+  }
+
+  .noticia-body {
+    padding: 0 40px 20px;
   }
 }
 
@@ -676,6 +1037,16 @@ const resultadoBottom2 = {
     font-size: 14px;
   }
 
+  .hero-search {
+    flex-direction: column;
+    max-width: 100%;
+  }
+
+  .hero-search-btn,
+  .hero-search-input {
+    width: 100%;
+  }
+
   .logo-franja-img {
     padding: 10px 18px;
   }
@@ -700,6 +1071,50 @@ const resultadoBottom2 = {
 
   .modulo-card {
     min-height: 230px;
+  }
+
+  .noticias {
+    padding: 42px 0 0;
+  }
+
+  .noticias-title,
+  .noticias-text {
+    padding: 0 16px;
+  }
+
+  .noticias-text {
+    margin-bottom: 22px;
+  }
+
+  .noticia-card {
+    height: 280px;
+    border-radius: 0;
+  }
+
+  .noticias-arrow {
+    display: none;
+  }
+
+  .noticia-body {
+    padding: 0 18px 16px;
+  }
+
+  .noticia-categoria {
+    font-size: 11px;
+  }
+
+  .noticia-titulo {
+    font-size: 24px;
+  }
+
+  .noticia-desc {
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .footer-grid {
+    padding: 26px 16px 14px;
+    gap: 22px;
   }
 }
 </style>

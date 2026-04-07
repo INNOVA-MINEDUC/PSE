@@ -1,844 +1,762 @@
-<template> 
-  <div class="admin-layout">
-    <!-- SIDEBAR -->
+<template>
+  <main class="admin-shell">
     <aside class="sidebar">
-      <div class="sidebar-logo">
-        <span class="badge">PSE</span>
+      <div class="brand">
+        <div class="brand-badge">PSE</div>
         <div>
-          <p class="sidebar-title">Panel PSE</p>
-          <p class="sidebar-sub">Administración</p>
+          <p class="brand-title">Portal de Salud Escolar</p>
+          <p class="brand-sub">Panel administrativo</p>
         </div>
       </div>
 
       <nav class="sidebar-nav">
-        <p class="sidebar-section">Módulos</p>
-        <ul>
-          <li><a href="#mod-noticias">Noticias y promoción</a></li>
-          <li><a href="#mod-atencion">Atención a enfermedades</a></li>
-          <li><a href="#mod-medicamentos">Suministro de medicamentos</a></li>
-          <li><a href="#mod-llamadas">Centro de llamadas 1528</a></li>
-          <li><a href="#mod-funerario">Apoyo funerario</a></li>
-        </ul>
-      </nav>
+        <p class="nav-label">General</p>
 
-      <!-- Botón extra en sidebar (opcional) -->
-      <button class="btn-logout" @click="handleLogout">
-        Cerrar sesión
-      </button>
+        <button class="nav-item active" type="button">
+          <span class="nav-icon">▣</span>
+          Dashboard
+        </button>
+
+        <p class="nav-label mt">Módulos</p>
+
+        <button class="nav-item" type="button" @click="scrollToSection('mod-noticias')">
+          <span class="nav-icon">◉</span>
+          Noticias y promoción
+        </button>
+
+        <button class="nav-item" type="button" @click="scrollToSection('mod-atencion')">
+          <span class="nav-icon">◉</span>
+          Atención a enfermedades
+        </button>
+
+        <button class="nav-item" type="button" @click="scrollToSection('mod-medicamentos')">
+          <span class="nav-icon">◉</span>
+          Suministro de medicamentos
+        </button>
+
+        <button class="nav-item" type="button" @click="scrollToSection('mod-llamadas')">
+          <span class="nav-icon">◉</span>
+          Centro de llamadas 1528
+        </button>
+
+        <button class="nav-item" type="button" @click="scrollToSection('mod-funerario')">
+          <span class="nav-icon">◉</span>
+          Apoyo funerario
+        </button>
+      </nav>
     </aside>
 
-    <!-- CONTENIDO PRINCIPAL -->
-    <main class="admin-main">
-      <!-- HEADER -->
-      <header class="admin-header">
+    <section class="content">
+      <header class="topbar">
         <div>
+          <p class="eyebrow">Administración del sistema</p>
           <h1>Panel de administración PSE</h1>
-          <p>
-            Bienvenido,
-            <strong>{{ user?.nombre || 'Administrador' }}</strong>.
-            Desde aquí se actualiza la información que alimenta el portal
-            público de Salud Escolar.
+          <p class="subtitle">
+            Bienvenida,
+            <strong>{{ fullName }}</strong>. Desde aquí se gestiona la información
+            que alimenta el portal público.
           </p>
         </div>
-        <div class="header-info">
-          <p class="header-label">Fecha</p>
-          <p class="header-value">{{ today }}</p>
+
+        <div class="topbar-actions">
+          <div class="user-box">
+            <span class="user-label">Fecha</span>
+            <strong>{{ currentDate }}</strong>
+          </div>
+
+          <div class="user-box">
+            <span class="user-label">Rol</span>
+            <strong>{{ roleText }}</strong>
+          </div>
+
+          <button class="logout-btn" @click="handleLogout">
+            Cerrar sesión
+          </button>
         </div>
       </header>
 
-      <!-- TARJETA DATOS DE USUARIO MEJORADA -->
-      <section class="user-card">
-        <div class="user-card-main">
-          <div class="user-avatar">
-            {{ user?.nombre ? user.nombre.charAt(0).toUpperCase() : 'A' }}
-          </div>
+      <section class="hero-card">
+        <div class="hero-left">
+          <div class="avatar">{{ initials }}</div>
 
           <div>
-            <p class="user-label">Usuario activo</p>
-            <p class="user-name">{{ user?.nombre || 'Administrador PSE' }}</p>
-            <p class="user-email">{{ user?.email || 'admin@pse.mineduc.gt' }}</p>
+            <p class="hero-label">Usuario activo</p>
+            <h2>{{ fullName }}</h2>
+            <p class="hero-email">{{ user?.correoElectronico || "Usuario autenticado" }}</p>
           </div>
         </div>
 
-        <div class="user-card-actions">
-          <div class="user-role-block">
-            <p class="user-label">Rol</p>
-            <p class="user-tag">Administrador PSE</p>
-          </div>
+        <div class="hero-status">
+          <span class="status-chip">Administrador PSE</span>
+        </div>
+      </section>
 
-          <button class="btn-logout-inline" @click="handleLogout">
-            Cerrar sesión
+      <section class="kpi-grid">
+        <article class="kpi-card">
+          <p class="kpi-title">Noticias activas</p>
+          <h3>08</h3>
+          <span class="kpi-caption">Contenido visible en inicio</span>
+        </article>
+
+        <article class="kpi-card">
+          <p class="kpi-title">Atenciones registradas</p>
+          <h3>67,456</h3>
+          <span class="kpi-caption">Consultas y estudiantes</span>
+        </article>
+
+        <article class="kpi-card">
+          <p class="kpi-title">Medicamentos entregados</p>
+          <h3>80,000</h3>
+          <span class="kpi-caption">Unidades reportadas</span>
+        </article>
+
+        <article class="kpi-card">
+          <p class="kpi-title">Llamadas recibidas</p>
+          <h3>2,421</h3>
+          <span class="kpi-caption">Datos del centro 1528</span>
+        </article>
+
+        <article class="kpi-card">
+          <p class="kpi-title">Apoyos funerarios</p>
+          <h3>329</h3>
+          <span class="kpi-caption">Familias beneficiadas</span>
+        </article>
+      </section>
+
+      <section class="section-block">
+        <div class="section-head">
+          <div>
+            <h2>Accesos rápidos</h2>
+            <p>Selecciona un módulo para editar la información principal.</p>
+          </div>
+        </div>
+
+        <div class="quick-grid">
+          <button class="quick-card" @click="scrollToSection('mod-noticias')">
+            <h3>Noticias y promoción</h3>
+            <p>Publicar noticias y actividades destacadas del inicio.</p>
+          </button>
+
+          <button class="quick-card" @click="scrollToSection('mod-atencion')">
+            <h3>Atención a enfermedades</h3>
+            <p>Actualizar consultas, estudiantes atendidos y distribución.</p>
+          </button>
+
+          <button class="quick-card" @click="scrollToSection('mod-medicamentos')">
+            <h3>Suministro de medicamentos</h3>
+            <p>Modificar unidades, establecimientos y período de referencia.</p>
+          </button>
+
+          <button class="quick-card" @click="scrollToSection('mod-llamadas')">
+            <h3>Centro de llamadas 1528</h3>
+            <p>Registrar y visualizar el total de llamadas del módulo.</p>
+          </button>
+
+          <button class="quick-card" @click="scrollToSection('mod-funerario')">
+            <h3>Apoyo funerario</h3>
+            <p>Gestionar familias beneficiadas y montos de apoyo económico.</p>
           </button>
         </div>
       </section>
 
-      <!-- ACCESOS RÁPIDOS (tarjetas) -->
-      <section class="quick-section">
-        <h2>Accesos rápidos</h2>
-        <p class="quick-sub">
-          Selecciona un módulo para ir directamente al formulario.
-        </p>
-
-        <div class="quick-grid">
-          <a href="#mod-noticias" class="quick-card">
-            <h3>Noticias y promoción</h3>
-            <p>Publicar noticias y actividades que se muestran en el inicio.</p>
-          </a>
-
-          <a href="#mod-atencion" class="quick-card">
-            <h3>Atención a enfermedades</h3>
-            <p>Actualizar las cifras de atenciones y estudiantes atendidos.</p>
-          </a>
-
-          <a href="#mod-medicamentos" class="quick-card">
-            <h3>Suministro de medicamentos</h3>
-            <p>Modificar el resumen de unidades, establecimientos y periodo.</p>
-          </a>
-
-          <a href="#mod-llamadas" class="quick-card">
-            <h3>Centro de llamadas 1528</h3>
-            <p>Registrar el total de llamadas que alimenta el módulo.</p>
-          </a>
-
-          <a href="#mod-funerario" class="quick-card">
-            <h3>Apoyo funerario</h3>
-            <p>Gestionar familias beneficiadas y montos de aporte económico.</p>
-          </a>
+      <section class="section-block">
+        <div class="section-head">
+          <div>
+            <h2>Gestión de datos del portal</h2>
+            <p>Formulario base del panel. Luego se conectará a base de datos.</p>
+          </div>
         </div>
-      </section>
-
-      <!-- FORMULARIOS DE MÓDULOS -->
-      <section class="form-section">
-        <h2>Gestión de datos del portal</h2>
-        <p class="form-sub">
-          Estos formularios son un prototipo. En la versión final se conectarán
-          con la base de datos del sistema PSE.
-        </p>
 
         <div class="form-grid">
-          <!-- NOTICIAS / PROMOCIÓN -->
-          <section id="mod-noticias" class="form-card">
+          <article id="mod-noticias" class="module-card">
             <h3>Noticias y acciones de promoción</h3>
-            <p class="form-hint">
-              Esta información se muestra en el carrusel de noticias del inicio.
-            </p>
 
-            <form @submit.prevent="saveNoticias">
-              <div class="field">
-                <label>Fecha de la noticia</label>
-                <input v-model="noticiaForm.fecha" type="date" required />
-              </div>
+            <label>Fecha de la noticia</label>
+            <input type="date" />
 
-              <div class="field">
-                <label>Título</label>
-                <input
-                  v-model="noticiaForm.titulo"
-                  type="text"
-                  placeholder="Jornada de vacunación en escuela rural"
-                  required
-                />
-              </div>
+            <label>Título</label>
+            <input type="text" placeholder="Jornada de vacunación en escuela rural" />
 
-              <div class="field">
-                <label>Descripción breve</label>
-                <textarea
-                  v-model="noticiaForm.descripcion"
-                  rows="3"
-                  placeholder="Resumen corto que aparecerá sobre la imagen."
-                ></textarea>
-              </div>
+            <label>Descripción breve</label>
+            <textarea rows="3" placeholder="Resumen corto que aparecerá sobre la imagen."></textarea>
 
-              <div class="field">
-                <label>Tipo de módulo</label>
-                <select v-model="noticiaForm.modulo">
-                  <option>Promoción y prevención</option>
-                  <option>Atención a enfermedades</option>
-                  <option>Medicamentos</option>
-                  <option>Apoyo funerario</option>
-                </select>
-              </div>
+            <label>Tipo de módulo</label>
+            <input type="text" value="Promoción y prevención" />
 
-              <div class="field">
-                <label>URL de imagen (opcional)</label>
-                <input
-                  v-model="noticiaForm.imagen"
-                  type="text"
-                  placeholder="https://..."
-                />
-              </div>
+            <label>URL de imagen</label>
+            <input type="text" placeholder="https://..." />
 
-              <div class="form-actions">
-                <button type="submit">Guardar noticia (demo)</button>
-              </div>
-            </form>
-          </section>
+            <button class="primary-btn">Guardar noticia</button>
+          </article>
 
-          <!-- ATENCIÓN A ENFERMEDADES -->
-          <section id="mod-atencion" class="form-card">
+          <article id="mod-atencion" class="module-card">
             <h3>Atención a enfermedades</h3>
-            <p class="form-hint">
-              Cifras que alimentan las tarjetas de consultas y estudiantes
-              atendidos.
-            </p>
 
-            <form @submit.prevent="saveAtencion">
-              <div class="field">
-                <label>Consultas atendidas</label>
-                <input
-                  v-model.number="atencionForm.consultas"
-                  type="number"
-                  min="0"
-                  required
-                />
+            <label>Consultas atendidas</label>
+            <input type="number" value="67456" />
+
+            <label>Estudiantes atendidos</label>
+            <input type="number" value="222704" />
+
+            <div class="split-grid">
+              <div>
+                <label>% Hombres</label>
+                <input type="number" value="52" />
               </div>
-
-              <div class="field">
-                <label>Estudiantes atendidos</label>
-                <input
-                  v-model.number="atencionForm.estudiantes"
-                  type="number"
-                  min="0"
-                  required
-                />
+              <div>
+                <label>% Mujeres</label>
+                <input type="number" value="48" />
               </div>
+            </div>
 
-              <div class="field field-inline">
-                <div>
-                  <label>% Hombres</label>
-                  <input
-                    v-model.number="atencionForm.hombres"
-                    type="number"
-                    min="0"
-                    max="100"
-                  />
-                </div>
-                <div>
-                  <label>% Mujeres</label>
-                  <input
-                    v-model.number="atencionForm.mujeres"
-                    type="number"
-                    min="0"
-                    max="100"
-                  />
-                </div>
-              </div>
+            <button class="primary-btn">Guardar cifras</button>
+          </article>
 
-              <div class="form-actions">
-                <button type="submit">Guardar cifras (demo)</button>
-              </div>
-            </form>
-          </section>
-
-          <!-- SUMINISTRO DE MEDICAMENTOS -->
-          <section id="mod-medicamentos" class="form-card">
+          <article id="mod-medicamentos" class="module-card">
             <h3>Suministro de medicamentos</h3>
-            <p class="form-hint">
-              Resumen que se muestra en el módulo de medicamentos y en el
-              inicio.
-            </p>
 
-            <form @submit.prevent="saveMedicamentos">
-              <div class="field">
-                <label>Unidades de medicamento entregadas</label>
-                <input
-                  v-model.number="medForm.unidades"
-                  type="number"
-                  min="0"
-                  required
-                />
-              </div>
+            <label>Unidades entregadas</label>
+            <input type="number" value="80000" />
 
-              <div class="field">
-                <label>Establecimientos con suministro</label>
-                <input
-                  v-model.number="medForm.establecimientos"
-                  type="number"
-                  min="0"
-                  required
-                />
-              </div>
+            <label>Establecimientos con suministro</label>
+            <input type="number" value="1350" />
 
-              <div class="field">
-                <label>Periodo de referencia</label>
-                <input
-                  v-model="medForm.periodo"
-                  type="text"
-                  placeholder="enero – julio 2025"
-                  required
-                />
-              </div>
+            <label>Período de referencia</label>
+            <input type="text" value="enero - julio 2025" />
 
-              <div class="form-actions">
-                <button type="submit">Guardar resumen (demo)</button>
-              </div>
-            </form>
-          </section>
+            <button class="primary-btn">Guardar resumen</button>
+          </article>
 
-          <!-- CENTRO DE LLAMADAS -->
-          <section id="mod-llamadas" class="form-card">
+          <article id="mod-llamadas" class="module-card">
             <h3>Centro de llamadas 1528</h3>
-            <p class="form-hint">
-              Total de llamadas que se visualiza en el módulo de centro de
-              llamadas.
-            </p>
 
-            <form @submit.prevent="saveLlamadas">
-              <div class="field">
-                <label>Número total de llamadas</label>
-                <input
-                  v-model.number="llamadasForm.total"
-                  type="number"
-                  min="0"
-                  required
-                />
-              </div>
+            <label>Total de llamadas</label>
+            <input type="number" value="2421" />
 
-              <div class="field">
-                <label>Periodo de referencia (texto)</label>
-                <input
-                  v-model="llamadasForm.periodo"
-                  type="text"
-                  placeholder="Datos acumulados al 31/12/2025"
-                />
-              </div>
+            <label>Período de referencia</label>
+            <input type="text" value="Datos de ejemplo del prototipo" />
 
-              <div class="form-actions">
-                <button type="submit">Guardar llamadas (demo)</button>
-              </div>
-            </form>
-          </section>
+            <button class="primary-btn">Guardar llamadas</button>
+          </article>
 
-          <!-- APOYO FUNERARIO -->
-          <section id="mod-funerario" class="form-card">
+          <article id="mod-funerario" class="module-card">
             <h3>Apoyo económico funerario</h3>
-            <p class="form-hint">
-              Datos que alimentan las tarjetas de familias beneficiadas y montos
-              de aporte.
-            </p>
 
-            <form @submit.prevent="saveFunerario">
-              <div class="field">
-                <label>Familias beneficiadas</label>
-                <input
-                  v-model.number="funForm.familias"
-                  type="number"
-                  min="0"
-                  required
-                />
-              </div>
+            <label>Familias beneficiadas</label>
+            <input type="number" value="329" />
 
-              <div class="field">
-                <label>Monto total entregado (Q)</label>
-                <input
-                  v-model.number="funForm.montoTotal"
-                  type="number"
-                  min="0"
-                  required
-                />
-              </div>
+            <label>Monto total entregado (Q)</label>
+            <input type="number" value="2467000" />
 
-              <div class="field">
-                <label>Monto máximo por estudiante (Q)</label>
-                <input
-                  v-model.number="funForm.montoMaximo"
-                  type="number"
-                  min="0"
-                  required
-                />
-              </div>
+            <label>Monto máximo por estudiante (Q)</label>
+            <input type="number" value="7500" />
 
-              <div class="field field-inline">
-                <div>
-                  <label>Casos masculinos</label>
-                  <input
-                    v-model.number="funForm.masculinos"
-                    type="number"
-                    min="0"
-                  />
-                </div>
-                <div>
-                  <label>Casos femeninos</label>
-                  <input
-                    v-model.number="funForm.femeninos"
-                    type="number"
-                    min="0"
-                  />
-                </div>
+            <div class="split-grid">
+              <div>
+                <label>Casos masculinos</label>
+                <input type="number" value="193" />
               </div>
+              <div>
+                <label>Casos femeninos</label>
+                <input type="number" value="136" />
+              </div>
+            </div>
 
-              <div class="form-actions">
-                <button type="submit">Guardar apoyo (demo)</button>
-              </div>
-            </form>
-          </section>
+            <button class="primary-btn">Guardar apoyo</button>
+          </article>
         </div>
       </section>
-    </main>
-  </div>
+    </section>
+  </main>
 </template>
 
 <script setup>
-import { reactive } from 'vue'
-import { useRouter } from 'vue-router'
-import { useAuth } from '@/helpers/useAuth'
+import { computed, onMounted, ref } from "vue";
+import { useRouter } from "vue-router";
 
-const router = useRouter()
-const { user, logout } = useAuth()
+const router = useRouter();
+const token = localStorage.getItem("token");
+const user = ref(JSON.parse(localStorage.getItem("user") || "null"));
 
-const today = new Date().toLocaleDateString('es-GT', {
-  day: '2-digit',
-  month: 'long',
-  year: 'numeric'
-})
+const fetchCurrentUser = async () => {
+  try {
+    if (!token) {
+      router.push("/login");
+      return;
+    }
 
-/* ---------- ESTADOS DE FORMULARIOS (DEMO) ---------- */
+    const res = await fetch("http://localhost:3000/api/auth/me", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
-// Noticias / promoción
-const noticiaForm = reactive({
-  fecha: '',
-  titulo: '',
-  descripcion: '',
-  modulo: 'Promoción y prevención',
-  imagen: ''
-})
+    const data = await res.json();
 
-// Atención a enfermedades
-const atencionForm = reactive({
-  consultas: 674656,
-  estudiantes: 222704,
-  hombres: 52,
-  mujeres: 48
-})
+    if (!res.ok) {
+      console.error("Error obteniendo usuario:", data);
+      return;
+    }
 
-// Medicamentos
-const medForm = reactive({
-  unidades: 800000,
-  establecimientos: 1350,
-  periodo: 'enero – julio 2025'
-})
-
-// Llamadas 1528
-const llamadasForm = reactive({
-  total: 24221,
-  periodo: 'Datos de ejemplo del prototipo'
-})
-
-// Apoyo funerario
-const funForm = reactive({
-  familias: 329,
-  montoTotal: 2467000,
-  montoMaximo: 7500,
-  masculinos: 193,
-  femeninos: 136
-})
-
-/* ---------- ACCIONES (SOLO DEMO) ---------- */
+    user.value = data.user;
+    localStorage.setItem("user", JSON.stringify(data.user));
+  } catch (error) {
+    console.error("Error cargando usuario actual:", error);
+  }
+};
 
 const handleLogout = () => {
-  logout()
-  router.push('/login') // aquí regresa al login
-}
+  localStorage.removeItem("token");
+  localStorage.removeItem("user");
+  router.push("/login");
+};
 
-const saveNoticias = () => {
-  console.log('Noticias guardadas (demo):', { ...noticiaForm })
-  alert('Noticia guardada (prototipo).')
-}
+const scrollToSection = (id) => {
+  const section = document.getElementById(id);
+  if (section) {
+    section.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+};
 
-const saveAtencion = () => {
-  console.log('Atención guardada (demo):', { ...atencionForm })
-  alert('Cifras de atención guardadas (prototipo).')
-}
+const fullName = computed(() => {
+  const nombres = user.value?.nombres || "Administrador";
+  const apellidos = user.value?.apellidos || "PSE";
+  return `${nombres} ${apellidos}`.trim();
+});
 
-const saveMedicamentos = () => {
-  console.log('Medicamentos guardados (demo):', { ...medForm })
-  alert('Resumen de medicamentos guardado (prototipo).')
-}
+const initials = computed(() => {
+  const nombres = user.value?.nombres || "A";
+  const apellidos = user.value?.apellidos || "P";
+  return `${nombres.charAt(0)}${apellidos.charAt(0)}`.toUpperCase();
+});
 
-const saveLlamadas = () => {
-  console.log('Llamadas 1528 guardadas (demo):', { ...llamadasForm })
-  alert('Datos de llamadas guardados (prototipo).')
-}
+const roleText = computed(() => {
+  if (!user.value?.roles?.length) return "Administrador";
+  return user.value.roles.map((role) => role.nombre).join(", ");
+});
 
-const saveFunerario = () => {
-  console.log('Apoyo funerario guardado (demo):', { ...funForm })
-  alert('Datos de apoyo funerario guardados (prototipo).')
-}
+const currentDate = computed(() => {
+  return new Date().toLocaleDateString("es-GT", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  });
+});
+
+onMounted(() => {
+  fetchCurrentUser();
+});
 </script>
 
 <style scoped>
-.admin-layout {
-  display: grid;
-  grid-template-columns: 250px minmax(0, 1fr);
+.admin-shell {
   min-height: 100vh;
-  background: #f5f7fb;
+  display: grid;
+  grid-template-columns: 290px 1fr;
+  background: #eef2f7;
 }
 
-/* SIDEBAR */
 .sidebar {
-  background: #0f172a;
-  color: #e5e7eb;
-  padding: 18px 16px;
+  background: linear-gradient(180deg, #0b1d4a 0%, #10275f 100%);
+  color: #fff;
+  padding: 28px 20px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 28px;
+}
+
+.brand-badge {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.14);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.brand-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.brand-sub {
+  margin: 4px 0 0;
+  font-size: 0.85rem;
+  opacity: 0.78;
+}
+
+.sidebar-nav {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 8px;
 }
 
-.sidebar-logo {
+.nav-label {
+  margin: 10px 0 4px;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  opacity: 0.6;
+}
+
+.mt {
+  margin-top: 20px;
+}
+
+.nav-item {
+  width: 100%;
+  border: none;
+  background: transparent;
+  color: #fff;
+  text-align: left;
+  padding: 12px 14px;
+  border-radius: 14px;
+  cursor: pointer;
   display: flex;
   gap: 10px;
   align-items: center;
-  margin-bottom: 8px;
+  transition: 0.2s ease;
+  font-size: 0.95rem;
 }
 
-.badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 34px;
-  height: 34px;
-  border-radius: 999px;
-  background: #2563eb;
+.nav-item:hover,
+.nav-item.active {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.nav-icon {
+  opacity: 0.85;
+}
+
+.content {
+  padding: 28px;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 22px;
+}
+
+.eyebrow {
+  margin: 0 0 6px;
+  color: #2563eb;
+  font-size: 0.82rem;
   font-weight: 700;
-  font-size: 0.85rem;
+  letter-spacing: 0.04em;
 }
 
-.sidebar-title {
-  font-size: 0.9rem;
-  font-weight: 600;
-}
-
-.sidebar-sub {
-  font-size: 0.75rem;
-  color: #9ca3af;
-}
-
-.sidebar-section {
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: #64748b;
-  margin-bottom: 6px;
-}
-
-.sidebar-nav ul {
-  list-style: none;
-  padding: 0;
+.topbar h1 {
   margin: 0;
-  font-size: 0.8rem;
+  font-size: 2rem;
+  color: #0f172a;
 }
 
-.sidebar-nav li + li {
-  margin-top: 4px;
+.subtitle {
+  margin: 10px 0 0;
+  color: #64748b;
+  line-height: 1.5;
 }
 
-.sidebar-nav a {
-  color: #e5e7eb;
-  text-decoration: none;
-}
-
-.sidebar-nav a:hover {
-  text-decoration: underline;
-}
-
-.btn-logout {
-  margin-top: auto;
-  padding: 8px 10px;
-  border-radius: 999px;
-  border: 1px solid #64748b;
-  background: transparent;
-  color: #e5e7eb;
-  font-size: 0.78rem;
-  cursor: pointer;
-}
-
-/* MAIN */
-.admin-main {
-  padding: 20px 26px 26px;
-}
-
-.admin-header {
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 18px;
-}
-
-.admin-header h1 {
-  font-size: 1.15rem;
-  margin-bottom: 4px;
-  color: #111827;
-}
-
-.admin-header p {
-  font-size: 0.85rem;
-  color: #4b5563;
-}
-
-.header-info {
-  text-align: right;
-  font-size: 0.8rem;
-}
-
-.header-label {
-  color: #6b7280;
-}
-
-.header-value {
-  font-weight: 600;
-}
-
-/* USER CARD */
-.user-card {
-  background: #ffffff;
-  border-radius: 18px;
-  padding: 14px 16px;
-  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.15);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 16px;
-  margin-bottom: 18px;
-  font-size: 0.85rem;
-}
-
-.user-card-main {
+.topbar-actions {
   display: flex;
   align-items: center;
   gap: 12px;
+  flex-wrap: wrap;
 }
 
-.user-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 999px;
-  background: #2563eb;
-  color: #ffffff;
-  font-weight: 600;
-  font-size: 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.user-card-actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.user-role-block {
-  text-align: right;
+.user-box {
+  background: #fff;
+  border-radius: 16px;
+  padding: 12px 16px;
+  min-width: 140px;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
 }
 
 .user-label {
-  font-size: 0.7rem;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: #9ca3af;
-  margin-bottom: 4px;
-}
-
-.user-name {
-  font-weight: 600;
-  color: #111827;
-}
-
-.user-email {
-  font-size: 0.78rem;
-  color: #6b7280;
-}
-
-.user-tag {
-  display: inline-block;
-  padding: 3px 10px;
-  border-radius: 999px;
-  background: #dbeafe;
-  color: #1d4ed8;
+  display: block;
   font-size: 0.75rem;
-  font-weight: 500;
-}
-
-.btn-logout-inline {
-  padding: 7px 12px;
-  border-radius: 999px;
-  border: 1px solid #d1d5db;
-  background: #ffffff;
-  color: #111827;
-  font-size: 0.78rem;
-  font-weight: 500;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-.btn-logout-inline:hover {
-  background: #f3f4f6;
-}
-
-/* QUICK ACCESS */
-.quick-section h2 {
-  font-size: 0.95rem;
-  font-weight: 600;
+  color: #94a3b8;
   margin-bottom: 4px;
 }
 
-.quick-sub {
-  font-size: 0.8rem;
-  color: #6b7280;
-  margin-bottom: 10px;
+.logout-btn {
+  border: none;
+  background: #dc2626;
+  color: #fff;
+  padding: 12px 18px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.hero-card {
+  background: #fff;
+  border-radius: 22px;
+  padding: 22px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 18px;
+  margin-bottom: 22px;
+  box-shadow: 0 14px 28px rgba(15, 23, 42, 0.06);
+}
+
+.hero-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.avatar {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #2563eb;
+  color: #fff;
+  font-weight: 800;
+  font-size: 1.1rem;
+}
+
+.hero-label {
+  margin: 0 0 6px;
+  color: #94a3b8;
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.hero-card h2 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 1.15rem;
+}
+
+.hero-email {
+  margin: 6px 0 0;
+  color: #64748b;
+}
+
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-weight: 700;
+  font-size: 0.88rem;
+}
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 22px;
+}
+
+.kpi-card {
+  background: #fff;
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 14px 28px rgba(15, 23, 42, 0.06);
+}
+
+.kpi-title {
+  margin: 0 0 10px;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.kpi-card h3 {
+  margin: 0;
+  font-size: 1.85rem;
+  color: #0f172a;
+}
+
+.kpi-caption {
+  display: inline-block;
+  margin-top: 8px;
+  color: #94a3b8;
+  font-size: 0.78rem;
+}
+
+.section-block {
+  background: transparent;
+  margin-bottom: 24px;
+}
+
+.section-head {
+  margin-bottom: 16px;
+}
+
+.section-head h2 {
+  margin: 0 0 6px;
+  color: #0f172a;
+}
+
+.section-head p {
+  margin: 0;
+  color: #64748b;
 }
 
 .quick-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 12px;
-  margin-bottom: 20px;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 8px;
 }
 
 .quick-card {
-  background: #ffffff;
-  border-radius: 14px;
-  padding: 12px 14px;
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
-  font-size: 0.82rem;
-  text-decoration: none;
-  color: #111827;
+  border: none;
+  background: #fff;
+  border-radius: 20px;
+  padding: 20px;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: 0 14px 28px rgba(15, 23, 42, 0.06);
+  transition: transform 0.18s ease;
+}
+
+.quick-card:hover {
+  transform: translateY(-2px);
 }
 
 .quick-card h3 {
-  font-size: 0.9rem;
-  margin-bottom: 4px;
+  margin: 0 0 8px;
+  color: #0f172a;
+  font-size: 1rem;
 }
 
 .quick-card p {
-  font-size: 0.8rem;
-  color: #4b5563;
-}
-
-/* FORM SECTION */
-.form-section h2 {
-  font-size: 0.95rem;
-  font-weight: 600;
-  margin-bottom: 4px;
-}
-
-.form-sub {
-  font-size: 0.8rem;
-  color: #6b7280;
-  margin-bottom: 12px;
+  margin: 0;
+  color: #64748b;
+  font-size: 0.88rem;
+  line-height: 1.45;
 }
 
 .form-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 16px;
 }
 
-.form-card {
-  background: #ffffff;
-  border-radius: 16px;
-  padding: 14px 16px;
-  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.12);
-  font-size: 0.82rem;
-}
-
-.form-card h3 {
-  font-size: 0.9rem;
-  margin-bottom: 4px;
-}
-
-.form-hint {
-  font-size: 0.75rem;
-  color: #6b7280;
-  margin-bottom: 10px;
-}
-
-.field {
+.module-card {
+  background: #fff;
+  border-radius: 22px;
+  padding: 20px;
+  box-shadow: 0 14px 28px rgba(15, 23, 42, 0.06);
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  margin-bottom: 8px;
+  gap: 10px;
 }
 
-.field-inline {
-  flex-direction: row;
-  gap: 8px;
+.module-card h3 {
+  margin: 0 0 4px;
+  color: #0f172a;
+  font-size: 1rem;
 }
 
-.field-inline > div {
-  flex: 1;
-}
-
-.field label {
-  font-size: 0.75rem;
-  color: #4b5563;
-}
-
-.field input,
-.field textarea,
-.field select {
-  padding: 7px 10px;
-  border-radius: 10px;
-  border: 1px solid #d1d5db;
+.module-card label {
   font-size: 0.8rem;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.module-card input,
+.module-card textarea {
+  width: 100%;
+  border: 1px solid #dbe3ef;
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-size: 0.9rem;
   outline: none;
+  box-sizing: border-box;
 }
 
-.field input:focus,
-.field textarea:focus,
-.field select:focus {
+.module-card input:focus,
+.module-card textarea:focus {
   border-color: #2563eb;
-  box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.18);
 }
 
-textarea {
-  resize: vertical;
+.split-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
 }
 
-.form-actions {
+.primary-btn {
   margin-top: 6px;
-  text-align: right;
-}
-
-.form-actions button {
-  padding: 7px 12px;
-  border-radius: 999px;
   border: none;
   background: #2563eb;
-  color: #ffffff;
-  font-size: 0.78rem;
-  font-weight: 600;
+  color: #fff;
+  padding: 12px 16px;
+  border-radius: 999px;
   cursor: pointer;
+  font-weight: 700;
+  align-self: flex-start;
 }
 
-.form-actions button:hover {
-  background: #1d4ed8;
+@media (max-width: 1400px) {
+  .kpi-grid,
+  .quick-grid,
+  .form-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 
-@media (max-width: 900px) {
-  .admin-layout {
-    grid-template-columns: minmax(0, 1fr);
+@media (max-width: 1100px) {
+  .admin-shell {
+    grid-template-columns: 1fr;
   }
 
   .sidebar {
-    display: none; /* en móvil luego puedes hacer menú hamburguesa */
+    position: relative;
+    height: auto;
+  }
+}
+
+@media (max-width: 900px) {
+  .kpi-grid,
+  .quick-grid,
+  .form-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .admin-main {
-    padding-inline: 16px;
-  }
-
-  .user-card {
+  .topbar,
+  .hero-card {
     flex-direction: column;
     align-items: flex-start;
   }
+}
 
-  .user-card-actions {
-    width: 100%;
-    justify-content: space-between;
+@media (max-width: 640px) {
+  .content {
+    padding: 18px;
   }
 
-  .user-role-block {
-    text-align: left;
+  .kpi-grid,
+  .quick-grid,
+  .form-grid,
+  .split-grid {
+    grid-template-columns: 1fr;
   }
 }
 </style>
