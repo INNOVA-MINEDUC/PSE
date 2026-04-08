@@ -1,15 +1,18 @@
 <template>
   <main class="promo-page">
-    <!-- HERO SUPERIOR -->
-    <section class="promo-hero" :style="{ backgroundImage: `url(${bannerPromocion})` }">
+    <!-- HERO -->
+    <section
+      class="promo-hero"
+      :style="{ backgroundImage: `url(${bannerPromocion})` }"
+    >
       <div class="promo-hero-overlay">
         <div class="promo-hero-inner">
-          <p class="promo-kicker">MÓDULO 1 · PROMOCIÓN Y PREVENCIÓN</p>
+          
 
           <h1 class="promo-title">
             Promoción de la salud y
-            prevención de enfermedades
-            en <span class="highlight">centros educativos</span>
+            prevención de enfermedades en
+            <span class="highlight">centros educativos</span>
           </h1>
 
           <p class="promo-text">
@@ -26,45 +29,50 @@
     <section class="promo-news-section">
       <div class="promo-news-inner">
         <div class="news-header">
-          <div>
-            <h2 class="section-title center">Noticias y actividades</h2>
-            <p class="news-subtitle center">
-              El Portal de Salud PSE del Ministerio de Educación es una plataforma integral diseñada para
-              garantizar el bienestar de los estudiantes del sistema educativo nacional, centralizando
-              servicios médicos, apoyo preventivo y asistencia en momentos críticos.
-            </p>
-          </div>
+          <h2 class="section-title center">Noticias y actividades</h2>
+          <p class="news-subtitle center">
+            El Portal de Salud PSE del Ministerio de Educación es una plataforma integral
+            diseñada para garantizar el bienestar de los estudiantes del sistema educativo
+            nacional, centralizando servicios médicos, apoyo preventivo y asistencia en
+            momentos críticos.
+          </p>
         </div>
 
-        <!-- BANNER PRINCIPAL EN MOVIMIENTO -->
         <div class="news-featured-wrap">
-          <button class="news-arrow news-arrow-left" type="button" @click="goPrev">‹</button>
+          <button class="news-arrow news-arrow-left" type="button" @click="prevNews">
+            ‹
+          </button>
 
-          <article
-            class="news-featured"
-            :style="{ backgroundImage: `url(${featuredNews.img})` }"
-          >
+          <article class="news-featured">
+            <img
+              :src="featuredNews.img"
+              :alt="featuredNews.titulo"
+              class="news-featured-img"
+            />
+
             <div class="news-featured-overlay">
               <p class="news-category">{{ featuredNews.categoria }}</p>
               <h3 class="news-title">{{ featuredNews.titulo }}</h3>
-              <p class="news-text">{{ featuredNews.resumen }}</p>
+              <p class="news-text">{{ featuredNews.desc }}</p>
             </div>
           </article>
 
-          <button class="news-arrow news-arrow-right" type="button" @click="goNext">›</button>
+          <button class="news-arrow news-arrow-right" type="button" @click="nextNews">
+            ›
+          </button>
         </div>
 
-        <!-- 4 CARDS FIJAS ABAJO -->
         <div class="news-grid">
           <article
-            v-for="news in demoNews"
-            :key="news.id"
+            v-for="(item, i) in noticias"
+            :key="i"
             class="news-card"
-            :style="{ backgroundImage: `url(${news.img})` }"
           >
+            <img :src="item.img" :alt="item.titulo" class="news-card-img" />
+
             <div class="news-card-overlay">
-              <h4 class="news-card-title">{{ news.titulo }}</h4>
-              <p class="news-card-text">{{ news.resumen }}</p>
+              <h4 class="news-card-title">{{ item.titulo }}</h4>
+              <p class="news-card-text">{{ item.desc }}</p>
               <button class="news-card-btn" type="button">VER DETALLE</button>
             </div>
           </article>
@@ -81,6 +89,7 @@
               Actividades Realizadas
               en los Centros Educativos
             </h2>
+
             <p class="actions-intro">
               Somos un motor para la innovación educativa en UVG y estamos a la vanguardia en el uso de
               herramientas digitales para ayudar a estudiantes, docentes e investigadores a descubrir el
@@ -102,15 +111,20 @@
 
           <div class="actions-grid">
             <article
-              v-for="actividad in actividades"
-              :key="actividad.id"
+              v-for="(actividad, index) in actividades"
+              :key="index"
               class="action-card"
-              :style="{ backgroundImage: `url(${actividad.img})` }"
             >
+              <img
+                :src="actividad.img"
+                :alt="actividad.titulo"
+                class="action-card-img"
+              />
+
               <div class="action-card-overlay">
-                <p class="action-module">MÓDULO {{ actividad.id }}</p>
+                <p class="action-module">MÓDULO {{ index + 1 }}</p>
                 <h3 class="action-title">{{ actividad.titulo }}</h3>
-                <p class="action-text">{{ actividad.descripcion }}</p>
+                <p class="action-text">{{ actividad.desc }}</p>
                 <button class="action-btn" type="button">VER DETALLE</button>
               </div>
             </article>
@@ -124,114 +138,84 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 
-/* HERO */
 const bannerPromocion = '/Promocion/banner/banner-promocion.png'
+const astronautaActividades = '/Promocion/actividades/astronauta-actividades.png'
 
-/* NOTICIAS */
-const img1 = '/Promocion/noticias/noticia-1.png'
-const img2 = '/Promocion/noticias/noticia-2.png'
-const img3 = '/Promocion/noticias/noticia-3.png'
-const img4 = '/Promocion/noticias/noticia-4.png'
-
-const demoNews = [
+const noticias = [
   {
-    id: 1,
+    img: '/Promocion/noticias/noticia-1.png',
     titulo: 'Jornada de vacunación en escuela rural',
-    fecha: '15 febrero 2025',
-    resumen:
-      'Acciones para promover la salud y prevenir enfermedades en los centros educativos.',
-    img: img1,
+    desc: 'Acciones para promover la salud y prevenir enfermedades en los centros educativos.',
     categoria: 'PROMOCIÓN Y PREVENCIÓN'
   },
   {
-    id: 2,
+    img: '/Promocion/noticias/noticia-2.png',
     titulo: 'Aplicación de barniz con flúor en estudiantes de primaria',
-    fecha: '03 febrero 2025',
-    resumen:
-      'Niñas y niños de primero a tercero primaria recibieron barniz con flúor y material educativo sobre cuidado dental.',
-    img: img2,
+    desc: 'Niñas y niños de primero a tercero primaria recibieron barniz con flúor y material educativo sobre cuidado dental.',
     categoria: 'PROMOCIÓN Y PREVENCIÓN'
   },
   {
-    id: 3,
+    img: '/Promocion/noticias/noticia-3.png',
     titulo: 'Campaña de lavado de manos en escuelas urbanas',
-    fecha: '28 enero 2025',
-    resumen:
-      'Inventario y distribución de medicamentos del programa a los establecimientos.',
-    img: img3,
+    desc: 'Inventario y distribución de medicamentos del programa a los establecimientos.',
     categoria: 'PROMOCIÓN Y PREVENCIÓN'
   },
   {
-    id: 4,
+    img: '/Promocion/noticias/noticia-4.png',
     titulo: 'Prevención del dengue con acciones comunitarias',
-    fecha: '20 enero 2025',
-    resumen:
-      'Se organizaron brigadas escolares y comunitarias para identificar y eliminar criaderos de zancudos en los alrededores del centro educativo.',
-    img: img4,
+    desc: 'Se organizaron brigadas escolares y comunitarias para identificar y eliminar criaderos de zancudos en los alrededores del centro educativo.',
     categoria: 'PROMOCIÓN Y PREVENCIÓN'
   }
 ]
 
-const currentIndex = ref(0)
-const featuredNews = computed(() => demoNews[currentIndex.value])
+const actividades = [
+  {
+    img: '/Promocion/actividades/actividad-1.png',
+    titulo: 'Jornadas de desparasitación escolar',
+    desc: 'Acciones para promover la salud y prevenir enfermedades en los centros educativos.'
+  },
+  {
+    img: '/Promocion/actividades/actividad-2.png',
+    titulo: 'Jornadas de inmunización',
+    desc: 'Registro de atenciones médicas y seguimiento de casos de las y los estudiantes.'
+  },
+  {
+    img: '/Promocion/actividades/actividad-3.png',
+    titulo: 'Prevención del dengue',
+    desc: 'Inventario y distribución de medicamentos del programa a los establecimientos.'
+  },
+  {
+    img: '/Promocion/actividades/actividad-4.png',
+    titulo: 'Promoción de salud renal',
+    desc: 'Llamadas recibidas, derivaciones y seguimiento de casos relacionados con PSE.'
+  }
+]
 
-const goPrev = () => {
-  currentIndex.value =
-    currentIndex.value === 0 ? demoNews.length - 1 : currentIndex.value - 1
+const currentNews = ref(1)
+
+const featuredNews = computed(() => noticias[currentNews.value])
+
+const nextNews = () => {
+  currentNews.value = (currentNews.value + 1) % noticias.length
 }
 
-const goNext = () => {
-  currentIndex.value =
-    currentIndex.value === demoNews.length - 1 ? 0 : currentIndex.value + 1
+const prevNews = () => {
+  currentNews.value = (currentNews.value - 1 + noticias.length) % noticias.length
 }
 
-let intervalId = null
+let sliderInterval = null
 
 onMounted(() => {
-  intervalId = setInterval(() => {
-    goNext()
+  sliderInterval = setInterval(() => {
+    nextNews()
   }, 5000)
 })
 
 onUnmounted(() => {
-  if (intervalId) clearInterval(intervalId)
+  if (sliderInterval) clearInterval(sliderInterval)
 })
-
-/* ACTIVIDADES */
-const astronautaActividades = '/Promocion/actividades/astronauta-actividades.png'
-
-const actividades = [
-  {
-    id: 1,
-    titulo: 'Jornadas de desparasitación escolar',
-    descripcion:
-      'Acciones para promover la salud y prevenir enfermedades en los centros educativos.',
-    img: '/Promocion/actividades/actividad-1.png'
-  },
-  {
-    id: 2,
-    titulo: 'Jornadas de inmunización',
-    descripcion:
-      'Registro de atenciones médicas y seguimiento de casos de las y los estudiantes.',
-    img: '/Promocion/actividades/actividad-2.png'
-  },
-  {
-    id: 3,
-    titulo: 'Prevención del dengue',
-    descripcion:
-      'Inventario y distribución de medicamentos del programa a los establecimientos.',
-    img: '/Promocion/actividades/actividad-3.png'
-  },
-  {
-    id: 4,
-    titulo: 'Promoción de salud renal',
-    descripcion:
-      'Llamadas recibidas, derivaciones y seguimiento de casos relacionados con PSE.',
-    img: '/Promocion/actividades/actividad-4.png'
-  }
-]
 </script>
 
 <style scoped>
@@ -243,94 +227,79 @@ const actividades = [
 
 /* HERO */
 .promo-hero {
+  min-height: 590px;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  min-height: 430px;
   position: relative;
-}
-
-.promo-hero-overlay {
-  background: linear-gradient(
-    90deg,
-    rgba(0, 44, 78, 0.96) 0%,
-    rgba(0, 44, 78, 0.82) 38%,
-    rgba(0, 44, 78, 0.18) 100%
-  );
-  min-height: 430px;
-  display: flex;
-  align-items: center;
 }
 
 .promo-hero-inner {
   max-width: 1440px;
   margin: 0 auto;
-  padding: 34px 44px;
+  padding: 160px 44px 40px; 
   width: 100%;
 }
 
 .promo-kicker {
-  font-size: 0.82rem;
-  letter-spacing: 0.16em;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: #60d5f3;
-  margin-bottom: 10px;
+  margin: 0 0 8px;
   font-weight: 700;
 }
 
 .promo-title {
-  max-width: 620px;
+  max-width: 720px;
   width: 100%;
-  font-size: 56px;
-  line-height: 1.02;
+  font-size: 45px;
+  line-height: 1.06;
   font-weight: 900;
   color: #ffffff;
-  margin: 0 0 18px;
-  text-wrap: balance;
+  margin: 0 0 14px;
 }
 
 .highlight {
   color: #ffffff;
   position: relative;
   display: inline-block;
+  z-index: 1;
+  padding: 5px 15px; 
 }
 
 .highlight::after {
   content: "";
   position: absolute;
   left: 0;
-  bottom: 6px;
+  bottom: 4px;
   width: 100%;
-  height: 10px;
-  background: #15c9e8;
+  height: 48px; 
+  background: linear-gradient(90deg, #15c9e8, #0bb6d6);
   z-index: -1;
-  border-radius: 2px;
+  border-radius: 8px;
 }
 
 .promo-text {
-  max-width: 760px;
-  font-size: 18px;
-  line-height: 1.6;
+  max-width: 560px;
+  font-size: 15px;
+  line-height: 1.5;
   color: rgba(255, 255, 255, 0.94);
   margin: 0;
   text-align: justify;
 }
 
-.promo-dots {
-  display: none;
-}
-
 /* SECCIONES */
 .promo-news-section,
 .promo-actions-section {
-  padding: 60px 38px 60px;
+  padding: 52px 10px 48px;
   background: #f2f5f8;
 }
 
 .promo-news-inner,
 .promo-actions-inner {
-  max-width: 100%;
-  margin: 0;
+  max-width: 1920px;
+  margin: 0 auto;
   padding: 0;
 }
 
@@ -343,25 +312,25 @@ const actividades = [
 
 .section-title.center {
   text-align: center;
-  font-size: 2.2rem;
-  margin-bottom: 10px;
+  font-size: 2rem;
+  margin: 0 0 10px;
 }
 
 .section-title.left {
   text-align: left;
-  font-size: 2.2rem;
-  margin-bottom: 12px;
+  font-size: 2rem;
+  margin: 0 0 12px;
 }
 
 /* NOTICIAS */
 .news-header {
-  margin-bottom: 32px;
+  margin-bottom: 24px;
 }
 
 .news-subtitle {
   max-width: 980px;
   margin: 0 auto;
-  font-size: 0.9rem;
+  font-size: 0.86rem;
   color: #35577d;
   line-height: 1.6;
 }
@@ -372,16 +341,24 @@ const actividades = [
 
 .news-featured-wrap {
   position: relative;
+  width: 100%;
 }
 
 .news-featured {
-  width: 100%;
-  height: 420px;
-  background-size: cover;
-  background-position: center;
+  width: 100vw;
+  height: 360px;
   position: relative;
   overflow: hidden;
   border-radius: 0;
+  margin-left: -10px;
+}
+
+.news-featured-img {
+  width: 100vw;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
 }
 
 .news-featured-overlay {
@@ -390,18 +367,18 @@ const actividades = [
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  padding: 0 120px 40px;
-  background: linear-gradient(
-    to top,
-    rgba(0, 52, 92, 0.96),
-    rgba(0, 52, 92, 0.12)
-  );
-  border-bottom: 8px solid #15c9e8;
+  padding: 0 86px 28px; background: linear-gradient(
+  to top,
+  rgba(0, 52, 92, 0.9) 0%,
+  rgba(0, 52, 92, 0.4) 25%,
+  rgba(0, 52, 92, 0.0) 40%
+);
+  border-bottom: 6px solid #15c9e8;
   color: #fff;
 }
 
 .news-category {
-  font-size: 0.82rem;
+  font-size: 0.72rem;
   font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -410,20 +387,20 @@ const actividades = [
 }
 
 .news-title {
-  font-size: clamp(34px, 3.2vw, 54px);
-  line-height: 1.02;
+  font-size: 24px;
+  line-height: 1.05;
   font-weight: 900;
-  max-width: 760px;
+  max-width: 620px;
   margin: 0 0 8px;
 }
 
 .news-text {
-  max-width: 720px;
-  font-size: 16px;
-  line-height: 1.5;
+  max-width: 520px;
+  font-size: 11px;
+  line-height: 1.45;
   color: #e6eef7;
   margin: 0;
-  text-align: justify;
+  text-align: left;
 }
 
 .news-arrow {
@@ -431,79 +408,91 @@ const actividades = [
   top: 50%;
   transform: translateY(-50%);
   z-index: 5;
-  width: 44px;
-  height: 44px;
+  width: 36px;
+  height: 36px;
   border-radius: 999px;
   border: none;
   background: rgba(255, 255, 255, 0.96);
   color: #6a7d94;
-  font-size: 30px;
+  font-size: 24px;
   cursor: pointer;
   box-shadow: 0 8px 18px rgba(16, 35, 63, 0.15);
 }
 
 .news-arrow-left {
-  left: 30px;
+  left: 10px;
 }
 
 .news-arrow-right {
-  right: 30px;
+  right: 10px;
 }
 
 .news-grid {
   margin-top: 18px;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
+  gap: 14px;
+  max-width: 1500px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .news-card {
-  min-height: 310px;
-  background-size: cover;
-  background-position: center;
+  position: relative;
+  min-height: 10px;
   border-radius: 8px;
   overflow: hidden;
-  position: relative;
+}
+
+.news-card-img {
+  width: 100%;
+  height: 100%;
+  min-height: 180px;
+  object-fit: cover;
+  object-position: center;
+  display: block;
 }
 
 .news-card-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    to top,
-    rgba(0, 52, 92, 0.96),
-    rgba(0, 52, 92, 0.18)
-  );
+ background: linear-gradient(
+  to top,
+  rgba(0, 52, 92, 0.95) 0%,
+  rgba(0, 52, 92, 0.7) 25%,
+  rgba(0, 52, 92, 0.3) 45%,
+  rgba(0, 52, 92, 0.0) 70%
+);
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  padding: 16px 14px 16px;
+  padding: 12px 10px 10px;
   color: #fff;
 }
 
 .news-card-title {
-  font-size: 1.08rem;
-  line-height: 1.05;
+  font-size: 0.76rem;
+  line-height: 1.02;
   font-weight: 900;
-  margin: 0 0 8px;
+  margin: 0 0 4px;
   text-align: center;
 }
 
 .news-card-text {
-  font-size: 0.8rem;
-  line-height: 1.4;
-  margin: 0 0 12px;
+  font-size: 0.56rem;
+  line-height: 1.28;
+  margin: 0 0 8px;
   text-align: center;
 }
 
 .news-card-btn {
   align-self: center;
-  padding: 8px 18px;
+  padding: 6px 14px;
   border-radius: 6px;
   border: 1px solid #15c9e8;
   background: transparent;
   color: #fff;
-  font-size: 0.72rem;
+  font-size: 0.6rem;
   font-weight: 700;
   cursor: pointer;
 }
@@ -556,16 +545,23 @@ const actividades = [
 .actions-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
+  gap: 22px;
 }
 
 .action-card {
-  min-height: 290px;
-  background-size: cover;
-  background-position: center;
-  border-radius: 8px;
-  overflow: hidden;
   position: relative;
+  min-height: 340px;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.action-card-img {
+  width: 100%;
+  height: 100%;
+  min-height: 340px;
+  object-fit: cover;
+  object-position: center;
+  display: block;
 }
 
 .action-card-overlay {
@@ -579,7 +575,7 @@ const actividades = [
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  padding: 16px 14px 16px;
+  padding: 20px 16px 18px;
   color: #fff;
 }
 
@@ -594,16 +590,16 @@ const actividades = [
 }
 
 .action-title {
-  font-size: 1.06rem;
-  line-height: 1.04;
+  font-size: 1.15rem;
+  line-height: 1.06;
   font-weight: 900;
   margin: 0 0 8px;
   text-align: center;
 }
 
 .action-text {
-  font-size: 0.8rem;
-  line-height: 1.38;
+  font-size: 0.82rem;
+  line-height: 1.42;
   margin: 0 0 12px;
   text-align: center;
 }
@@ -637,11 +633,11 @@ const actividades = [
 }
 
 .actions-arrow-left {
-  left: -22px;
+  left: -18px;
 }
 
 .actions-arrow-right {
-  right: -22px;
+  right: -18px;
 }
 
 /* RESPONSIVE */
@@ -656,19 +652,24 @@ const actividades = [
   }
 
   .actions-astro-box {
-    max-width: 420px;
+   width: 100vw;
   }
 
+  .news-featured {
+  width: 100%;
+  height: 150vh;
+}
+
   .news-featured-overlay {
-    padding: 0 42px 24px;
+    padding: 0 42px 20px;
   }
 
   .promo-title {
-    font-size: 46px;
+    font-size: 42px;
   }
 
   .promo-text {
-    font-size: 16px;
+    font-size: 14px;
   }
 }
 
@@ -697,7 +698,7 @@ const actividades = [
   }
 
   .news-featured {
-    height: 260px;
+    height: 250px;
   }
 
   .news-featured-overlay {
@@ -715,6 +716,11 @@ const actividades = [
   .news-grid,
   .actions-grid {
     grid-template-columns: 1fr;
+  }
+
+  .news-card-img,
+  .action-card-img {
+    min-height: 260px;
   }
 
   .news-arrow,
