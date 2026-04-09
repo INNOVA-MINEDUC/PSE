@@ -1,35 +1,47 @@
 <template>
   <main class="atencion-page">
-    <!-- CABECERA OSCURA -->
-  <section
-  class="atencion-hero hero-banner-bg"
-  :style="{ backgroundImage: `url(${bannerAtencion})` }"
->
-  <div class="hero-banner-overlay">
-    <div class="hero-inner">
-      <div>
-        <p class="hero-kicker">MÓDULO 2</p>
-        <h1 class="hero-title">
-          Atención a enfermedades y consultas médicas en
-          <span class="highlight">centros educativos</span>
-        </h1>
-        <p class="hero-text">
-          El PSE registra las atenciones médicas brindadas a estudiantes del sistema educativo
-          nacional, permitiendo identificar los principales motivos de consulta y fortalecer
-          las acciones de prevención y coordinación con los servicios de salud.
-        </p>
+    <!-- HERO -->
+    <section
+      class="atencion-hero hero-banner-bg"
+      :style="{ backgroundImage: `url(${bannerAtencion})` }"
+    >
+      <div class="hero-banner-overlay">
+        <div class="hero-inner">
+          <div>
+            <p class="hero-kicker">MÓDULO 2</p>
+            <h1 class="hero-title">
+              Atención a enfermedades y consultas médicas en
+              <span class="highlight">centros educativos</span>
+            </h1>
+            <p class="hero-text">
+              El PSE registra las atenciones médicas brindadas a estudiantes del sistema educativo
+              nacional, permitiendo identificar los principales motivos de consulta y fortalecer
+              las acciones de prevención y coordinación con los servicios de salud.
+            </p>
+          </div>
+        </div>
       </div>
-    </div>
-  </div>
-</section>
+    </section>
 
+     <!-- FRANJA LOGOS -->
+    <section class="logo-franja">
+      <img
+        class="logo-franja-img"
+        :src="logoFranja"
+        alt="Franja de logos institucionales"
+      />
+    </section>
+
+
+
+    
     <!-- CUERPO CLARO -->
     <section class="atencion-body">
       <div class="atencion-inner">
-        <!-- SECCIÓN TIPO INFOGRAFÍA (COMO LA IMAGEN) -->
+        <!-- SECCIÓN TIPO INFOGRAFÍA -->
         <div class="stats-section">
           <div class="stats-grid">
-            <!-- BLOQUE AZUL GRANDE: CONSULTAS + ESTUDIANTES -->
+            <!-- BLOQUE AZUL GRANDE -->
             <article class="card big-stats-card">
               <div class="big-stats-header">
                 <div class="big-icon doctor">👨‍⚕️</div>
@@ -65,7 +77,7 @@
               </div>
             </article>
 
-            <!-- BLOQUE DE MORBILIDADES -->
+            <!-- BLOQUE MORBILIDADES -->
             <article class="card morbilidades-card">
               <h2 class="block-title">Morbilidades atendidas</h2>
               <p class="block-subtitle">
@@ -118,10 +130,7 @@
                 </tr>
               </thead>
               <tbody>
-                <tr
-                  v-for="(dx, index) in diagnosticos"
-                  :key="dx.nombre"
-                >
+                <tr v-for="(dx, index) in diagnosticos" :key="dx.nombre">
                   <td>{{ index + 1 }}</td>
                   <td>{{ dx.nombre }}</td>
                   <td class="text-right">
@@ -133,7 +142,7 @@
           </article>
         </div>
 
-        <!-- TABLAS INFERIORES (ESTILO TABLERO) -->
+        <!-- TABLAS INFERIORES -->
         <div class="row row-bottom">
           <article class="card">
             <h2 class="block-title">Resumen de atenciones por departamento</h2>
@@ -186,11 +195,10 @@
 
 <script setup>
 import GuateMap from '@/components/GuateMap.vue'
+
 const bannerAtencion = '/Atencion/banner/banner-atencion.jpg'
-/**
- * Estos valores vienen de tu infografía de "Atención a enfermedades y accidentes".
- * Son de ejemplo para el prototipo.
- */
+const logoFranja = '/Home/LOGOS/logo-franja.png'
+
 const resumen = {
   consultas: 674656,
   estudiantes: 222704,
@@ -221,7 +229,6 @@ const morbilidades = [
   }
 ]
 
-// Diagnósticos de la lámina (adaptados)
 const diagnosticos = [
   { nombre: 'Rinofaringitis aguda (resfriado común)', consultas: 116934 },
   { nombre: 'Control de salud de rutina del niño', consultas: 46162 },
@@ -235,7 +242,6 @@ const diagnosticos = [
   { nombre: 'Bronquitis aguda, no especificada', consultas: 11475 }
 ]
 
-// Ejemplo de tabla por departamento (demo)
 const atencionesPorDepartamento = [
   { nombre: 'Guatemala', establecimientos: 250, consultas: 420310 },
   { nombre: 'Quetzaltenango', establecimientos: 120, consultas: 163200 },
@@ -244,7 +250,24 @@ const atencionesPorDepartamento = [
   { nombre: 'Huehuetenango', establecimientos: 110, consultas: 113740 }
 ]
 
-
+const tiposAtencion = [
+  {
+    nombre: 'Consulta general',
+    descripcion: 'Atención médica básica para la valoración inicial de síntomas y padecimientos comunes.'
+  },
+  {
+    nombre: 'Seguimiento clínico',
+    descripcion: 'Control y monitoreo de casos previamente registrados para verificar evolución y tratamiento.'
+  },
+  {
+    nombre: 'Referencia a servicios de salud',
+    descripcion: 'Derivación de estudiantes a establecimientos de salud cuando el caso requiere atención especializada.'
+  },
+  {
+    nombre: 'Orientación preventiva',
+    descripcion: 'Acciones de consejería y promoción para reducir factores de riesgo en la comunidad estudiantil.'
+  }
+]
 </script>
 
 <style scoped>
@@ -334,6 +357,19 @@ const atencionesPorDepartamento = [
   margin: 0;
   text-align: justify;
 }
+
+/* FRANJA LOGOS */
+.logo-franja {
+  background: #ffffff;
+}
+
+.logo-franja-img {
+  display: block;
+  width: 100%;
+  max-width: 1350px;
+  margin: 0 auto;
+  padding: 10px 56px 14px;
+}
 /* CUERPO CLARO */
 .atencion-body {
   background: #e5e7eb;
@@ -367,7 +403,7 @@ const atencionesPorDepartamento = [
   margin-bottom: 10px;
 }
 
-/* SECCIÓN DE ESTADÍSTICAS (TIPO INFOGRAFÍA) */
+/* STATS */
 .stats-section {
   margin-bottom: 22px;
 }
@@ -449,7 +485,7 @@ const atencionesPorDepartamento = [
   background: #fb7185;
 }
 
-/* Morbilidades */
+/* MORBILIDADES */
 .morbilidades-card {
   display: flex;
   flex-direction: column;
@@ -498,14 +534,14 @@ const atencionesPorDepartamento = [
   font-weight: 600;
 }
 
-/* FILAS GENERALES */
+/* FILAS */
 .row {
   display: grid;
   gap: 18px;
   margin-bottom: 22px;
 }
 
-/* MAPA + DIAGNÓSTICOS */
+/* MAPA + DX */
 .row-map {
   grid-template-columns: minmax(0, 2fr) minmax(0, 1.1fr);
 }
@@ -565,7 +601,7 @@ const atencionesPorDepartamento = [
   text-align: right;
 }
 
-/* lista tipos atención */
+/* TIPOS */
 .type-list {
   list-style: none;
   padding: 0;
@@ -585,6 +621,18 @@ const atencionesPorDepartamento = [
 }
 
 /* RESPONSIVE */
+@media (max-width: 1100px) {
+  .atencion-inner {
+    padding-inline: 24px;
+  }
+
+  .stats-grid,
+  .row-map,
+  .row-bottom {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
 @media (max-width: 700px) {
   .atencion-hero {
     min-height: 360px;
@@ -606,6 +654,14 @@ const atencionesPorDepartamento = [
   .hero-text {
     font-size: 14px;
     max-width: 100%;
+  }
+
+  .logos-track {
+    gap: 40px;
+  }
+
+  .logo-item {
+    height: 65px;
   }
 }
 </style>

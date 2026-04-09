@@ -441,7 +441,7 @@ const noticiaDestacada = {
 .logo-franja-img {
   display: block;
   width: 100%;
-  max-width: 1720px;
+  max-width: 1350px;
   margin: 0 auto;
   padding: 10px 56px 14px;
 }
