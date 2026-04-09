@@ -8,7 +8,6 @@
       <div class="promo-hero-overlay">
         <div class="promo-hero-inner">
           
-
           <h1 class="promo-title">
             Promoción de la salud y
             prevención de enfermedades en
@@ -439,7 +438,7 @@ onUnmounted(() => {
 
 .news-card {
   position: relative;
-  min-height: 10px;
+  height: 400px;
   border-radius: 8px;
   overflow: hidden;
 }
