@@ -83,6 +83,7 @@
 import { ref } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import logoMinisterio from "@/assets/logo-ministerio.png";
+import { API_URL } from "@/env";
 
 const router = useRouter();
 const route = useRoute();
@@ -98,7 +99,7 @@ const handleSubmit = async () => {
   loading.value = true;
 
   try {
-    const res = await fetch("http://localhost:3000/api/auth/login", {
+    const res = await fetch(`${API_URL}/api/auth/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

@@ -1,0 +1,78 @@
+name: Frontend Docker CI/CD
+
+# Este workflow automatiza la construcción y publicación de la imagen de Docker
+# en GitHub Container Registry (GHCR) cada vez que se suben cambios a las ramas
+# main o development.
+
+on:
+  push:
+    branches: [ "main", "development" ]
+    paths:
+      - "frontend/**" # Evita builds innecesarios si solo cambia el backend
+
+env:
+  REGISTRY: ghcr.io
+  # El nombre de la imagen será: ghcr.io/usuario/repo-frontend
+  IMAGE_NAME: ${{ github.repository }}-frontend
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write # Vital para poder publicar la imagen en GHCR
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # PASO DE CONTROL: Generamos Timestamp y Short SHA
+      - name: Generate custom identifiers
+        id: vars
+        run: |
+          echo "TS=$(date +'%Y%m%d_%H%M')" >> $GITHUB_OUTPUT
+          echo "SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_OUTPUT
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # ESTRATEGIA DE TAGS: (Rama-latest, Rama-Timestamp-ShortSHA, CommitSHA)
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            # 1. Tag de rama 'latest' (Ej: development-latest)
+            type=raw,value=${{ github.ref_name }}-latest
+            
+            # 2. Tag detallado de control (Ej: development-20240413_1445-a1b2c3d)
+            type=raw,value=${{ github.ref_name }}-${{ steps.vars.outputs.TS }}-${{ steps.vars.outputs.SHORT_SHA }}
+            
+            # 3. Tag estándar por Git SHA
+            type=sha,format=short
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          # Usamos el sistema de caché nativo de GitHub (GHA) para builds ultra rápidos
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # Opcional: Notificación (puedes añadir Slack/Discord aquí)
+      - name: Workflow Summary
+        run: |
+          echo "Imagen construida y publicada con éxito!"
+          echo "Registry: ${{ env.REGISTRY }}"
+          echo "Tag Principal: ${{ github.ref_name }}-${{ steps.vars.outputs.TS }}-${{ steps.vars.outputs.SHORT_SHA }}"

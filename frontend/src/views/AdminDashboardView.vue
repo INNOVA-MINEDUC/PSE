@@ -273,6 +273,7 @@
 <script setup>
 import { computed, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
+import { API_URL } from "@/env";
 
 const router = useRouter();
 const token = localStorage.getItem("token");
@@ -285,7 +286,7 @@ const fetchCurrentUser = async () => {
       return;
     }
 
-    const res = await fetch("http://localhost:3000/api/auth/me", {
+    const res = await fetch(`${API_URL}/api/auth/me`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
