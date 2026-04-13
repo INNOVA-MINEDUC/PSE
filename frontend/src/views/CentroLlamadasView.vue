@@ -35,6 +35,15 @@
       </div>
     </section>
 
+    <!-- FRANJA DE LOGOS -->
+    <section class="logo-franja">
+      <img
+        :src="logoFranja"
+        alt="Franja de logos institucionales"
+        class="logo-franja-img"
+      />
+    </section>
+
     <!-- CUERPO CLARO -->
     <section class="llamadas-body">
       <div class="llamadas-inner">
@@ -257,6 +266,10 @@
 <script setup>
 import avatarOperadora from '@/assets/operadora-1528.png'
 import avatarOperador from '@/assets/operador-1528.png'
+
+
+const bannerSuministros = '/Suministros/banner/banner-suministros.jpg'
+const logoFranja = '/Home/LOGOS/logo-franja.png'
 
 const stats = {
   llamadas: 24221 // número de ejemplo, luego vendrá del backend

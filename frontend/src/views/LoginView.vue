@@ -1,49 +1,81 @@
-<!-- src/views/LoginView.vue -->
 <template>
   <main class="login-page">
-    <div class="login-card">
-      <div class="login-logo">
-        <img :src="logoMinisterio" alt="Ministerio de Educación" />
+    <section class="login-wrapper">
+
+      <!-- LOGO -->
+      <div class="login-brand">
+        <img
+          :src="logoMinisterio"
+          alt="Ministerio de Educación"
+          class="brand-logo"
+        />
       </div>
 
-      <h1 class="login-title">Iniciar sesión</h1>
+      <!-- CARD -->
+      <div class="login-card">
+        <h1 class="login-title">Iniciar sesión</h1>
 
-      <p v-if="error" class="login-error">
-        {{ error }}
-      </p>
-
-      <form class="login-form" @submit.prevent="handleSubmit">
-        <div class="field">
-          <label for="email">Correo electrónico</label>
-          <input
-            id="email"
-            v-model="email"
-            type="email"
-            placeholder="usuario@mineduc.edu.gt"
-            required
-          />
+        <div v-if="error" class="login-error">
+          {{ error }}
         </div>
 
-        <div class="field">
-          <label for="password">Contraseña</label>
-          <input
-            id="password"
-            v-model="password"
-            type="password"
-            placeholder="••••••••"
-            required
-          />
-        </div>
+        <form class="login-form" @submit.prevent="handleSubmit">
+          
+          <!-- EMAIL -->
+          <div class="input-group">
+            <label for="email">Correo electrónico</label>
+            <div class="input-wrap">
+              <span class="input-icon">✉</span>
+              <input
+                id="email"
+                v-model="email"
+                type="email"
+                placeholder="usuario@mineduc.edu.gt"
+                required
+              />
+            </div>
+          </div>
 
-        <button type="submit" class="btn-login" :disabled="loading">
-          {{ loading ? "Ingresando..." : "Ingresar" }}
-        </button>
-      </form>
+          <!-- PASSWORD -->
+          <div class="input-group">
+            <label for="password">Contraseña</label>
+            <div class="input-wrap">
+              <span class="input-icon">🔒</span>
+              <input
+                id="password"
+                v-model="password"
+                :type="showPassword ? 'text' : 'password'"
+                placeholder="••••••••"
+                required
+              />
 
-      <p class="login-footer">
-        © 2025 Ministerio de Educación de Guatemala – Portal de Salud Escolar
-      </p>
-    </div>
+              <button
+                type="button"
+                class="toggle-password"
+                @click="showPassword = !showPassword"
+              >
+                {{ showPassword ? "x" : "👁" }}
+              </button>
+            </div>
+          </div>
+
+          <!-- BUTTON -->
+          <button type="submit" class="btn-login" :disabled="loading">
+            {{ loading ? "Ingresando..." : "Ingresar" }}
+          </button>
+
+          <!-- FORGOT -->
+          <button type="button" class="forgot-link">
+            ¿Olvidó su contraseña?
+          </button>
+        </form>
+
+        <p class="login-footer">
+          © 2025 Ministerio de Educación de Guatemala – Portal de Salud Escolar
+        </p>
+      </div>
+
+    </section>
   </main>
 </template>
 
@@ -59,6 +91,7 @@ const email = ref("");
 const password = ref("");
 const error = ref("");
 const loading = ref(false);
+const showPassword = ref(false);
 
 const handleSubmit = async () => {
   error.value = "";
@@ -98,102 +131,163 @@ const handleSubmit = async () => {
 <style scoped>
 .login-page {
   min-height: 100vh;
-  background: #f5f7fb;
+  background: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 24px;
+  font-family: "Montserrat", sans-serif;
 }
 
+.login-wrapper {
+  width: 100%;
+  max-width: 560px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* LOGO */
+.login-brand {
+  margin-bottom: 26px;
+}
+
+.brand-logo {
+  width: 260px;
+  max-width: 100%;
+}
+
+/* CARD */
 .login-card {
   width: 100%;
-  max-width: 420px;
   background: #ffffff;
-  border-radius: 18px;
-  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.18);
-  padding: 32px 32px 24px;
-  text-align: center;
-}
-
-.login-logo img {
-  max-width: 200px;
-  margin-bottom: 12px;
+  border: 1px solid #d9dee8;
+  border-radius: 14px;
+  box-shadow: 0 8px 25px rgba(15, 23, 42, 0.08);
+  padding: 34px 36px 28px;
 }
 
 .login-title {
-  font-size: 1.2rem;
-  font-weight: 600;
-  margin-bottom: 18px;
-  color: #111827;
+  text-align: center;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 22px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #e5e7eb;
 }
 
+/* ERROR */
 .login-error {
   background: #fee2e2;
   color: #b91c1c;
-  border-radius: 12px;
-  padding: 8px 10px;
-  font-size: 0.8rem;
+  border-radius: 10px;
+  padding: 10px;
+  font-size: 0.84rem;
   margin-bottom: 14px;
 }
 
+/* FORM */
 .login-form {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
 }
 
-.field {
-  text-align: left;
+/* INPUTS */
+.input-group {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
 }
 
-.field label {
-  font-size: 0.8rem;
-  color: #4b5563;
-}
-
-.field input {
-  padding: 9px 12px;
-  border-radius: 10px;
-  border: 1px solid #d1d5db;
-  font-size: 0.85rem;
-  outline: none;
-}
-
-.field input:focus {
-  border-color: #2563eb;
-  box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.2);
-}
-
-.btn-login {
-  margin-top: 4px;
-  padding: 10px 14px;
-  border-radius: 999px;
-  border: none;
-  background: #2563eb;
-  color: #ffffff;
-  font-size: 0.9rem;
+.input-group label {
+  font-size: 0.82rem;
   font-weight: 600;
+  color: #6b7280;
+}
+
+.input-wrap {
+  display: flex;
+  align-items: center;
+  border: 1px solid #d7dce5;
+  border-radius: 10px;
+  background: #eef3fb;
+  height: 50px;
+  overflow: hidden;
+}
+
+.input-icon {
+  width: 46px;
+  text-align: center;
+  color: #7b8794;
+  font-size: 1rem;
+}
+
+.input-wrap input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 0.95rem;
+  padding-right: 10px;
+}
+
+.input-wrap:focus-within {
+  border-color: #4b82ea;
+  box-shadow: 0 0 0 2px rgba(75, 130, 234, 0.15);
+}
+
+/* PASSWORD BTN */
+.toggle-password {
+  width: 48px;
+  border: none;
+  background: #fff;
+  border-left: 1px solid #d7dce5;
   cursor: pointer;
-  transition: background 0.15s ease, transform 0.1s ease;
+  font-size: 1rem;
+}
+
+/* BUTTON */
+.btn-login {
+  margin-top: 10px;
+  height: 46px;
+  border: none;
+  border-radius: 10px;
+  background: #4b82ea;
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s;
 }
 
 .btn-login:hover {
-  background: #1d4ed8;
-  transform: translateY(-1px);
+  background: #3d73da;
 }
 
 .btn-login:disabled {
-  opacity: 0.65;
+  opacity: 0.7;
   cursor: not-allowed;
-  transform: none;
 }
 
+/* FORGOT */
+.forgot-link {
+  margin: 6px auto 0;
+  border: 1px solid #e5e7eb;
+  background: white;
+  color: #4b82ea;
+  border-radius: 10px;
+  padding: 8px 16px;
+  font-size: 0.84rem;
+  cursor: pointer;
+  box-shadow: 0 3px 8px rgba(15, 23, 42, 0.06);
+}
+
+/* FOOTER */
 .login-footer {
-  margin-top: 16px;
-  font-size: 0.68rem;
-  color: #9ca3af;
+  text-align: center;
+  margin-top: 28px;
+  font-size: 0.8rem;
+  color: #6b7280;
 }
 </style>

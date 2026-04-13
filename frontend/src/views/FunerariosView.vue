@@ -51,6 +51,16 @@
       </div>
     </section>
 
+<!-- FRANJA DE LOGOS -->
+    <section class="logo-franja">
+      <img
+        :src="logoFranja"
+        alt="Franja de logos institucionales"
+        class="logo-franja-img"
+      />
+    </section>
+
+
     <!-- CUERPO BLANCO -->
     <section class="fun-body">
       <div class="fun-inner">
