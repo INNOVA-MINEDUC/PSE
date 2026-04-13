@@ -12,7 +12,7 @@ Para seguir las mejores prácticas de DevOps ("Build Once, Run Anywhere"), este 
 
 1.  **`public/config.template.js`**: Define las variables que necesitamos inyectar en el navegador.
 2.  **`docker-entrypoint.sh`**: Al arrancar el contenedor, este script usa `envsubst` para reemplazar los placeholders (por ejemplo, `${VITE_API_URL}`) con los valores reales de las variables de entorno del sistema.
-3.  **`src/env.js`**: Proporciona una interfaz unificada para acceder a estas variables, manejando automáticamente el fallback para desarrollo local.
+3.  **`src/env.js`**: Proporciona una interfaz sólida para acceder a estas variables. Comprueba explícitamente la existencia del objeto global y, si no se inyectó una variable (ej. en desarrollo local), recurre a `import.meta.env`.
 
 ---
 
@@ -93,11 +93,11 @@ Para que el CI pueda publicar las imágenes, asegúrate de que el repositorio te
 
 Si necesitas una nueva variable (ej: `VITE_ANALYTICS_KEY`):
 
-1.  **`public/config.template.js`**: Añade la variable al objeto:
+1.  **`public/config.template.js`**: Añade la variable al objeto utilizando sintaxis de fallback de bash:
     ```javascript
     window.APP_CONFIG = {
-      VITE_API_URL: "${VITE_API_URL}",
-      VITE_ANALYTICS_KEY: "${VITE_ANALYTICS_KEY}"
+      VITE_API_URL: "${VITE_API_URL:-http://localhost:3000}",
+      VITE_ANALYTICS_KEY: "${VITE_ANALYTICS_KEY:-default_key}"
     };
     ```
 2.  **`src/env.js`**: Declara la exportación:
