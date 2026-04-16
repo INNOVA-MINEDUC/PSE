@@ -52,11 +52,11 @@
     </section>
 
 <!-- FRANJA DE LOGOS -->
-    <section class="logo-franja">
+     <section class="logo-franja">
       <img
+        class="logo-franja-img"
         :src="logoFranja"
         alt="Franja de logos institucionales"
-        class="logo-franja-img"
       />
     </section>
 
@@ -291,6 +291,8 @@
 </template>
 
 <script setup>
+const logoFranja = '/Home/LOGOS/logo-franja.png'
+
 const datosFunerarios = {
   totalCasos: 329,
   masculinos: 193,
@@ -395,6 +397,21 @@ const datosFunerarios = {
   padding: 24px 48px 0;
 }
 
+
+/* FRANJA LOGOS */
+.logo-franja {
+  background: #ffffff;
+}
+
+.logo-franja-img {
+  display: block;
+  width: 100%;
+  max-width: 1350px;
+  margin: 0 auto;
+  padding: 10px 56px 14px;
+}
+
+
 /* FRANJA AZUL */
 .band-stats {
   background: #1d4ed8;
@@ -475,6 +492,8 @@ const datosFunerarios = {
   align-items: center;
   gap: 8px;
 }
+
+
 
 /* FILAS Y TARJETAS GENERALES */
 .row {
