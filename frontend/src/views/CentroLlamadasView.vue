@@ -616,6 +616,19 @@ const pasos = [
   color: #4b5563;
 }
 
+/* FRANJA LOGOS */
+.logo-franja {
+  background: #ffffff;
+}
+
+.logo-franja-img {
+  display: block;
+  width: 100%;
+  max-width: 1350px;
+  margin: 0 auto;
+  padding: 10px 56px 14px;
+}
+
 /* FLUJO */
 .flow-list {
   list-style: none;
