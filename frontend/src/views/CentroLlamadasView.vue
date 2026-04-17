@@ -306,41 +306,86 @@ const pasos = [
 }
 
 /* HERO */
-.llamadas-hero {
-  background: #020617;
-  padding: 28px 48px 32px;
+.atencion-hero {
+  min-height: 590px;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  position: relative;
+  padding: 0;
+}
+
+.hero-banner-bg {
+  min-height: 590px;
+}
+
+.hero-banner-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  background: linear-gradient(
+    to right,
+    rgba(0, 52, 92, 0.92),
+    rgba(0, 52, 92, 0.52),
+    rgba(0, 52, 92, 0.08)
+  );
 }
 
 .hero-inner {
-  max-width: 1400px;
+  max-width: 1440px;
   margin: 0 auto;
-  display: flex;
-  gap: 32px;
-  align-items: flex-start;
-  justify-content: space-between;
+  padding: 160px 44px 40px;
+  width: 100%;
 }
 
 .hero-kicker {
-  font-size: 0.75rem;
-  letter-spacing: 0.16em;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: #a5b4fc;
-  margin-bottom: 6px;
+  color: #60d5f3;
+  margin: 0 0 8px;
+  font-weight: 700;
 }
 
 .hero-title {
-  font-size: 1.7rem;
-  font-weight: 700;
-  margin-bottom: 8px;
+  max-width: 900px;
+  width: 100%;
+  font-size: 45px;
+  line-height: 1.06;
+  font-weight: 900;
+  color: #ffffff;
+  margin: 0 0 14px;
+}
+
+.highlight {
+  color: #ffffff;
+  position: relative;
+  display: inline-block;
+  z-index: 1;
+  padding: 5px 15px;
+}
+
+.highlight::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 4px;
+  width: 100%;
+  height: 48px;
+  background: linear-gradient(90deg, #15c9e8, #0bb6d6);
+  z-index: -1;
+  border-radius: 8px;
 }
 
 .hero-text {
-  font-size: 0.9rem;
-  color: #e5e7eb;
-  max-width: 720px;
+  max-width: 700px;
+  font-size: 15px;
   line-height: 1.5;
+  color: rgba(255, 255, 255, 0.94);
+  margin: 0;
+  text-align: justify;
 }
-
 /* Tarjeta resumen */
 .hero-summary-card {
   min-width: 320px;
