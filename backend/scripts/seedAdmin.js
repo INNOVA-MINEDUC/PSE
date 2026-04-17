@@ -27,7 +27,7 @@ async function main() {
     ]);
 
     if (existing.length > 0) {
-      console.log("✅ Admin ya existe. No se insertó duplicado.");
+      console.log("Admin ya existe. No se insertó duplicado.");
       return;
     }
 
@@ -36,7 +36,7 @@ async function main() {
       [email, password_hash, full_name, role]
     );
 
-    console.log("✅ Admin creado en BD:");
+    console.log("Admin creado en BD:");
     console.log("   Email:", email);
     console.log("   Password:", plainPassword);
   } finally {
@@ -45,6 +45,6 @@ async function main() {
 }
 
 main().catch((err) => {
-  console.error("❌ Error creando admin:", err);
+  console.error(" Error creando admin:", err);
   process.exit(1);
 });
