@@ -2,7 +2,9 @@
 <template>
   <main class="llamadas-page">
     <!-- HERO OSCURO -->
-    <section class="llamadas-hero">
+    <section 
+    class="llamadas-hero">
+    
       <div class="hero-inner">
         <div>
           <p class="hero-kicker">MÓDULO 4</p>
@@ -268,7 +270,7 @@ import avatarOperadora from '@/assets/operadora-1528.png'
 import avatarOperador from '@/assets/operador-1528.png'
 
 
-const bannerSuministros = '/Suministros/banner/banner-suministros.jpg'
+const bannerCentros = '/Centro-1528/banner/llamadas-banner.jpg'
 const logoFranja = '/Home/LOGOS/logo-franja.png'
 
 const stats = {
@@ -628,6 +630,7 @@ const pasos = [
   margin: 0 auto;
   padding: 10px 56px 14px;
 }
+
 
 /* FLUJO */
 .flow-list {
