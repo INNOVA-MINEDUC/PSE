@@ -8,7 +8,9 @@ on:
   push:
     branches: [ "main", "development" ]
     paths:
-      - "frontend/**" # Evita builds innecesarios si solo cambia el backend
+      - "frontend/**" # Dispara si hay cambios en el frontend...
+      - "!frontend/**/*.md" # ... excepto si son archivos Markdown (ej. README.md)
+      - "!frontend/.gitignore" # ... o cambios en exclusiones locales
 
 env:
   REGISTRY: ghcr.io

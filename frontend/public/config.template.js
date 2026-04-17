@@ -1,3 +1,3 @@
 window.APP_CONFIG = {
-  VITE_API_URL: "${VITE_API_URL}"
+  VITE_API_URL: "${VITE_API_URL:-http://localhost:3000}"
 };
