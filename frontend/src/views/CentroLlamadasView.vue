@@ -2,9 +2,10 @@
 <template>
   <main class="llamadas-page">
     <!-- HERO OSCURO -->
-    <section 
-    class="llamadas-hero">
-    
+    <section
+      class="llamadas-hero hero-banner-bg"
+      :style="{ backgroundImage: `url(${bannerCentros})` }"
+    >
       <div class="hero-inner">
         <div>
           <p class="hero-kicker">MÓDULO 4</p>
@@ -306,6 +307,7 @@ const pasos = [
 }
 
 /* HERO */
+.llamadas-hero,
 .atencion-hero {
   min-height: 590px;
   background-size: cover;
