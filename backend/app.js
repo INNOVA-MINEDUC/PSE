@@ -15,6 +15,7 @@ app.use(
       "http://localhost:5173",
       "http://10.101.2.14:5173",
       "http://10.101.2.6:5173",
+      "https://saludescolar-dev.mineduc.edu.gt",
     ],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials: true,

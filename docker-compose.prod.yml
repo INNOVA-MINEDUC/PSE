@@ -1,0 +1,70 @@
+# Ejemplo de docker-compose.prod.yml para Producción
+# 
+# Uso:
+# 1. Copia este archivo a tu servidor.
+# 2. Reemplaza <TU_USUARIO>/<TU_REPO> con tu ruta real en GitHub (ej. innova/portal-salud)
+# 3. Asegúrate de tener los archivos .env y .env.frontend en la misma carpeta del servidor.
+# 4. Inicia con: docker compose -f docker-compose.prod.yml up -d
+
+services:
+  # ----------------------------------------------------
+  # 1. SERVICIO BACKEND (Node.js API)
+  # ----------------------------------------------------
+  pse-backend:
+    # La imagen se descargará automáticamente desde GitHub Container Registry
+    image: ghcr.io/<TU_USUARIO>/<TU_REPO>-backend:main-latest
+    container_name: pse-backend
+    restart: unless-stopped
+    ports:
+      # Exponemos el puerto 8090 en el servidor y lo mandamos al 3000 del backend
+      - "8090:3000"
+    # Este archivo (.env) debe estar en el VPS y contener: DB_HOST, DB_PASSWORD, API...
+    env_file:
+      - .env
+    networks:
+      - pse-network
+
+  # ----------------------------------------------------
+  # 2. SERVICIO FRONTEND (Vue + Nginx)
+  # ----------------------------------------------------
+  pse-frontend:
+    image: ghcr.io/<TU_USUARIO>/<TU_REPO>-frontend:main-latest
+    container_name: pse-frontend
+    restart: unless-stopped
+    ports:
+      # Exponemos el puerto 8089 de la máquina y lo enviamos al 8080 interno de Nginx-Unprivileged
+      - "8089:8080"
+    # Pasamos las variables a través de un archivo externo (ej. .env.frontend)
+    # Este archivo solo debería contener: VITE_API_URL=https://api-saludescolar-dev.mineduc.edu.gt
+    env_file:
+      - .env.frontend
+    depends_on:
+      - pse-backend
+    networks:
+      - pse-network
+
+# ----------------------------------------------------
+# REDES (Comunicación Segura)
+# ----------------------------------------------------
+networks:
+  pse-network:
+    driver: bridge
+
+# ====================================================
+# OPCIONAL: Si necesitas levantar MySQL dentro del mismo compose...
+# Descomenta el siguiente bloque y ajusta tu .env (DB_HOST=pse-db)
+# ====================================================
+#  pse-db:
+#    image: mysql:8.0
+#    container_name: pse-db
+#    restart: always
+#    environment:
+#      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+#      MYSQL_DATABASE: ${DB_NAME}
+#    volumes:
+#      - mysql_data:/var/lib/mysql
+#    networks:
+#      - pse-network
+#
+# volumes:
+#   mysql_data:
