@@ -291,6 +291,7 @@
 </template>
 
 <script setup>
+const bannerAtencion = '/Atencion/banner/banner-atencion.jpg'
 const logoFranja = '/Home/LOGOS/logo-franja.png'
 
 const datosFunerarios = {
