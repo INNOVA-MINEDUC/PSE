@@ -1,118 +1,87 @@
 # Portal de Salud Escolar (PSE) - Frontend
 
-Este es el repositorio del frontend del Portal de Salud Escolar (PSE), construido con **Vue 3**, **Vite**, **Vuetify** y gestionado mediante contenedores **Docker**.
+Este es el repositorio del frontend del Portal de Salud Escolar (PSE), construido con **Vue 3**, **Vite** y gestionado mediante contenedores **Docker**.
 
 ---
 
-## Arquitectura de Configuración en Tiempo de Ejecución (Runtime Config)
+## Arquitectura de Configuración: Build-Time Variables
 
-Para seguir las mejores prácticas de DevOps ("Build Once, Run Anywhere"), este proyecto utiliza **Runtime Configuration**. A diferencia del enfoque estándar de Vite, esto permite que la misma imagen de Docker se ejecute en cualquier entorno (Staging, Pre-prod, Producción) sin necesidad de reconstruirla.
+Para mantener la pureza de los contenedores estáticos y evitar problemas de caché, este proyecto utiliza **Inyección en Tiempo de Compilación (Build-Time Variables)** propias de Vite (`import.meta.env`).
 
 ### ¿Cómo funciona?
 
-1.  **`public/config.template.js`**: Define las variables que necesitamos inyectar en el navegador.
-2.  **`docker-entrypoint.sh`**: Al arrancar el contenedor, este script usa `envsubst` para reemplazar los placeholders (por ejemplo, `${VITE_API_URL}`) con los valores reales de las variables de entorno del sistema.
-3.  **`src/env.js`**: Proporciona una interfaz sólida para acceder a estas variables. Comprueba explícitamente la existencia del objeto global y, si no se inyectó una variable (ej. en desarrollo local), recurre a `import.meta.env`.
+El código fuente invoca variables directamente usando el prefijo `VITE_`:
+```javascript
+const API_URL = import.meta.env.VITE_API_URL;
+```
+
+Cuando se ejecuta el comando `npm run build` (usualmente mediante GitHub Actions), Vite lee el archivo `.env.production` (creado dinámicamente) y reescribe de forma permanente (`hardcode`) los valores en los archivos Javascript. Debido a esto, el contenedor Nginx que resulta es **100% estático, ultra ligero y optimizado**.
 
 ---
 
-## Configuración Local (Desarrollo)
+## Desarrollo Local
 
-1.  Instala las dependencias:
-    ```bash
-    npm install
-    ```
-2.  Levanta el servidor de desarrollo:
-    ```bash
-    npm run dev
-    ```
-3.  (Opcional) Crea un archivo `.env` en la raíz para sobreescribir variables localmente:
-    ```env
-    VITE_API_URL=http://localhost:3000
-    ```
+1. Instala las dependencias:
+   ```bash
+   npm install
+   ```
+
+2. Configura tus variables locales (opcional pero recomendado):
+   Crea una copia del archivo de ejemplo:
+   ```bash
+   cp .env.example .env.local
+   ```
+   Agrega tu IP o URL de desarrollo local en el `.env.local`:
+   ```env
+   VITE_API_URL=http://localhost:3000
+   ```
+
+3. Inicia el servidor local:
+   ```bash
+   npm run dev
+   ```
 
 ---
 
 ## Despliegue con Docker (Producción)
 
-### 1. Construir la imagen
-La imagen se construye una sola vez:
-```bash
-docker build -t pse-frontend .
+### Pipeline de CI/CD (GitHub Actions)
+
+El proyecto cuenta con un flujo CI/CD avanzado en GitHub Actions (`.github/workflows/frontend-docker.yml`) que se dispara en ramas `main` y `development`.
+
+**Gestión Automática de Variables:**
+La propia GitHub Action detecta en qué rama se encuentra y crea el archivo `.env.production` **al vuelo** usando *GitHub Secrets* antes de construir el contenedor. Las variables se controlan totalmente desde los Secrets del repositorio:
+*   `VITE_API_URL_PROD` -> Inyectada en la rama `main`
+*   `VITE_API_URL_DEV` -> Inyectada en la rama `development`
+
+El Dockerfile es del tipo Multistage (Node JS -> `nginx-unprivileged`) y al final sirve un puerto `8080` seguro como usuario genérico `uid 101`.
+
+### Docker Compose (En Producción)
+
+Debido a que las variables estáticas ya están "horneadas" en la imagen, iniciar el contenedor en el servidor host es sumamente limpio y no requiere de un archivo local de variables (`env_file`) en el servidor:
+
+```yaml
+services:
+  pse-frontend:
+    image: ghcr.io/tu-repo/pse-frontend:production-latest
+    container_name: pse-frontend
+    restart: unless-stopped
+    ports:
+      - "8089:8080"
 ```
 
-### 2. Ejecutar el contenedor
-Puedes inyectar las variables necesarias al momento de iniciar el contenedor:
-
-**Ejemplo para Desarrollo/Staging:**
-```bash
-docker run -d \
-  --name pse-frontend \
-  -e VITE_API_URL=https://api-staging.ejemplo.gt \
-  -p 8080:8080 \
-  pse-frontend
-```
-
-**Ejemplo para Producción:**
-```bash
-docker run -d \
-  --name pse-frontend \
-  -e VITE_API_URL=https://api.ejemplo.gt \
-  -p 80:8080 \
-  pse-frontend
-```
+Simplemente ejecutas `docker compose pull` y `up -d` en el servidor y la imagen estática cobrará vida conectándose a la URL que GitHub configuró.
 
 ---
 
-## CI/CD y Automatización (GitHub Actions)
+## ¿Cómo añadir una nueva variable de Frontend?
 
-El proyecto cuenta con un flujo automatizado para la construcción de imágenes en cada `push` a las ramas `main` y `development`.
+Las variables públicas del Frontend (Keys de Analytics, Maps, etc.) no deben ser configuradas en el servidor Linux de producción, sino seguir este flujo:
 
-### Registro de Imágenes (GHCR)
-Las imágenes se publican automáticamente en **GitHub Container Registry**:
-`ghcr.io/${{ github.repository }}-frontend`
-
-### Estrategia de Versionado (Tags)
-Para un control total, cada imagen generada por el CI tiene tres tipos de etiquetas:
-
-1.  **Rama (Latest):** `main-latest` o `development-latest`. Ideal para pull automático en servidores.
-2.  **Control Detallado:** `<rama>-<fecha>-<sha_corto>`. 
-    *   *Ejemplo:* `development-20240413_1445-a1b2c3d`
-    *   Esto permite identificar **cuándo** se construyó y **qué código exacto** contiene.
-3.  **Hash de Git:** Tag basado únicamente en el Short SHA del commit.
-
-### Configuración Necesaria en GitHub
-Para que el CI pueda publicar las imágenes, asegúrate de que el repositorio tenga permisos de escritura:
-`Settings > Actions > General > Workflow permissions > "Read and write permissions"`.
-
----
-
-## Guía para Desarrolladores
-
-### ¿Cómo añadir una nueva variable de entorno?
-
-Si necesitas una nueva variable (ej: `VITE_ANALYTICS_KEY`):
-
-1.  **`public/config.template.js`**: Añade la variable al objeto utilizando sintaxis de fallback de bash:
-    ```javascript
-    window.APP_CONFIG = {
-      VITE_API_URL: "${VITE_API_URL:-http://localhost:3000}",
-      VITE_ANALYTICS_KEY: "${VITE_ANALYTICS_KEY:-default_key}"
-    };
-    ```
-2.  **`src/env.js`**: Declara la exportación:
-    ```javascript
-    export const ANALYTICS_KEY = getEnv("VITE_ANALYTICS_KEY");
-    ```
-3.  **Uso en el código**:
-    ```javascript
-    import { ANALYTICS_KEY } from "@/env";
-    ```
-
----
-
-## Beneficios de usar esta Arquitectura
-
-*   **Inmutabilidad**: La imagen que pruebas en Staging es **exactamente** la misma que se despliega en Producción.
-*   **Velocidad**: No más esperas de 10 minutos para reconstruir el frontend solo por un cambio de URL de API.
-*   **Seguridad**: Las variables se gestionan a nivel de infraestructura, sin estar "hardcoded" en los archivos estáticos generados en el build.
+1. **Agrega el nombre** al archivo `.env.example` en tu proyecto para documentarlo (Ej: `VITE_ANALYTICS_KEY=`).
+2. **Usa la variable** en tu código de Vue como: `import.meta.env.VITE_ANALYTICS_KEY`.
+3. **Agrega el secreto** en los Secrets de tu repositorio en `GitHub.com -> Settings -> Secrets and variables -> Actions`. Crea `VITE_ANALYTICS_KEY_PROD` y `VITE_ANALYTICS_KEY_DEV` (si aplica).
+4. **Modifica la Action** en `.github/workflows/frontend-docker.yml` para que lo inyecte junto a la API:
+   ```bash
+   echo "VITE_ANALYTICS_KEY=${{ secrets.VITE_ANALYTICS_KEY_PROD }}" >> ./frontend/.env.production
+   ```

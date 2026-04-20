@@ -1,20 +1,15 @@
 name: Frontend Docker CI/CD
 
-# Este workflow automatiza la construcción y publicación de la imagen de Docker
-# en GitHub Container Registry (GHCR) cada vez que se suben cambios a las ramas
-# main o development.
-
 on:
   push:
     branches: [ "main", "development" ]
     paths:
-      - "frontend/**" # Dispara si hay cambios en el frontend...
-      - "!frontend/**/*.md" # ... excepto si son archivos Markdown (ej. README.md)
-      - "!frontend/.gitignore" # ... o cambios en exclusiones locales
+      - "frontend/**"
+      - "!frontend/**/*.md"
+      - "!frontend/.gitignore"
 
 env:
   REGISTRY: ghcr.io
-  # El nombre de la imagen será: ghcr.io/usuario/repo-frontend
   IMAGE_NAME: ${{ github.repository }}-frontend
 
 jobs:
@@ -22,13 +17,24 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      packages: write # Vital para poder publicar la imagen en GHCR
+      packages: write
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # PASO DE CONTROL: Generamos Timestamp y Short SHA
+      # Determina el ambiente según la rama que disparó el workflow
+      - name: Set environment config
+        id: config
+        run: |
+          if [ "${{ github.ref_name }}" = "main" ]; then
+            echo "ENV_NAME=production" >> $GITHUB_OUTPUT
+            echo "API_URL=${{ secrets.VITE_API_URL_PROD }}" >> $GITHUB_OUTPUT
+          else
+            echo "ENV_NAME=development" >> $GITHUB_OUTPUT
+            echo "API_URL=${{ secrets.VITE_API_URL_DEV }}" >> $GITHUB_OUTPUT
+          fi
+
       - name: Generate custom identifiers
         id: vars
         run: |
@@ -45,21 +51,25 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # ESTRATEGIA DE TAGS: (Rama-latest, Rama-Timestamp-ShortSHA, CommitSHA)
       - name: Extract Docker metadata
         id: meta
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            # 1. Tag de rama 'latest' (Ej: development-latest)
-            type=raw,value=${{ github.ref_name }}-latest
-            
-            # 2. Tag detallado de control (Ej: development-20240413_1445-a1b2c3d)
-            type=raw,value=${{ github.ref_name }}-${{ steps.vars.outputs.TS }}-${{ steps.vars.outputs.SHORT_SHA }}
-            
-            # 3. Tag estándar por Git SHA
+            # Tag por ambiente (ej: production-latest, development-latest)
+            type=raw,value=${{ steps.config.outputs.ENV_NAME }}-latest
+
+            # Tag detallado con timestamp y SHA
+            type=raw,value=${{ steps.config.outputs.ENV_NAME }}-${{ steps.vars.outputs.TS }}-${{ steps.vars.outputs.SHORT_SHA }}
+
+            # Tag estándar por Git SHA
             type=sha,format=short
+
+      # El .env.production se crea con la URL correcta según el ambiente
+      - name: Create environment file
+        run: |
+          echo "VITE_API_URL=${{ steps.config.outputs.API_URL }}" > ./frontend/.env.production
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
@@ -68,13 +78,12 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          # Usamos el sistema de caché nativo de GitHub (GHA) para builds ultra rápidos
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      # Opcional: Notificación (puedes añadir Slack/Discord aquí)
       - name: Workflow Summary
         run: |
-          echo "Imagen construida y publicada con éxito!"
-          echo "Registry: ${{ env.REGISTRY }}"
-          echo "Tag Principal: ${{ github.ref_name }}-${{ steps.vars.outputs.TS }}-${{ steps.vars.outputs.SHORT_SHA }}"
+          echo "### Imagen publicada" >> $GITHUB_STEP_SUMMARY
+          echo "- **Ambiente:** ${{ steps.config.outputs.ENV_NAME }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Tag:** ${{ steps.config.outputs.ENV_NAME }}-${{ steps.vars.outputs.TS }}-${{ steps.vars.outputs.SHORT_SHA }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Registry:** ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}" >> $GITHUB_STEP_SUMMARY

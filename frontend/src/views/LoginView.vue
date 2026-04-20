@@ -83,7 +83,8 @@
 import { ref } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import logoMinisterio from "@/assets/logo-ministerio.png";
-import { API_URL } from "@/env";
+
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 const router = useRouter();
 const route = useRoute();
