@@ -1,5 +1,5 @@
 
-import { createApp } from 'vue'
+import { createApp } from 'vue' 
 
 // Vuetify
 import 'vuetify/styles'
