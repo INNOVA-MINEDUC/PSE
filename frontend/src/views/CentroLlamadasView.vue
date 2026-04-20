@@ -1,4 +1,3 @@
-<!-- src/views/CentroLlamadasView.vue -->
 <template>
   <main class="llamadas-page">
     <!-- HERO OSCURO -->
@@ -6,34 +5,19 @@
       class="llamadas-hero hero-banner-bg"
       :style="{ backgroundImage: `url(${bannerCentros})` }"
     >
-      <div class="hero-inner">
-        <div>
-          <p class="hero-kicker">MÓDULO 4</p>
-          <h1 class="hero-title">Centro de llamadas 1528</h1>
-          <p class="hero-text">
-            El 1528 es la línea gratuita de orientación médica para estudiantes del sistema
-            educativo nacional. A través de este centro se realizan consultas, referencias a
-            servicios de salud y coordinación en casos de emergencia.
-          </p>
-        </div>
-
-        <div class="hero-summary-card">
-          <div class="summary-header">
-            <div class="summary-icon">
-              <span class="headset-icon">🎧</span>
-            </div>
-            <div>
-              <p class="summary-label">Llamadas al 1528</p>
-              <p class="summary-value">
-                {{ stats.llamadas.toLocaleString('es-GT') }}
-              </p>
-            </div>
+      <div class="hero-banner-overlay">
+        <div class="hero-inner">
+          <div>
+            <p class="hero-kicker">MÓDULO 4</p>
+            <h1 class="hero-title">
+              Centro de llamadas <span class="highlight">1528</span>
+            </h1>
+            <p class="hero-text">
+              El 1528 es la línea gratuita de orientación médica para estudiantes del sistema
+              educativo nacional. A través de este centro se realizan consultas, referencias a
+              servicios de salud y coordinación en casos de emergencia.
+            </p>
           </div>
-
-          <p class="summary-note">
-            Dato de ejemplo para el prototipo. En la versión final se alimentará con los
-            registros reales del sistema de llamadas.
-          </p>
         </div>
       </div>
     </section>
@@ -274,10 +258,6 @@ import avatarOperador from '@/assets/operador-1528.png'
 const bannerCentros = '/Centro-1528/banner/llamadas-banner.jpg'
 const logoFranja = '/Home/LOGOS/logo-franja.png'
 
-const stats = {
-  llamadas: 24221 // número de ejemplo, luego vendrá del backend
-}
-
 const pasos = [
   {
     numero: 1,
@@ -388,53 +368,6 @@ const pasos = [
   margin: 0;
   text-align: justify;
 }
-/* Tarjeta resumen */
-.hero-summary-card {
-  min-width: 320px;
-  max-width: 360px;
-  background: radial-gradient(circle at top left, #1d4ed8, #020617);
-  border-radius: 18px;
-  padding: 18px 20px;
-  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.65);
-}
-
-.summary-header {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  margin-bottom: 10px;
-}
-
-.summary-icon {
-  width: 46px;
-  height: 46px;
-  border-radius: 999px;
-  background: rgba(15, 23, 42, 0.6);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.headset-icon {
-  font-size: 1.6rem;
-}
-
-.summary-label {
-  font-size: 0.8rem;
-  color: #c7d2fe;
-  margin-bottom: 2px;
-}
-
-.summary-value {
-  font-size: 1.5rem;
-  font-weight: 700;
-}
-
-.summary-note {
-  font-size: 0.75rem;
-  color: #c7d2fe;
-}
-
 /* BODY */
 .llamadas-body {
   background: #f3f4f6; /* gris muy claro / casi blanco */
