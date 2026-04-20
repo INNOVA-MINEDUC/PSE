@@ -1,4 +1,4 @@
-<template>
+<template> 
   <div class="app-shell">
     <header class="header">
       <div class="header-inner">
