@@ -170,11 +170,11 @@
 </template>
 
 <script setup>
-const bannerCentros = '/Centro-1528/banner.png'
+const bannerCentros = '/Centro-1528/banner/llamadas-banner.jpg'
 const logoFranja = '/Home/LOGOS/logo-franja.png'
 
-const imgCasos = '/Centro-1528/Tipos-casos.png'
-const imgFlujo = '/Centro-1528/llamadas-flujo.png'
+const imgCasos = '/Centro-1528/Tipos-casos.jpg'
+const imgFlujo = '/Centro-1528/llamadas-flujo.jpg'
 
 const pasos = [
   {
@@ -182,21 +182,21 @@ const pasos = [
     titulo: 'Llama gratis al 1528',
     descripcion:
       'Marca desde cualquier teléfono para iniciar una consulta personalizada sobre la salud del estudiante.',
-    imagen: '/Centro-1528/llamadas-funciona-1.png'
+    imagen: '/Centro-1528/lamadas-funciona-1.jpg'
   },
   {
     numero: 2,
     titulo: 'Habla con el médico',
     descripcion:
       'Si el caso lo requiere, la llamada se traslada a un médico, quien realiza preguntas y evalúa la situación.',
-    imagen: '/Centro-1528/llamadas-funciona-2.png'
+    imagen: '/Centro-1528/llamadas-funciona-2.jpg'
   },
   {
     numero: 3,
     titulo: 'Recibe indicaciones y referencia',
     descripcion:
       'Se indica qué hacer, a qué servicio acudir y, en emergencias, se coordina con el servicio de salud más cercano.',
-    imagen: '/Centro-1528/llamadas-funciona-3.png'
+    imagen: '/Centro-1528/llamadas-funciona-3.jpg'
   }
 ]
 
@@ -206,28 +206,28 @@ const personal = [
     cantidad: '4 médicos pediatras.',
     descripcion:
       'Médicos profesionales especializados en brindarte la mejor atención.',
-    icono: '/Centro-1528/llamadas-icono-pediatra.png'
+    icono: '/Centro-1528/llamadas-icono-pediatra.jpg'
   },
   {
     titulo: 'Médicos generales',
     cantidad: '24 médicos generales.',
     descripcion:
       'El personal está organizado en turnos fijos y rotativos para garantizar la atención continua durante todo el día.',
-    icono: '/Centro-1528/llamadas-icono-medicos.png'
+    icono: '/Centro-1528/llamadas-icono-medicos.jpg'
   },
   {
     titulo: 'Gestores',
     cantidad: '16 gestores de llamadas.',
     descripcion:
       'Equipo médico y gestores de llamadas que atienden a las familias de todo el país.',
-    icono: '/Centro-1528/llamadas-icono-gestores.png'
+    icono: '/Centro-1528/llamadas-icono-gestores.jpg'
   },
   {
     titulo: 'Psicólogo',
     cantidad: '1 psicólogo.',
     descripcion:
       'Descubre qué es el apoyo psicológico, cómo puede ayudarte a gestionar tu bienestar mental y emocional.',
-    icono: '/Centro-1528/llamadas-personal-pediatras.png'
+    icono: '/Centro-1528/llamadas-personal-pediatras.jpg'
   }
 ]
 </script>
