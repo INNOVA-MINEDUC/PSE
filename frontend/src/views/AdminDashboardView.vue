@@ -273,7 +273,8 @@
 <script setup>
 import { computed, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
-import { API_URL } from "@/env";
+
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 const router = useRouter();
 const token = localStorage.getItem("token");

@@ -34,10 +34,6 @@ services:
     ports:
       # Exponemos el puerto 8089 de la máquina y lo enviamos al 8080 interno de Nginx-Unprivileged
       - "8089:8080"
-    # Pasamos las variables a través de un archivo externo (ej. .env.frontend)
-    # Este archivo solo debería contener: VITE_API_URL=https://api-saludescolar-dev.mineduc.edu.gt
-    env_file:
-      - .env.frontend
     depends_on:
       - pse-backend
     networks:
