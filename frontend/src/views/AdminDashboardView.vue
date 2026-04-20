@@ -272,7 +272,6 @@
 
 <script setup>
 import { computed, onMounted, ref } from "vue";
-import * as XLSX from "xlsx";
 import { useRouter } from "vue-router";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
