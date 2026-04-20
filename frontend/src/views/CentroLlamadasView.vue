@@ -11,10 +11,7 @@
           <div class="hero-content">
             <p class="hero-kicker">MÓDULO 4</p>
 
-            <h1 class="hero-title">
-              Centro de <br />
-              llamadas 1528
-            </h1>
+            <h1 class="hero-title">Centro de llamadas <span class="highlight">1528</span></h1>
 
             <p class="hero-text">
               El 1528 es la línea gratuita de orientación médica para estudiantes del
@@ -234,12 +231,12 @@ const personal = [
 
 <style scoped>
 .llamadas-page {
-  background: #f3f5f7;
+  background: #ffffff;
 }
 
 /* HERO */
 .llamadas-hero {
-  min-height: 500px;
+  min-height: 590px;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -260,10 +257,10 @@ const personal = [
 }
 
 .hero-inner {
-  max-width: 1320px;
+  max-width: 1440px;
   margin: 0 auto;
   width: 100%;
-  padding: 130px 36px 60px;
+  padding: 90px 44px 40px;
 }
 
 .hero-content {
@@ -271,33 +268,51 @@ const personal = [
 }
 
 .hero-kicker {
-  display: inline-block;
-  background: #20c9e8;
-  color: #00345c;
-  font-size: 0.75rem;
-  font-weight: 800;
+  font-size: 0.72rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  border-radius: 999px;
-  padding: 6px 16px;
-  margin-bottom: 16px;
+  color: #60d5f3;
+  margin: 0 0 8px;
+  font-weight: 700;
 }
 
 .hero-title {
-  color: #ffffff;
-  font-size: 3.2rem;
-  line-height: 0.95;
+  max-width: 900px;
+  width: 100%;
+  font-size: 45px;
+  line-height: 1.06;
   font-weight: 900;
-  margin: 0 0 18px;
+  color: #ffffff;
+  margin: 0 0 14px;
 }
 
 .hero-text {
-  color: rgba(255, 255, 255, 0.95);
-  font-size: 1rem;
-  line-height: 1.55;
+  max-width: 700px;
+  font-size: 15px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.94);
   margin: 0;
-  max-width: 620px;
-  text-align: left;
+  text-align: justify;
+}
+
+.highlight {
+  color: #ffffff;
+  position: relative;
+  display: inline-block;
+  z-index: 1;
+  padding: 5px 15px;
+}
+
+.highlight::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 4px;
+  width: 100%;
+  height: 48px;
+  background: linear-gradient(90deg, #15c9e8, #0bb6d6);
+  z-index: -1;
+  border-radius: 8px;
 }
 
 /* FRANJA */
@@ -406,12 +421,12 @@ const personal = [
   font-size: 0.88rem;
   line-height: 1.4;
   margin: 0 0 14px;
-  min-height: 74px;
+  min-height: 90px;
 }
 
 .step-image {
   width: 100%;
-  height: 155px;
+  height: 220px;
   object-fit: cover;
   display: block;
   border-radius: 8px;
@@ -426,7 +441,7 @@ const personal = [
 
 .video-box {
   width: 100%;
-  min-height: 220px;
+  min-height: 520px;
   background: #003e68;
   display: flex;
   align-items: center;
@@ -434,26 +449,26 @@ const personal = [
 }
 
 .play-button {
-  width: 88px;
-  height: 88px;
+  width: 140px;
+  height: 140px;
   border-radius: 999px;
   background: #ffffff;
   color: #003e68;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 2rem;
+  font-size: 3.2rem;
   font-weight: 700;
 }
 
 .video-caption {
   padding: 14px 18px 18px;
   margin-bottom: 0;
-}
-
-/* PERSONAL */
-.section-personal {
-  padding: 2px 0 0;
+  .play-button {
+    width: 100px;
+    height: 100px;
+    font-size: 2.2rem;
+  }
 }
 
 .staff-grid {
@@ -472,11 +487,20 @@ const personal = [
 
 .staff-icon-wrap {
   margin-bottom: 10px;
+  width: 72px;
+  height: 72px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  box-shadow: none;
 }
 
 .staff-icon-img {
-  width: 58px;
-  height: 58px;
+  width: 40px;
+  height: 40px;
   object-fit: contain;
   display: block;
 }
@@ -500,18 +524,28 @@ const personal = [
 .split-card {
   display: grid;
   grid-template-columns: 1.2fr 0.95fr;
-  gap: 22px;
+  gap: 36px;
   align-items: center;
 }
 
 .info-list {
   margin: 14px 0 0;
-  padding-left: 18px;
+  padding-left: 20px;
   display: grid;
-  gap: 10px;
+  gap: 14px;
   color: #39424e;
-  font-size: 0.9rem;
-  line-height: 1.5;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  text-align: justify;
+}
+
+.split-text .section-subtitle {
+  margin-bottom: 18px;
+  text-align: justify;
+}
+
+.section-title.left {
+  margin-bottom: 12px;
 }
 
 .info-list li::marker {
@@ -522,14 +556,21 @@ const personal = [
   display: flex;
   justify-content: center;
   align-items: center;
+  background: transparent;
+  padding: 0;
+  border-radius: 14px;
+  box-shadow: none;
+  overflow: hidden;
 }
 
 .split-image {
   width: 100%;
   max-width: 420px;
-  border-radius: 14px;
+  border-radius: 0;
   display: block;
   object-fit: cover;
+  transform: scale(1.12) translateY(-6px);
+  transition: transform 300ms ease;
 }
 
 /* FLUJO */
@@ -541,7 +582,26 @@ const personal = [
 }
 
 .flow-image-box {
+  background: #ffffff;
+  padding: 12px;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(15,23,42,0.06);
+  overflow: hidden;
+}
+
+/* remove extra background circle around icons and show only the image */
+.staff-icon-img {
   background: transparent;
+  display: block;
+}
+
+/* spacing between sections */
+.video-section {
+  margin-bottom: 28px;
+}
+
+.section-personal {
+  margin-top: 28px;
 }
 
 .flow-image {
@@ -549,6 +609,7 @@ const personal = [
   border-radius: 10px;
   display: block;
   object-fit: cover;
+  transform: scale(1.06);
 }
 
 .flow-text-box {
@@ -575,6 +636,10 @@ const personal = [
 
   .split-image {
     max-width: 100%;
+  }
+
+  .step-image {
+    height: 180px;
   }
 }
 
@@ -604,7 +669,13 @@ const personal = [
   }
 
   .video-box {
-    min-height: 180px;
+    min-height: 420px;
+  }
+
+  .play-button {
+    width: 120px;
+    height: 120px;
+    font-size: 2.6rem;
   }
 }
 
@@ -618,6 +689,15 @@ const personal = [
   }
 
   .section-card {
+
+    /* reduce image height on very small screens */
+  }
+
+  .step-image {
+    height: 140px;
+  }
+  .section-card {
+    /* reduce image height on very small screens */
     padding: 16px;
   }
 
