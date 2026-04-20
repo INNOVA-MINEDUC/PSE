@@ -87,3 +87,4 @@ jobs:
           echo "- **Ambiente:** ${{ steps.config.outputs.ENV_NAME }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Tag:** ${{ steps.config.outputs.ENV_NAME }}-${{ steps.vars.outputs.TS }}-${{ steps.vars.outputs.SHORT_SHA }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Registry:** ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}" >> $GITHUB_STEP_SUMMARY
+          
