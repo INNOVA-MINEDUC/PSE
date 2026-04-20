@@ -3,7 +3,7 @@ dist
 .git
 .github
 .env
-.env.*
+.env.local
 Dockerfile
 .dockerignore
 README.md
