@@ -93,6 +93,7 @@ jobs:
     needs: build-and-push
     if: github.ref_name == 'development'
     runs-on: ubuntu-latest
+    concurrency: deploy-development
     permissions:
       contents: read
       packages: read
@@ -117,6 +118,7 @@ jobs:
     needs: build-and-push
     if: github.ref_name == 'main'
     runs-on: ubuntu-latest
+    concurrency: deploy-production
     permissions:
       contents: read
       packages: read
