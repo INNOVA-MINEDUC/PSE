@@ -5,15 +5,16 @@
       class="module-hero"
       :style="{ backgroundImage: `url(${bannerFunerario})` }"
     >
-      <div class="module-hero-overlay">
-        <div class="module-container hero-container">
-          <div class="hero-copy">
-            <span class="hero-badge">MÓDULO 4</span>
-
-            <h1 class="hero-title">Apoyo Funerario</h1>
-
-            <p class="hero-description">
-              En caso de fallecimiento de un estudiante inscrito en el sistema
+   <div class="hero-banner-overlay">
+        <div class="hero-inner">
+          <div>
+            <p class="hero-kicker">MÓDULO 4</p>
+            <h1 class="hero-title">
+              Apoyo
+              <span class="highlight">Funerario</span>
+            </h1>
+            <p class="hero-text">
+               En caso de fallecimiento de un estudiante inscrito en el sistema
               educativo público, el Programa de Salud Escolar (PSE) contempla un
               aporte económico de hasta <strong>Q7,500.00</strong> para apoyar a
               la familia en los gastos funerarios. Este apoyo busca acompañar y
@@ -42,10 +43,6 @@
         <section class="block-card steps-section">
           <div class="section-heading centered">
             <h2 class="section-title">Pasos para que recibas el aporte económico</h2>
-            <p class="section-subtitle">
-              Proceso orientativo basado en la infografía institucional. En la versión
-              final se conectará con los formularios y flujos del sistema.
-            </p>
           </div>
 
           <div class="steps-grid">
@@ -218,7 +215,7 @@ const bannerFunerario = '/Funerario/banner/funerario-banner.png'
 const logoFranja = '/Home/LOGOS/logo-franja.png'
 
 const imgFlujo = '/Funerario/funerario-flujo-atencion.png'
-const imgResumen = '/Funerario/funerario-resumen-programa.png'
+const imgResumen = '/Funerario/funerario-metrica-casos.png'
 const imgMetricas = '/Funerario/funerario-metrica-casos.png'
 
 const pasos = [
@@ -269,68 +266,75 @@ const formatoMoneda = (valor) => `Q${valor.toLocaleString('es-GT')}`
 }
 
 /* HERO */
-.module-hero {
-  position: relative;
-  min-height: 520px;
+/* HERO */
+.atencion-hero {
+  min-height: 590px;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+  position: relative;
+  padding: 0;
 }
 
-.module-hero-overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    90deg,
-    rgba(0, 52, 92, 0.94) 0%,
-    rgba(0, 52, 92, 0.82) 42%,
-    rgba(0, 52, 92, 0.25) 100%
-  );
-  display: flex;
-  align-items: center;
+.hero-banner-bg {
+  min-height: 590px;
 }
 
-.hero-container {
-  display: flex;
-  align-items: center;
-  min-height: 520px;
+.hero-inner {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 160px 44px 40px;
+  width: 100%;
 }
 
-.hero-copy {
-  max-width: 680px;
-  padding: 120px 0 70px;
-}
-
-.hero-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 7px 18px;
-  border-radius: 999px;
-  background: #19c7e8;
-  color: #00345c;
-  font-size: 0.75rem;
-  font-weight: 900;
+.hero-kicker {
+  font-size: 0.72rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  margin-bottom: 18px;
+  color: #60d5f3;
+  margin: 0 0 8px;
+  font-weight: 700;
 }
 
 .hero-title {
-  margin: 0 0 16px;
-  color: #ffffff;
-  font-size: 3.2rem;
-  line-height: 0.98;
+  max-width: 900px;
+  width: 100%;
+  font-size: 45px;
+  line-height: 1.06;
   font-weight: 900;
+  color: #ffffff;
+  margin: 0 0 14px;
 }
 
-.hero-description {
-  margin: 0;
-  color: rgba(255, 255, 255, 0.96);
-  font-size: 1rem;
-  line-height: 1.65;
-  max-width: 620px;
+.highlight {
+  color: #ffffff;
+  position: relative;
+  display: inline-block;
+  z-index: 1;
+  padding: 5px 15px;
 }
+
+.highlight::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 4px;
+  width: 100%;
+  height: 48px;
+  background: linear-gradient(90deg, #15c9e8, #0bb6d6);
+  z-index: -1;
+  border-radius: 8px;
+}
+
+.hero-text {
+  max-width: 700px;
+  font-size: 15px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.94);
+  margin: 0;
+  text-align: justify;
+}
+
 
 /* FRANJA */
 .logo-strip {
@@ -472,11 +476,12 @@ const formatoMoneda = (valor) => `Q${valor.toLocaleString('es-GT')}`
 
 .video-placeholder {
   width: 100%;
-  min-height: 260px;
+  height: 600px;
   background: #003f69;
   display: flex;
   align-items: center;
   justify-content: center;
+  border-radius: 18px 18px 0 0;
 }
 
 .play-button {

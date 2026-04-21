@@ -290,8 +290,6 @@ const tiposAtencion = [
   min-height: 590px;
 }
 
-
-
 .hero-inner {
   max-width: 1440px;
   margin: 0 auto;

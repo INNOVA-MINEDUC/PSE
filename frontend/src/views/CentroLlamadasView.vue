@@ -1,4 +1,4 @@
-<!-- src/views/CentroLlamadasView.vue -->
+
 <template>
   <main class="llamadas-page">
     <!-- HERO -->
@@ -243,18 +243,7 @@ const personal = [
   position: relative;
 }
 
-.hero-banner-overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    to right,
-    rgba(0, 52, 92, 0.92),
-    rgba(0, 52, 92, 0.72),
-    rgba(0, 52, 92, 0.15)
-  );
-  display: flex;
-  align-items: center;
-}
+
 
 .hero-inner {
   max-width: 1440px;
