@@ -102,3 +102,24 @@ jobs:
             docker compose pull
             docker compose up -d
             docker image prune -a -f
+
+  deploy-prod:
+    name: Deploy to Production Server
+    needs: build-and-push
+    if: github.ref_name == 'main'
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Execute Remote SSH Commands
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.PROD_SERVER_IP }}
+          username: ${{ secrets.PROD_SERVER_USER }}
+          password: ${{ secrets.PROD_SERVER_PASSWORD }}
+          port: ${{ secrets.PROD_SERVER_PORT }}
+          script: |
+            cd /opt/public_html/PSE
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            docker compose pull
+            docker compose up -d
+            docker image prune -a -f
