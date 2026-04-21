@@ -87,6 +87,9 @@ jobs:
     needs: build-and-push
     if: github.ref_name == 'development'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
     
     steps:
       - name: Execute Remote SSH Commands
@@ -108,6 +111,9 @@ jobs:
     needs: build-and-push
     if: github.ref_name == 'main'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
     
     steps:
       - name: Execute Remote SSH Commands
