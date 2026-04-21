@@ -1,24 +1,23 @@
-<!-- src/views/FunerariosView.vue -->
 <template>
   <main class="funerario-page">
     <!-- HERO -->
     <section
-      class="funerario-hero"
+      class="module-hero"
       :style="{ backgroundImage: `url(${bannerFunerario})` }"
     >
-      <div class="hero-overlay">
-        <div class="hero-inner">
-          <div class="hero-content">
-            <p class="hero-kicker">MÓDULO 5</p>
+      <div class="module-hero-overlay">
+        <div class="module-container hero-container">
+          <div class="hero-copy">
+            <span class="hero-badge">MÓDULO 4</span>
 
             <h1 class="hero-title">Apoyo Funerario</h1>
 
-            <p class="hero-text">
-              En caso de fallecimiento de un estudiante inscrito en el sistema educativo
-              público, el Programa de Salud Escolar (PSE) contempla un aporte económico
-              de hasta <strong>Q7,500.00</strong> para apoyar a la familia en los gastos
-              funerarios. Este apoyo busca acompañar y aliviar, en lo posible, a las
-              familias en momentos difíciles.
+            <p class="hero-description">
+              En caso de fallecimiento de un estudiante inscrito en el sistema
+              educativo público, el Programa de Salud Escolar (PSE) contempla un
+              aporte económico de hasta <strong>Q7,500.00</strong> para apoyar a
+              la familia en los gastos funerarios. Este apoyo busca acompañar y
+              aliviar, en lo posible, a las familias en momentos difíciles.
             </p>
           </div>
         </div>
@@ -26,20 +25,22 @@
     </section>
 
     <!-- FRANJA DE LOGOS -->
-    <section class="logo-franja">
-      <img
-        :src="logoFranja"
-        alt="Franja de logos institucionales"
-        class="logo-franja-img"
-      />
+    <section class="logo-strip">
+      <div class="module-container">
+        <img
+          :src="logoFranja"
+          alt="Logos institucionales del Programa de Salud Escolar"
+          class="logo-strip-image"
+        />
+      </div>
     </section>
 
     <!-- CONTENIDO -->
-    <section class="funerario-body">
-      <div class="funerario-inner">
+    <section class="module-content">
+      <div class="module-container content-stack">
         <!-- PASOS -->
-        <section class="section-card section-steps">
-          <div class="section-head centered">
+        <section class="block-card steps-section">
+          <div class="section-heading centered">
             <h2 class="section-title">Pasos para que recibas el aporte económico</h2>
             <p class="section-subtitle">
               Proceso orientativo basado en la infografía institucional. En la versión
@@ -51,39 +52,44 @@
             <article class="step-card" v-for="paso in pasos" :key="paso.numero">
               <div class="step-number">{{ paso.numero }}</div>
               <h3 class="step-title">{{ paso.titulo }}</h3>
-              <p class="step-text">{{ paso.descripcion }}</p>
-              <img :src="paso.imagen" :alt="paso.titulo" class="step-image" />
+              <p class="step-description">{{ paso.descripcion }}</p>
+
+              <div class="step-image-wrap">
+                <img :src="paso.imagen" :alt="paso.titulo" class="step-image" />
+              </div>
             </article>
           </div>
         </section>
 
         <!-- VIDEO -->
-        <section class="section-card video-section">
-          <div class="video-box">
-            <span class="play-button">▶</span>
+        <section class="block-card video-section">
+          <div class="video-placeholder">
+            <button class="play-button" type="button" aria-label="Reproducir video">
+              ▶
+            </button>
           </div>
 
-          <div class="video-caption">
+          <div class="video-content">
             <h2 class="section-title">Video informativo</h2>
             <p class="section-subtitle">
               Video institucional que explique el apoyo funerario del PSE.
             </p>
 
-            <div class="download-actions">
+            <div class="action-buttons">
               <a
-                class="btn-download btn-outline"
                 href="/docs/pse-apoyo-funerario-folleto.pdf"
                 target="_blank"
                 rel="noopener"
+                class="btn btn-outline"
               >
                 Descarga folleto PDF
               </a>
 
               <a
-                class="btn-download btn-filled"
                 href="/docs/pse-apoyo-funerario-formulario.pdf"
                 target="_blank"
                 rel="noopener"
+                class="btn btn-primary"
               >
                 Descarga formulario
               </a>
@@ -92,21 +98,22 @@
         </section>
 
         <!-- FLUJO -->
-        <section class="split-section flow-section">
-          <div class="split-image-box">
+        <section class="split-card">
+          <div class="split-media">
             <img
               :src="imgFlujo"
-              alt="Flujo básico de atención"
+              alt="Flujo básico de atención del apoyo funerario"
               class="split-image"
             />
           </div>
 
-          <div class="split-text-box">
-            <h2 class="section-title left">Flujo básico de atención</h2>
+          <div class="split-content">
+            <h2 class="section-title align-left">Flujo básico de atención</h2>
 
-            <ol class="flow-list">
+            <ol class="number-list">
               <li>
-                El estudiante debe estar inscrito en el Sistema de Registros Educativos (SIRE).
+                El estudiante debe estar inscrito en el Sistema de Registros
+                Educativos (SIRE).
               </li>
               <li>
                 Presentar certificado de defunción del estudiante.
@@ -116,43 +123,44 @@
                 (o documento que lo acredite).
               </li>
               <li>
-                Seguir las indicaciones de la Dirección Departamental de Educación para
-                completar el trámite.
+                Seguir las indicaciones de la Dirección Departamental de Educación
+                para completar el trámite.
               </li>
             </ol>
           </div>
         </section>
 
         <!-- RESUMEN -->
-        <section class="section-card resumen-card">
-          <div class="resumen-content">
-            <div class="resumen-text">
-              <h2 class="section-title left">Resumen del programa</h2>
+        <section class="block-card summary-section">
+          <div class="summary-grid">
+            <div class="summary-copy">
+              <h2 class="section-title align-left">Resumen del programa</h2>
 
               <ul class="summary-list">
                 <li>
-                  El aporte económico puede ser de hasta <strong>Q7,500.00</strong> por estudiante.
+                  El aporte económico puede ser de hasta
+                  <strong>Q7,500.00</strong> por estudiante.
                 </li>
                 <li>
-                  La familia elige la funeraria de su conveniencia, de acuerdo con las
-                  indicaciones del programa.
+                  La familia elige la funeraria de su conveniencia, de acuerdo con
+                  las indicaciones del programa.
                 </li>
                 <li>
-                  El apoyo se otorga para contribuir a los gastos funerarios derivados del
-                  fallecimiento del estudiante.
+                  El apoyo se otorga para contribuir a los gastos funerarios
+                  derivados del fallecimiento del estudiante.
                 </li>
                 <li>
-                  El PSE coordina con las Direcciones Departamentales para verificar la
-                  información y acompañar a la familia durante el proceso.
+                  El PSE coordina con las Direcciones Departamentales para verificar
+                  la información y acompañar a la familia durante el proceso.
                 </li>
               </ul>
             </div>
 
-            <div class="resumen-image-box">
+            <div class="summary-media">
               <img
                 :src="imgResumen"
-                alt="Resumen del programa"
-                class="resumen-image"
+                alt="Resumen visual del programa de apoyo funerario"
+                class="summary-image"
               />
             </div>
           </div>
@@ -160,7 +168,7 @@
 
         <!-- MÉTRICAS -->
         <section class="metrics-section">
-          <div class="section-head centered metrics-head">
+          <div class="section-heading centered metrics-heading">
             <h2 class="section-title">
               Aportes económicos a familias de estudiantes fallecidos
             </h2>
@@ -168,34 +176,34 @@
 
           <div class="metrics-grid">
             <article class="metric-card">
-              <div class="metric-icon-wrap">
+              <div class="metric-icon metric-icon-image">
                 <img
                   :src="imgMetricas"
-                  alt="Casos atendidos"
-                  class="metric-icon-img"
+                  alt="Ícono de casos atendidos"
+                  class="metric-image"
                 />
               </div>
-              <p class="metric-value">{{ datosFunerarios.totalCasos }}</p>
+              <h3 class="metric-value">{{ datosFunerarios.totalCasos }}</h3>
               <p class="metric-label">Casos atendidos</p>
             </article>
 
-            <article class="metric-card metric-card-highlight">
-              <div class="metric-emoji">👨</div>
-              <p class="metric-value">{{ datosFunerarios.masculinos }}</p>
+            <article class="metric-card metric-card-accent">
+              <div class="metric-icon">👨</div>
+              <h3 class="metric-value">{{ datosFunerarios.masculinos }}</h3>
               <p class="metric-label">Masculinos</p>
             </article>
 
             <article class="metric-card">
-              <div class="metric-emoji">👩</div>
-              <p class="metric-value">{{ datosFunerarios.femeninos }}</p>
+              <div class="metric-icon">👩</div>
+              <h3 class="metric-value">{{ datosFunerarios.femeninos }}</h3>
               <p class="metric-label">Femeninos</p>
             </article>
 
             <article class="metric-card">
-              <div class="metric-emoji">Q</div>
-              <p class="metric-value amount">
+              <div class="metric-icon">Q</div>
+              <h3 class="metric-value metric-value-amount">
                 {{ formatoMoneda(datosFunerarios.montoTotal) }}
-              </p>
+              </h3>
               <p class="metric-label">Monto total entregado</p>
             </article>
           </div>
@@ -206,7 +214,7 @@
 </template>
 
 <script setup>
-const bannerFunerario = '/Funerario/funerario-banner.png'
+const bannerFunerario = '/Funerario/banner/funerario-banner.png'
 const logoFranja = '/Home/LOGOS/logo-franja.png'
 
 const imgFlujo = '/Funerario/funerario-flujo-atencion.png'
@@ -219,21 +227,21 @@ const pasos = [
     titulo: 'Llama gratis al 1528 o acude a la Dirección Departamental',
     descripcion:
       'Marca sin costo al 1528 o acércate a la Dirección Departamental para recibir orientación inicial sobre el proceso.',
-    imagen: '/Funerario/funerario-paso-1.png'
+    imagen: '/Funerario/funerario-paso-2.png'
   },
   {
     numero: 2,
     titulo: 'Presenta los documentos requeridos',
     descripcion:
-      'Presenta el certificado de defunción del estudiante, DPI y NIT del padre, madre, tutor o encargado, según corresponda.',
-    imagen: '/Funerario/funerario-paso-2.png'
+      'Certificado de defunción del estudiante. Fotocopia de DPI y NIT del padre, madre, tutor o encargado (según aplique).',
+    imagen: '/Funerario/funerario-paso-3.png'
   },
   {
     numero: 3,
     titulo: 'Elige la funeraria y recibe el apoyo económico',
     descripcion:
-      'La familia elige la funeraria de su conveniencia. El aporte económico puede ser de hasta Q7,500.00 por estudiante.',
-    imagen: '/Funerario/funerario-paso-3.png'
+      'Como padre, madre, tutor o encargado, eliges la funeraria de tu conveniencia. El aporte económico para gastos funerarios puede ser de hasta Q7,500.00 por estudiante.',
+    imagen: '/Funerario/funerario-paso-1.png'
   }
 ]
 
@@ -244,258 +252,278 @@ const datosFunerarios = {
   montoTotal: 2467000
 }
 
-const formatoMoneda = (valor) => {
-  return `Q${valor.toLocaleString('es-GT')}`
-}
+const formatoMoneda = (valor) => `Q${valor.toLocaleString('es-GT')}`
 </script>
 
 <style scoped>
 .funerario-page {
-  background: #f3f5f7;
+  background: #f4f6f8;
+  min-height: 100vh;
+}
+
+.module-container {
+  width: 100%;
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 0 32px;
 }
 
 /* HERO */
-.funerario-hero {
-  min-height: 500px;
+.module-hero {
+  position: relative;
+  min-height: 520px;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  position: relative;
 }
 
-.hero-overlay {
+.module-hero-overlay {
   position: absolute;
   inset: 0;
   background: linear-gradient(
-    to right,
-    rgba(0, 52, 92, 0.92),
-    rgba(0, 52, 92, 0.72),
-    rgba(0, 52, 92, 0.18)
+    90deg,
+    rgba(0, 52, 92, 0.94) 0%,
+    rgba(0, 52, 92, 0.82) 42%,
+    rgba(0, 52, 92, 0.25) 100%
   );
   display: flex;
   align-items: center;
 }
 
-.hero-inner {
-  max-width: 1320px;
-  margin: 0 auto;
-  width: 100%;
-  padding: 130px 36px 60px;
+.hero-container {
+  display: flex;
+  align-items: center;
+  min-height: 520px;
 }
 
-.hero-content {
-  max-width: 650px;
+.hero-copy {
+  max-width: 680px;
+  padding: 120px 0 70px;
 }
 
-.hero-kicker {
-  display: inline-block;
-  background: #20c9e8;
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 7px 18px;
+  border-radius: 999px;
+  background: #19c7e8;
   color: #00345c;
   font-size: 0.75rem;
-  font-weight: 800;
+  font-weight: 900;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  border-radius: 999px;
-  padding: 6px 16px;
-  margin-bottom: 16px;
+  margin-bottom: 18px;
 }
 
 .hero-title {
+  margin: 0 0 16px;
   color: #ffffff;
-  font-size: 3.15rem;
+  font-size: 3.2rem;
   line-height: 0.98;
   font-weight: 900;
-  margin: 0 0 18px;
 }
 
-.hero-text {
-  color: rgba(255, 255, 255, 0.95);
-  font-size: 1rem;
-  line-height: 1.55;
+.hero-description {
   margin: 0;
+  color: rgba(255, 255, 255, 0.96);
+  font-size: 1rem;
+  line-height: 1.65;
   max-width: 620px;
-  text-align: left;
 }
 
 /* FRANJA */
-.logo-franja {
+.logo-strip {
   background: #ffffff;
+  border-bottom: 1px solid rgba(10, 55, 90, 0.06);
 }
 
-.logo-franja-img {
+.logo-strip-image {
   display: block;
   width: 100%;
-  max-width: 1320px;
-  margin: 0 auto;
-  padding: 12px 32px 14px;
+  padding: 12px 0 14px;
 }
 
 /* BODY */
-.funerario-body {
-  padding: 22px 0 50px;
+.module-content {
+  padding: 24px 0 56px;
 }
 
-.funerario-inner {
-  max-width: 1320px;
-  margin: 0 auto;
-  padding: 0 32px;
+.content-stack {
   display: grid;
   gap: 24px;
 }
 
-/* HEADINGS */
-.section-head.centered {
+/* TITULOS */
+.section-heading.centered {
   text-align: center;
   margin-bottom: 18px;
 }
 
 .section-title {
+  margin: 0 0 8px;
   color: #0b4168;
   font-size: 2rem;
   line-height: 1.1;
   font-weight: 900;
-  margin: 0 0 8px;
 }
 
-.section-title.left {
+.section-title.align-left {
   text-align: left;
 }
 
 .section-subtitle {
-  color: #5b6470;
-  font-size: 0.95rem;
-  line-height: 1.45;
   margin: 0;
+  color: #5d6873;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.centered .section-subtitle,
+.video-content .section-subtitle {
   text-align: center;
 }
 
-.video-caption .section-subtitle,
-.split-text-box .section-subtitle,
-.resumen-text .section-subtitle {
-  text-align: left;
-}
-
 /* CARD BASE */
-.section-card {
+.block-card,
+.split-card {
   background: #eef2f4;
   border-radius: 18px;
-  padding: 18px 20px 20px;
   box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);
 }
 
 /* PASOS */
+.steps-section {
+  padding: 20px;
+}
+
 .steps-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
+  gap: 20px;
+  align-items: stretch;
 }
 
 .step-card {
   background: #ffffff;
-  border-radius: 12px;
-  padding: 18px 14px 14px;
-  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+  border-radius: 14px;
+  padding: 18px 14px 0;
   text-align: center;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .step-number {
-  width: 30px;
-  height: 30px;
-  border-radius: 999px;
+  width: 52px;
+  height: 52px;
+  margin: 0 auto 16px;
+  border-radius: 50%;
   background: #0b4168;
   color: #ffffff;
+  font-size: 1.45rem;
+  font-weight: 900;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto 10px;
-  font-size: 0.85rem;
-  font-weight: 800;
 }
 
 .step-title {
+  margin: 0 0 12px;
   color: #0b4168;
-  font-size: 0.98rem;
+  font-size: 1rem;
   line-height: 1.2;
-  font-weight: 800;
-  margin: 0 0 8px;
+  font-weight: 900;
+  min-height: 76px;
 }
 
-.step-text {
-  color: #56606c;
-  font-size: 0.88rem;
-  line-height: 1.4;
-  margin: 0 0 14px;
-  min-height: 86px;
+.step-description {
+  margin: 0 0 18px;
+  color: #55616d;
+  font-size: 0.95rem;
+  line-height: 1.45;
+  min-height: 110px;
+  padding: 0 6px;
+}
+
+.step-image-wrap {
+  margin-top: auto;
+  width: 100%;
+  height: 270px;
+  overflow: hidden;
+  border-radius: 12px 12px 0 0;
 }
 
 .step-image {
   width: 100%;
-  height: 155px;
-  object-fit: cover;
+  height: 100%;
   display: block;
-  border-radius: 8px;
+  object-fit: cover;
+  object-position: center;
 }
 
 /* VIDEO */
 .video-section {
-  background: #eef2f4;
-  padding: 0;
   overflow: hidden;
+  padding: 0;
 }
 
-.video-box {
+.video-placeholder {
   width: 100%;
-  min-height: 220px;
-  background: #003e68;
+  min-height: 260px;
+  background: #003f69;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .play-button {
-  width: 88px;
-  height: 88px;
-  border-radius: 999px;
+  width: 92px;
+  height: 92px;
+  border: none;
+  border-radius: 50%;
   background: #ffffff;
-  color: #003e68;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  color: #003f69;
   font-size: 2rem;
-  font-weight: 700;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.15);
 }
 
-.video-caption {
-  padding: 16px 18px 20px;
+.video-content {
+  padding: 18px 20px 22px;
   text-align: center;
 }
 
-.download-actions {
-  margin-top: 14px;
+.action-buttons {
+  margin-top: 16px;
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
   gap: 12px;
 }
 
-.btn-download {
+.btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   min-width: 210px;
-  padding: 10px 20px;
+  padding: 11px 20px;
   border-radius: 999px;
-  font-size: 0.82rem;
-  font-weight: 700;
-  text-transform: uppercase;
   text-decoration: none;
+  font-size: 0.82rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
   transition: all 0.2s ease;
 }
 
 .btn-outline {
   border: 1.5px solid #0b4168;
-  color: #0b4168;
   background: #ffffff;
+  color: #0b4168;
 }
 
 .btn-outline:hover {
@@ -503,91 +531,82 @@ const formatoMoneda = (valor) => {
   color: #ffffff;
 }
 
-.btn-filled {
-  border: 1.5px solid #20c9e8;
+.btn-primary {
+  border: 1.5px solid #19c7e8;
+  background: #19c7e8;
   color: #00345c;
-  background: #20c9e8;
 }
 
-.btn-filled:hover {
-  filter: brightness(0.95);
+.btn-primary:hover {
+  filter: brightness(0.96);
 }
 
 /* SPLIT */
-.split-section {
+.split-card {
   display: grid;
-  grid-template-columns: 1fr 1.15fr;
+  grid-template-columns: 1fr 1.1fr;
   gap: 28px;
+  padding: 22px;
   align-items: center;
-}
-
-.split-image-box {
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .split-image {
   width: 100%;
-  border-radius: 12px;
   display: block;
   object-fit: cover;
+  border-radius: 14px;
 }
 
-.split-text-box {
-  padding-top: 4px;
-}
-
-/* FLOW */
-.flow-list {
-  margin: 12px 0 0;
+.number-list {
+  margin: 14px 0 0;
   padding: 0;
   list-style: none;
   display: grid;
   gap: 12px;
-  counter-reset: flujo;
+  counter-reset: item;
 }
 
-.flow-list li {
-  counter-increment: flujo;
+.number-list li {
+  counter-increment: item;
   position: relative;
   padding-left: 38px;
-  color: #39424e;
-  font-size: 0.9rem;
+  color: #394550;
+  font-size: 0.92rem;
   line-height: 1.5;
 }
 
-.flow-list li::before {
-  content: counter(flujo);
+.number-list li::before {
+  content: counter(item);
   position: absolute;
   left: 0;
   top: 2px;
   width: 24px;
   height: 24px;
-  border-radius: 999px;
+  border-radius: 50%;
   background: #0b4168;
   color: #ffffff;
+  font-size: 0.8rem;
+  font-weight: 800;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.8rem;
-  font-weight: 800;
 }
 
 /* RESUMEN */
-.resumen-card {
+.summary-section {
+  padding: 22px;
   background: #dfe8ed;
 }
 
-.resumen-content {
+.summary-grid {
   display: grid;
-  grid-template-columns: 1.2fr 0.9fr;
+  grid-template-columns: 1.15fr 0.9fr;
   gap: 24px;
   align-items: center;
 }
 
 .summary-list {
-  margin: 12px 0 0;
+  margin: 14px 0 0;
   padding: 0;
   list-style: none;
   display: grid;
@@ -596,38 +615,34 @@ const formatoMoneda = (valor) => {
 
 .summary-list li {
   position: relative;
-  padding-left: 34px;
-  color: #39424e;
-  font-size: 0.9rem;
-  line-height: 1.5;
+  padding-left: 32px;
+  color: #394550;
+  font-size: 0.92rem;
+  line-height: 1.55;
 }
 
 .summary-list li::before {
-  content: '•';
+  content: '';
   position: absolute;
-  left: 10px;
-  top: 0;
-  color: #0b4168;
-  font-size: 1.5rem;
-  line-height: 1;
-  font-weight: 900;
+  left: 8px;
+  top: 9px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #0b4168;
 }
 
-.resumen-image {
+.summary-image {
   width: 100%;
   max-width: 360px;
-  display: block;
   margin-left: auto;
-  border-radius: 12px;
+  display: block;
+  border-radius: 14px;
   object-fit: cover;
 }
 
 /* METRICAS */
-.metrics-section {
-  padding-top: 2px;
-}
-
-.metrics-head {
+.metrics-heading {
   margin-bottom: 14px;
 }
 
@@ -639,86 +654,84 @@ const formatoMoneda = (valor) => {
 
 .metric-card {
   background: #ffffff;
-  border: 1.4px solid #154d75;
-  border-radius: 12px;
-  padding: 16px 14px;
+  border: 1.5px solid #154d75;
+  border-radius: 14px;
   min-height: 160px;
+  padding: 18px 14px;
   text-align: center;
   display: flex;
   flex-direction: column;
   justify-content: center;
 }
 
-.metric-card-highlight {
-  background: #20c9e8;
-  border-color: #20c9e8;
-  color: #ffffff;
+.metric-card-accent {
+  background: #19c7e8;
+  border-color: #19c7e8;
 }
 
-.metric-icon-wrap {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 10px;
-}
-
-.metric-icon-img {
-  width: 56px;
-  height: 56px;
-  object-fit: contain;
-}
-
-.metric-emoji {
-  width: 52px;
-  height: 52px;
-  border-radius: 999px;
+.metric-icon {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
   background: #0b4168;
   color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto 10px;
-  font-size: 1.35rem;
+  margin: 0 auto 12px;
+  font-size: 1.4rem;
   font-weight: 800;
 }
 
-.metric-card-highlight .metric-emoji {
-  background: rgba(255, 255, 255, 0.24);
+.metric-icon-image {
+  background: transparent;
+}
+
+.metric-image {
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
 }
 
 .metric-value {
+  margin: 0 0 8px;
   color: #0b4168;
   font-size: 2rem;
   line-height: 1;
   font-weight: 900;
-  margin: 0 0 8px;
 }
 
-.metric-card-highlight .metric-value,
-.metric-card-highlight .metric-label {
-  color: #ffffff;
+.metric-value-amount {
+  font-size: 1.55rem;
 }
 
 .metric-label {
-  color: #39424e;
+  margin: 0;
+  color: #394550;
   font-size: 0.92rem;
   line-height: 1.35;
-  margin: 0;
+  font-weight: 600;
 }
 
-.metric-value.amount {
-  font-size: 1.55rem;
+.metric-card-accent .metric-icon {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.metric-card-accent .metric-value,
+.metric-card-accent .metric-label {
+  color: #ffffff;
 }
 
 /* RESPONSIVE */
 @media (max-width: 1100px) {
   .steps-grid,
-  .split-section,
-  .resumen-content,
-  .metrics-grid {
+  .metrics-grid,
+  .summary-grid,
+  .split-card {
     grid-template-columns: 1fr;
   }
 
-  .resumen-image {
+  .summary-image {
     margin: 0 auto;
   }
 
@@ -728,35 +741,41 @@ const formatoMoneda = (valor) => {
 }
 
 @media (max-width: 768px) {
-  .hero-inner {
-    padding: 110px 20px 44px;
-  }
-
-  .funerario-inner {
+  .module-container {
     padding: 0 16px;
   }
 
-  .logo-franja-img {
-    padding: 10px 16px 14px;
+  .module-hero,
+  .hero-container {
+    min-height: 430px;
+  }
+
+  .hero-copy {
+    padding: 96px 0 44px;
   }
 
   .hero-title {
-    font-size: 2.35rem;
+    font-size: 2.4rem;
   }
 
   .section-title {
     font-size: 1.6rem;
   }
 
-  .step-text {
+  .step-title,
+  .step-description {
     min-height: auto;
   }
 
-  .video-box {
-    min-height: 180px;
+  .step-image-wrap {
+    height: 220px;
   }
 
-  .btn-download {
+  .video-placeholder {
+    min-height: 190px;
+  }
+
+  .btn {
     width: 100%;
   }
 }
@@ -766,21 +785,19 @@ const formatoMoneda = (valor) => {
     font-size: 2rem;
   }
 
-  .hero-text {
+  .hero-description {
     font-size: 0.94rem;
   }
 
-  .section-card {
+  .steps-section,
+  .summary-section,
+  .split-card {
     padding: 16px;
   }
 
-  .video-section {
-    padding: 0;
-  }
-
   .play-button {
-    width: 74px;
-    height: 74px;
+    width: 76px;
+    height: 76px;
     font-size: 1.7rem;
   }
 
@@ -788,7 +805,7 @@ const formatoMoneda = (valor) => {
     font-size: 1.7rem;
   }
 
-  .metric-value.amount {
+  .metric-value-amount {
     font-size: 1.3rem;
   }
 }
