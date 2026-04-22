@@ -266,6 +266,7 @@ const formatoMoneda = (valor) => `Q${valor.toLocaleString('es-GT')}`
 }
 
 
+
 /* HERO */
 .atencion-hero {
   min-height: 590px;
