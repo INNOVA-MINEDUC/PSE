@@ -273,18 +273,7 @@ const suministroPorServicio = [
   min-height: 590px;
 }
 
-.hero-banner-overlay {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  background: linear-gradient(
-    to right,
-    rgba(0, 52, 92, 0.92),
-    rgba(0, 52, 92, 0.52),
-    rgba(0, 52, 92, 0.08)
-  );
-}
+
 
 .hero-inner {
   max-width: 1440px;

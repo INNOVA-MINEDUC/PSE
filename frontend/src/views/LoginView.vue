@@ -20,7 +20,7 @@
         </div>
 
         <form class="login-form" @submit.prevent="handleSubmit">
-          
+
           <!-- EMAIL -->
           <div class="input-group">
             <label for="email">Correo electrónico</label>
@@ -31,6 +31,7 @@
                 v-model="email"
                 type="email"
                 placeholder="usuario@mineduc.edu.gt"
+                autocomplete="username"
                 required
               />
             </div>
@@ -46,21 +47,22 @@
                 v-model="password"
                 :type="showPassword ? 'text' : 'password'"
                 placeholder="••••••••"
+                autocomplete="current-password"
                 required
               />
-
               <button
                 type="button"
                 class="toggle-password"
                 @click="showPassword = !showPassword"
               >
-                {{ showPassword ? "x" : "👁" }}
+                {{ showPassword ? "✕" : "👁" }}
               </button>
             </div>
           </div>
 
-          <!-- BUTTON -->
+          <!-- SUBMIT -->
           <button type="submit" class="btn-login" :disabled="loading">
+            <span v-if="loading" class="spinner"></span>
             {{ loading ? "Ingresando..." : "Ingresar" }}
           </button>
 
@@ -68,6 +70,7 @@
           <button type="button" class="forgot-link">
             ¿Olvidó su contraseña?
           </button>
+
         </form>
 
         <p class="login-footer">
@@ -87,24 +90,22 @@ import logoMinisterio from "@/assets/logo-ministerio.png";
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 const router = useRouter();
-const route = useRoute();
+const route  = useRoute();
 
-const email = ref("");
-const password = ref("");
-const error = ref("");
-const loading = ref(false);
+const email        = ref("");
+const password     = ref("");
+const error        = ref("");
+const loading      = ref(false);
 const showPassword = ref(false);
 
 const handleSubmit = async () => {
-  error.value = "";
+  error.value   = "";
   loading.value = true;
 
   try {
     const res = await fetch(`${API_URL}/api/auth/login`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         correoElectronico: email.value.trim(),
         clave: password.value.trim(),
@@ -119,10 +120,10 @@ const handleSubmit = async () => {
     }
 
     localStorage.setItem("token", data.token);
-
     const redirect = route.query.redirect || "/admin";
     router.push(redirect);
-  } catch (e) {
+
+  } catch {
     error.value = "No se pudo conectar con el servidor.";
   } finally {
     loading.value = false;
@@ -150,9 +151,7 @@ const handleSubmit = async () => {
 }
 
 /* LOGO */
-.login-brand {
-  margin-bottom: 26px;
-}
+.login-brand { margin-bottom: 26px; }
 
 .brand-logo {
   width: 260px;
@@ -196,7 +195,6 @@ const handleSubmit = async () => {
   gap: 14px;
 }
 
-/* INPUTS */
 .input-group {
   display: flex;
   flex-direction: column;
@@ -217,6 +215,12 @@ const handleSubmit = async () => {
   background: #eef3fb;
   height: 50px;
   overflow: hidden;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.input-wrap:focus-within {
+  border-color: #4b82ea;
+  box-shadow: 0 0 0 2px rgba(75, 130, 234, 0.15);
 }
 
 .input-icon {
@@ -224,6 +228,7 @@ const handleSubmit = async () => {
   text-align: center;
   color: #7b8794;
   font-size: 1rem;
+  flex-shrink: 0;
 }
 
 .input-wrap input {
@@ -232,25 +237,31 @@ const handleSubmit = async () => {
   background: transparent;
   outline: none;
   font-size: 0.95rem;
+  font-family: "Montserrat", sans-serif;
+  color: #1f2937;
   padding-right: 10px;
 }
 
-.input-wrap:focus-within {
-  border-color: #4b82ea;
-  box-shadow: 0 0 0 2px rgba(75, 130, 234, 0.15);
-}
+.input-wrap input::placeholder { color: #9ca3af; }
 
-/* PASSWORD BTN */
+/* PASSWORD TOGGLE */
 .toggle-password {
   width: 48px;
+  height: 100%;
   border: none;
-  background: #fff;
   border-left: 1px solid #d7dce5;
+  background: #fff;
   cursor: pointer;
   font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.15s;
 }
+.toggle-password:hover { background: #f3f6fb; }
 
-/* BUTTON */
+/* SUBMIT */
 .btn-login {
   margin-top: 10px;
   height: 46px;
@@ -258,19 +269,18 @@ const handleSubmit = async () => {
   border-radius: 10px;
   background: #4b82ea;
   color: white;
+  font-family: "Montserrat", sans-serif;
   font-weight: 700;
+  font-size: 0.95rem;
   cursor: pointer;
-  transition: 0.2s;
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
-
-.btn-login:hover {
-  background: #3d73da;
-}
-
-.btn-login:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-}
+.btn-login:hover    { background: #3d73da; }
+.btn-login:disabled { opacity: 0.7; cursor: not-allowed; }
 
 /* FORGOT */
 .forgot-link {
@@ -281,8 +291,14 @@ const handleSubmit = async () => {
   border-radius: 10px;
   padding: 8px 16px;
   font-size: 0.84rem;
+  font-family: "Montserrat", sans-serif;
   cursor: pointer;
   box-shadow: 0 3px 8px rgba(15, 23, 42, 0.06);
+  transition: background 0.15s, box-shadow 0.15s;
+}
+.forgot-link:hover {
+  background: #f0f6ff;
+  box-shadow: 0 4px 12px rgba(75,130,234,0.12);
 }
 
 /* FOOTER */
@@ -291,5 +307,17 @@ const handleSubmit = async () => {
   margin-top: 28px;
   font-size: 0.8rem;
   color: #6b7280;
+}
+
+/* SPINNER */
+@keyframes spin { to { transform: rotate(360deg); } }
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255,255,255,0.4);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
 }
 </style>
