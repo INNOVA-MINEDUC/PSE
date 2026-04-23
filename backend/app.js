@@ -4,10 +4,24 @@ import express from "express";
 import cors from "cors";
 import axios from "axios";
 
+import path from "path";
+import { fileURLToPath } from "url";
+
+import dashboardRoutes from "./routes/dashboard.routes.js";
+import noticiasRoutes from "./routes/noticias.routes.js";
+import atencionRoutes from "./routes/atencion.routes.js";
+import medicamentosRoutes from "./routes/medicamentos.routes.js";
+import llamadasRoutes from "./routes/llamadas.routes.js";
+import funerarioRoutes from "./routes/funerario.routes.js";
+import archivosRoutes from "./routes/archivos.routes.js";
+
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 app.use(
   cors({
@@ -24,7 +38,14 @@ app.use(
 
 app.use(express.json());
 
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
 let db;
+
+app.use((req, res, next) => {
+  req.db = db;
+  next();
+});
 
 // Health check
 app.get("/api/health", (req, res) => {
@@ -74,9 +95,7 @@ app.post("/api/auth/login", async (req, res) => {
 
     const response = await axios.post(
       process.env.API,
-      {
-        query: mutation,
-      },
+      { query: mutation },
       {
         headers: {
           "Content-Type": "application/json",
@@ -180,6 +199,15 @@ app.get("/api/auth/me", async (req, res) => {
     });
   }
 });
+
+// RUTAS NUEVAS DEL DASHBOARD Y MÓDULOS
+app.use("/api", dashboardRoutes);
+app.use("/api", noticiasRoutes);
+app.use("/api", atencionRoutes);
+app.use("/api", medicamentosRoutes);
+app.use("/api", llamadasRoutes);
+app.use("/api", funerarioRoutes);
+app.use("/api", archivosRoutes);
 
 async function start() {
   db = await mysql.createPool({
