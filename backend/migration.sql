@@ -1,11 +1,6 @@
--- =========================
--- USAR BASE DE DATOS
--- =========================
 USE pse_db;
 
--- =========================
--- TABLA NOTICIAS
--- =========================
+-- TABLA NOTICIAS--
 CREATE TABLE IF NOT EXISTS noticias (
   id INT AUTO_INCREMENT PRIMARY KEY,
   titulo VARCHAR(255),
@@ -18,9 +13,7 @@ CREATE TABLE IF NOT EXISTS noticias (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- =========================
--- METRICAS ATENCION
--- =========================
+-- METRICAS ATENCION----
 CREATE TABLE IF NOT EXISTS metricas_atencion (
   id INT AUTO_INCREMENT PRIMARY KEY,
   consultas_atendidas INT,
@@ -31,9 +24,8 @@ CREATE TABLE IF NOT EXISTS metricas_atencion (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- =========================
--- ATENCION POR DEPARTAMENTO
--- =========================
+
+-- ATENCION POR DEPARTAMENTO--
 CREATE TABLE IF NOT EXISTS atencion_departamento (
   id INT AUTO_INCREMENT PRIMARY KEY,
   departamento VARCHAR(100),
@@ -43,9 +35,7 @@ CREATE TABLE IF NOT EXISTS atencion_departamento (
   periodo VARCHAR(100)
 );
 
--- =========================
--- METRICAS MEDICAMENTOS
--- =========================
+-- METRICAS MEDICAMENTOS--
 CREATE TABLE IF NOT EXISTS metricas_medicamentos (
   id INT AUTO_INCREMENT PRIMARY KEY,
   unidades_entregadas INT,
@@ -55,9 +45,7 @@ CREATE TABLE IF NOT EXISTS metricas_medicamentos (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- =========================
--- MEDICAMENTOS POR DEPARTAMENTO
--- =========================
+-- MEDICAMENTOS POR DEPARTAMENTO--
 CREATE TABLE IF NOT EXISTS medicamentos_departamento (
   id INT AUTO_INCREMENT PRIMARY KEY,
   departamento VARCHAR(100),
@@ -66,9 +54,7 @@ CREATE TABLE IF NOT EXISTS medicamentos_departamento (
   periodo VARCHAR(100)
 );
 
--- =========================
--- METRICAS LLAMADAS
--- =========================
+-- METRICAS LLAMADAS--
 CREATE TABLE IF NOT EXISTS metricas_llamadas (
   id INT AUTO_INCREMENT PRIMARY KEY,
   total_llamadas INT,
@@ -76,9 +62,7 @@ CREATE TABLE IF NOT EXISTS metricas_llamadas (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- =========================
--- METRICAS FUNERARIO
--- =========================
+-- METRICAS FUNERARIO--
 CREATE TABLE IF NOT EXISTS metricas_funerario (
   id INT AUTO_INCREMENT PRIMARY KEY,
   familias_beneficiadas INT,
@@ -90,9 +74,7 @@ CREATE TABLE IF NOT EXISTS metricas_funerario (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- =========================
--- ARCHIVOS (PDF, VIDEO, IMAGEN)
--- =========================
+-- ARCHIVOS (PDF, VIDEO, IMAGEN)--
 CREATE TABLE IF NOT EXISTS archivos (
   id INT AUTO_INCREMENT PRIMARY KEY,
   modulo VARCHAR(100),
@@ -102,9 +84,7 @@ CREATE TABLE IF NOT EXISTS archivos (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- =========================
--- DATOS DE PRUEBA
--- =========================
+-- DATOS DE PRUEBA--
 
 -- ATENCION
 INSERT INTO metricas_atencion

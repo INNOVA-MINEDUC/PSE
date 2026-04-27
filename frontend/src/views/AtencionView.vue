@@ -31,9 +31,6 @@
         alt="Franja de logos institucionales"
       />
     </section>
-
-
-
     
     <!-- CUERPO CLARO -->
     <section class="atencion-body">
@@ -143,6 +140,7 @@
         </div>
 
         <!-- TABLAS INFERIORES -->
+        
         <div class="row row-bottom">
           <article class="card">
             <h2 class="block-title">Resumen de atenciones por departamento</h2>
