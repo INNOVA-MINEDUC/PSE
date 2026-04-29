@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS metricas_atencion (
   periodo VARCHAR(100),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-
+  
 
 -- ATENCION POR DEPARTAMENTO--
 CREATE TABLE IF NOT EXISTS atencion_departamento (
@@ -86,31 +86,31 @@ CREATE TABLE IF NOT EXISTS archivos (
 
 -- DATOS DE PRUEBA--
 
--- ATENCION
+-- ATENCION---
 INSERT INTO metricas_atencion
 (consultas_atendidas, estudiantes_atendidos, porcentaje_hombres, porcentaje_mujeres, periodo)
 VALUES
 (674656, 222704, 52, 48, 'enero - julio 2025');
 
--- MEDICAMENTOS
+-- MEDICAMENTOS-
 INSERT INTO metricas_medicamentos
 (unidades_entregadas, establecimientos_con_suministro, cobertura_nacional, periodo)
 VALUES
 (80000, 1350, 340, 'enero - julio 2025');
 
--- LLAMADAS
+-- LLAMADAS --
 INSERT INTO metricas_llamadas
 (total_llamadas, periodo)
 VALUES
 (2421, '2025');
 
--- FUNERARIO
+-- FUNERARIO --
 INSERT INTO metricas_funerario
 (familias_beneficiadas, monto_total, monto_por_estudiante, casos_masculinos, casos_femeninos, periodo)
 VALUES
 (329, 2467000, 7500, 193, 136, '2025');
 
--- NOTICIA
+-- NOTICIA --
 INSERT INTO noticias
 (titulo, descripcion_corta, imagen_url, fecha_publicacion, modulo, activo, orden)
 VALUES
