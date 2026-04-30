@@ -1,53 +1,35 @@
 <template>
   <main class="promo-page">
-    <!-- HERO -->
-    <section
-      class="promo-hero"
-      :style="{ backgroundImage: `url(${bannerPromocion})` }"
-    >
+    <section class="promo-hero" :style="{ backgroundImage: `url(${bannerPromocion})` }">
       <div class="promo-hero-overlay">
         <div class="promo-hero-inner">
-          
           <h1 class="promo-title">
-            Promoción de la salud y
-            prevención de enfermedades en
+            Promoción de la salud y prevención de enfermedades en
             <span class="highlight">centros educativos</span>
           </h1>
 
           <p class="promo-text">
             El PSE refuerza las acciones de prevención y promoción de la salud dentro de los
-            centros educativos, con el objetivo de mejorar el bienestar de la comunidad
-            estudiantil. Estas acciones se desarrollan de forma progresiva y coordinada por
-            el Ministerio de Salud Pública y Asistencia Social y el Ministerio de Educación.
+            centros educativos, con el objetivo de mejorar el bienestar de la comunidad estudiantil.
           </p>
         </div>
       </div>
     </section>
 
-    <!-- NOTICIAS -->
     <section class="promo-news-section">
       <div class="promo-news-inner">
         <div class="news-header">
           <h2 class="section-title center">Noticias y actividades</h2>
           <p class="news-subtitle center">
-            El Portal de Salud PSE del Ministerio de Educación es una plataforma integral
-            diseñada para garantizar el bienestar de los estudiantes del sistema educativo
-            nacional, centralizando servicios médicos, apoyo preventivo y asistencia en
-            momentos críticos.
+            El Portal de Salud PSE centraliza acciones de promoción, prevención y bienestar estudiantil.
           </p>
         </div>
 
         <div class="news-featured-wrap">
-          <button class="news-arrow news-arrow-left" type="button" @click="prevNews">
-            ‹
-          </button>
+          <button class="news-arrow news-arrow-left" type="button" @click="prevNews">‹</button>
 
           <article class="news-featured">
-            <img
-              :src="featuredNews.img"
-              :alt="featuredNews.titulo"
-              class="news-featured-img"
-            />
+            <img :src="featuredNews.img" :alt="featuredNews.titulo" class="news-featured-img" />
 
             <div class="news-featured-overlay">
               <p class="news-category">{{ featuredNews.categoria }}</p>
@@ -56,17 +38,11 @@
             </div>
           </article>
 
-          <button class="news-arrow news-arrow-right" type="button" @click="nextNews">
-            ›
-          </button>
+          <button class="news-arrow news-arrow-right" type="button" @click="nextNews">›</button>
         </div>
 
         <div class="news-grid">
-          <article
-            v-for="(item, i) in noticias"
-            :key="i"
-            class="news-card"
-          >
+          <article v-for="(item, i) in noticias" :key="i" class="news-card">
             <img :src="item.img" :alt="item.titulo" class="news-card-img" />
 
             <div class="news-card-overlay">
@@ -79,20 +55,17 @@
       </div>
     </section>
 
-    <!-- ACTIVIDADES -->
     <section class="promo-actions-section">
       <div class="promo-actions-inner">
         <div class="actions-top">
           <div class="actions-copy">
             <h2 class="section-title left">
-              Actividades Realizadas
-              en los Centros Educativos
+              Actividades Realizadas en los Centros Educativos
             </h2>
 
             <p class="actions-intro">
-              Somos un motor para la innovación educativa en UVG y estamos a la vanguardia en el uso de
-              herramientas digitales para ayudar a estudiantes, docentes e investigadores a descubrir el
-              potencial de la tecnología en la transformación de sus actividades académicas diarias.
+              Acciones desarrolladas en centros educativos para fortalecer la prevención,
+              la salud integral y el acompañamiento a estudiantes.
             </p>
           </div>
 
@@ -114,11 +87,7 @@
               :key="index"
               class="action-card"
             >
-              <img
-                :src="actividad.img"
-                :alt="actividad.titulo"
-                class="action-card-img"
-              />
+              <img :src="actividad.img" :alt="actividad.titulo" class="action-card-img" />
 
               <div class="action-card-overlay">
                 <p class="action-module">MÓDULO {{ index + 1 }}</p>
@@ -139,10 +108,12 @@
 <script setup>
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
+
 const bannerPromocion = '/Promocion/banner/banner-promocion.png'
 const astronautaActividades = '/Promocion/actividades/astronauta-actividades.png'
 
-const noticias = [
+const noticiasBase = [
   {
     img: '/Promocion/noticias/noticia-1.png',
     titulo: 'Jornada de vacunación en escuela rural',
@@ -158,16 +129,36 @@ const noticias = [
   {
     img: '/Promocion/noticias/noticia-3.png',
     titulo: 'Campaña de lavado de manos en escuelas urbanas',
-    desc: 'Inventario y distribución de medicamentos del programa a los establecimientos.',
+    desc: 'Acciones preventivas para fortalecer hábitos de higiene en los establecimientos educativos.',
     categoria: 'PROMOCIÓN Y PREVENCIÓN'
   },
   {
     img: '/Promocion/noticias/noticia-4.png',
     titulo: 'Prevención del dengue con acciones comunitarias',
-    desc: 'Se organizaron brigadas escolares y comunitarias para identificar y eliminar criaderos de zancudos en los alrededores del centro educativo.',
+    desc: 'Se organizaron brigadas escolares y comunitarias para identificar y eliminar criaderos de zancudos.',
     categoria: 'PROMOCIÓN Y PREVENCIÓN'
   }
 ]
+
+const noticiasApi = ref([])
+
+const resolveImage = (url) => {
+  if (!url) return '/Promocion/noticias/noticia-1.png'
+  if (url.startsWith('http')) return url
+  if (url.startsWith('/Promocion') || url.startsWith('/Home')) return url
+  return `${API_URL}${url}`
+}
+
+const noticias = computed(() => {
+  const dinamicas = noticiasApi.value.map((n) => ({
+    img: resolveImage(n.imagen_url),
+    titulo: n.titulo,
+    desc: n.descripcion_corta,
+    categoria: 'PROMOCIÓN Y PREVENCIÓN'
+  }))
+
+  return [...noticiasBase, ...dinamicas]
+})
 
 const actividades = [
   {
@@ -194,19 +185,37 @@ const actividades = [
 
 const currentNews = ref(1)
 
-const featuredNews = computed(() => noticias[currentNews.value])
+const featuredNews = computed(() => noticias.value[currentNews.value] || noticias.value[0])
 
 const nextNews = () => {
-  currentNews.value = (currentNews.value + 1) % noticias.length
+  currentNews.value = (currentNews.value + 1) % noticias.value.length
 }
 
 const prevNews = () => {
-  currentNews.value = (currentNews.value - 1 + noticias.length) % noticias.length
+  currentNews.value = (currentNews.value - 1 + noticias.value.length) % noticias.value.length
+}
+
+const cargarNoticias = async () => {
+  try {
+    const res = await fetch(`${API_URL}/api/noticias`)
+    const data = await res.json()
+
+    if (data.success) {
+      noticiasApi.value = data.data
+        .filter((n) => Number(n.activo) === 1 && n.modulo === 'promocion')
+        .filter((n) => n.titulo !== 'Jornada de salud escolar en zona rural')
+        .sort((a, b) => Number(a.orden || 0) - Number(b.orden || 0))
+    }
+  } catch (error) {
+    console.error('Error cargando noticias:', error)
+  }
 }
 
 let sliderInterval = null
 
 onMounted(() => {
+  cargarNoticias()
+
   sliderInterval = setInterval(() => {
     nextNews()
   }, 5000)
@@ -224,7 +233,6 @@ onUnmounted(() => {
   color: #111827;
 }
 
-/* HERO */
 .promo-hero {
   min-height: 590px;
   background-size: cover;
@@ -236,17 +244,8 @@ onUnmounted(() => {
 .promo-hero-inner {
   max-width: 1440px;
   margin: 0 auto;
-  padding: 160px 44px 40px; 
+  padding: 160px 44px 40px;
   width: 100%;
-}
-
-.promo-kicker {
-  font-size: 0.72rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: #60d5f3;
-  margin: 0 0 8px;
-  font-weight: 700;
 }
 
 .promo-title {
@@ -264,7 +263,7 @@ onUnmounted(() => {
   position: relative;
   display: inline-block;
   z-index: 1;
-  padding: 5px 15px; 
+  padding: 5px 15px;
 }
 
 .highlight::after {
@@ -273,7 +272,7 @@ onUnmounted(() => {
   left: 0;
   bottom: 4px;
   width: 100%;
-  height: 48px; 
+  height: 48px;
   background: linear-gradient(90deg, #15c9e8, #0bb6d6);
   z-index: -1;
   border-radius: 8px;
@@ -288,7 +287,6 @@ onUnmounted(() => {
   text-align: justify;
 }
 
-/* SECCIONES */
 .promo-news-section,
 .promo-actions-section {
   padding: 52px 10px 48px;
@@ -302,7 +300,6 @@ onUnmounted(() => {
   padding: 0;
 }
 
-/* TITULOS */
 .section-title {
   font-weight: 900;
   color: #10395f;
@@ -321,7 +318,6 @@ onUnmounted(() => {
   margin: 0 0 12px;
 }
 
-/* NOTICIAS */
 .news-header {
   margin-bottom: 24px;
 }
@@ -366,12 +362,13 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  padding: 0 86px 28px; background: linear-gradient(
-  to top,
-  rgba(0, 52, 92, 0.9) 0%,
-  rgba(0, 52, 92, 0.4) 25%,
-  rgba(0, 52, 92, 0.0) 40%
-);
+  padding: 0 86px 28px;
+  background: linear-gradient(
+    to top,
+    rgba(0, 52, 92, 0.9) 0%,
+    rgba(0, 52, 92, 0.4) 25%,
+    rgba(0, 52, 92, 0) 40%
+  );
   border-bottom: 6px solid #15c9e8;
   color: #fff;
 }
@@ -429,16 +426,16 @@ onUnmounted(() => {
 .news-grid {
   margin-top: 18px;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 14px;
-  max-width: 1500px;
+  max-width: 1600px;
   margin-left: auto;
   margin-right: auto;
 }
 
 .news-card {
   position: relative;
-  height: 400px;
+  height: 380px;
   border-radius: 8px;
   overflow: hidden;
 }
@@ -455,13 +452,13 @@ onUnmounted(() => {
 .news-card-overlay {
   position: absolute;
   inset: 0;
- background: linear-gradient(
-  to top,
-  rgba(0, 52, 92, 0.95) 0%,
-  rgba(0, 52, 92, 0.7) 25%,
-  rgba(0, 52, 92, 0.3) 45%,
-  rgba(0, 52, 92, 0.0) 70%
-);
+  background: linear-gradient(
+    to top,
+    rgba(0, 52, 92, 0.95) 0%,
+    rgba(0, 52, 92, 0.7) 25%,
+    rgba(0, 52, 92, 0.3) 45%,
+    rgba(0, 52, 92, 0) 70%
+  );
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
@@ -470,15 +467,15 @@ onUnmounted(() => {
 }
 
 .news-card-title {
-  font-size: 0.76rem;
-  line-height: 1.02;
+  font-size: 0.72rem;
+  line-height: 1.05;
   font-weight: 900;
   margin: 0 0 4px;
   text-align: center;
 }
 
 .news-card-text {
-  font-size: 0.56rem;
+  font-size: 0.54rem;
   line-height: 1.28;
   margin: 0 0 8px;
   text-align: center;
@@ -639,7 +636,12 @@ onUnmounted(() => {
   right: -18px;
 }
 
-/* RESPONSIVE */
+@media (max-width: 1400px) {
+  .news-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
 @media (max-width: 1200px) {
   .news-grid,
   .actions-grid {
@@ -650,25 +652,14 @@ onUnmounted(() => {
     grid-template-columns: 1fr;
   }
 
-  .actions-astro-box {
-   width: 100vw;
-  }
-
   .news-featured {
-  width: 100%;
-  height: 150vh;
-}
-
-  .news-featured-overlay {
-    padding: 0 42px 20px;
+    width: 100%;
+    height: 360px;
+    margin-left: 0;
   }
 
-  .promo-title {
-    font-size: 42px;
-  }
-
-  .promo-text {
-    font-size: 14px;
+  .news-featured-img {
+    width: 100%;
   }
 }
 

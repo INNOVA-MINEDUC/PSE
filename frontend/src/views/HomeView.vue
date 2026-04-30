@@ -234,6 +234,9 @@
 
 <script setup>
 import { RouterLink } from 'vue-router'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
 
 const logoFranja = '/Home/LOGOS/logo-franja.png'
 
@@ -325,14 +328,119 @@ const resultadoBottom2 = {
   footer: 'Monto total entregado: Q2,467,000'
 }
 
-const noticiaDestacada = {
-  fecha: '03 FEBRERO 2026',
-  categoria: 'PROMOCIÓN Y PREVENCIÓN',
-  titulo: 'Jornada de vacunación en escuela Rural',
-  descripcion:
-    'Se realizó una jornada de vacunación, desparasitación y control de crecimiento para niñas y niños de preprimaria y primaria.',
-  imagen: '/Home/IMAGENES/noticia-vacunacion.png'
+/* NOTICIAS HOME + PROMOCIÓN */
+const noticiasBase = [
+  {
+    fecha: '03 FEBRERO 2026',
+    categoria: 'PROMOCIÓN Y PREVENCIÓN',
+    titulo: 'Jornada de vacunación en escuela rural',
+    descripcion:
+      'Se realizó una jornada de vacunación, desparasitación y control de crecimiento para niñas y niños de preprimaria y primaria.',
+    imagen: '/Home/IMAGENES/noticia-vacunacion.png'
+  },
+  {
+    fecha: '03 FEBRERO 2026',
+    categoria: 'PROMOCIÓN Y PREVENCIÓN',
+    titulo: 'Aplicación de barniz con flúor en estudiantes de primaria',
+    descripcion:
+      'Niñas y niños recibieron barniz con flúor y material educativo sobre cuidado dental.',
+    imagen: '/Promocion/noticias/noticia-2.png'
+  },
+  {
+    fecha: '03 FEBRERO 2026',
+    categoria: 'PROMOCIÓN Y PREVENCIÓN',
+    titulo: 'Campaña de lavado de manos en escuelas urbanas',
+    descripcion:
+      'Acciones preventivas para fortalecer hábitos de higiene en los establecimientos educativos.',
+    imagen: '/Promocion/noticias/noticia-3.png'
+  },
+  {
+    fecha: '03 FEBRERO 2026',
+    categoria: 'PROMOCIÓN Y PREVENCIÓN',
+    titulo: 'Prevención del dengue con acciones comunitarias',
+    descripcion:
+      'Se organizaron brigadas escolares y comunitarias para identificar y eliminar criaderos de zancudos.',
+    imagen: '/Promocion/noticias/noticia-4.png'
+  }
+]
+
+const noticiasApi = ref([])
+const currentNoticia = ref(0)
+
+const resolveImage = (url) => {
+  if (!url) return '/Home/IMAGENES/noticia-vacunacion.png'
+  if (url.startsWith('http')) return url
+  if (url.startsWith('/Home') || url.startsWith('/Promocion')) return url
+  return `${API_URL}${url}`
 }
+
+const formatFecha = (fecha) => {
+  if (!fecha) return 'SIN FECHA'
+
+  return new Date(fecha)
+    .toLocaleDateString('es-GT', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric'
+    })
+    .toUpperCase()
+}
+
+const noticiasCarrusel = computed(() => {
+  const dinamicas = noticiasApi.value.map((n) => ({
+    fecha: formatFecha(n.fecha_publicacion),
+    categoria: 'PROMOCIÓN Y PREVENCIÓN',
+    titulo: n.titulo,
+    descripcion: n.descripcion_corta,
+    imagen: resolveImage(n.imagen_url)
+  }))
+
+  return [...noticiasBase, ...dinamicas]
+})
+
+const noticiaDestacada = computed(() => {
+  return noticiasCarrusel.value[currentNoticia.value] || noticiasBase[0]
+})
+
+const nextNoticia = () => {
+  currentNoticia.value =
+    (currentNoticia.value + 1) % noticiasCarrusel.value.length
+}
+
+const prevNoticia = () => {
+  currentNoticia.value =
+    (currentNoticia.value - 1 + noticiasCarrusel.value.length) %
+    noticiasCarrusel.value.length
+}
+
+const cargarNoticias = async () => {
+  try {
+    const res = await fetch(`${API_URL}/api/noticias`)
+    const data = await res.json()
+
+    if (data.success) {
+      noticiasApi.value = data.data
+        .filter((n) => Number(n.activo) === 1 && n.modulo === 'promocion')
+        .sort((a, b) => Number(a.orden || 0) - Number(b.orden || 0))
+    }
+  } catch (error) {
+    console.error('Error cargando noticias en Home:', error)
+  }
+}
+
+let noticiaInterval = null
+
+onMounted(() => {
+  cargarNoticias()
+
+  noticiaInterval = setInterval(() => {
+    nextNoticia()
+  }, 5000)
+})
+
+onUnmounted(() => {
+  if (noticiaInterval) clearInterval(noticiaInterval)
+})
 </script>
 
 <style scoped>
