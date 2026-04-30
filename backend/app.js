@@ -3,7 +3,6 @@ import mysql from "mysql2/promise";
 import express from "express";
 import cors from "cors";
 import axios from "axios";
-
 import path from "path";
 import { fileURLToPath } from "url";
 
@@ -200,14 +199,14 @@ app.get("/api/auth/me", async (req, res) => {
   }
 });
 
-// RUTAS NUEVAS DEL DASHBOARD Y MÓDULOS
-app.use("/api", dashboardRoutes);
-app.use("/api", noticiasRoutes);
-app.use("/api", atencionRoutes);
-app.use("/api", medicamentosRoutes);
-app.use("/api", llamadasRoutes);
-app.use("/api", funerarioRoutes);
-app.use("/api", archivosRoutes);
+// Rutas del sistema
+app.use("/api/dashboard", dashboardRoutes);
+app.use("/api/noticias", noticiasRoutes);
+app.use("/api/atencion", atencionRoutes);
+app.use("/api/medicamentos", medicamentosRoutes);
+app.use("/api/llamadas", llamadasRoutes);
+app.use("/api/funerario", funerarioRoutes);
+app.use("/api/archivos", archivosRoutes);
 
 async function start() {
   db = await mysql.createPool({

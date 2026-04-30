@@ -8,7 +8,7 @@ import {
 
 const router = express.Router();
 
-router.get("/noticias", getNoticias);
+router.get("/", getNoticias);
 router.post("/admin/noticias", createNoticia);
 router.put("/admin/noticias/:id", updateNoticia);
 router.delete("/admin/noticias/:id", deleteNoticia);

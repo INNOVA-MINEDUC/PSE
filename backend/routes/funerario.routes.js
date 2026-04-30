@@ -1,9 +1,8 @@
 import express from "express";
+import { getFunerario } from "../controllers/funerario.controller.js";
 
 const router = express.Router();
 
-router.get("/funerario", (req, res) => {
-  res.json({ success: true, message: "Ruta funerario activa" });
-});
+router.get("/", getFunerario);
 
-export default router;
+export default router;,

@@ -1,9 +1,8 @@
 import express from "express";
+import { getMedicamentos } from "../controllers/medicamentos.controller.js";
 
 const router = express.Router();
 
-router.get("/medicamentos", (req, res) => {
-  res.json({ success: true, message: "Ruta medicamentos activa" });
-});
+router.get("/", getMedicamentos);
 
 export default router;
