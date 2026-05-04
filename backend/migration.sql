@@ -35,6 +35,7 @@ CREATE TABLE IF NOT EXISTS atencion_departamento (
   periodo VARCHAR(100)
 );
 
+
 -- METRICAS MEDICAMENTOS--
 CREATE TABLE IF NOT EXISTS metricas_medicamentos (
   id INT AUTO_INCREMENT PRIMARY KEY,
