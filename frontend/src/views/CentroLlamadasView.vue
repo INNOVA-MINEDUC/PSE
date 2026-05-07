@@ -11,7 +11,10 @@
           <div class="hero-content">
             <p class="hero-kicker">MÓDULO 4</p>
 
-            <h1 class="hero-title">Centro de llamadas <span class="highlight">1528</span></h1>
+            <h1 class="hero-title">
+              Centro de llamadas<br />
+              <span class="highlight">1528</span>
+            </h1>
 
             <p class="hero-text">
               El 1528 es la línea gratuita de orientación médica para estudiantes del
@@ -253,7 +256,9 @@ const personal = [
 }
 
 .hero-content {
-  max-width: 650px;
+  max-width: 720px;
+  margin: 0 auto;
+  text-align: center;
 }
 
 .hero-kicker {
@@ -266,13 +271,14 @@ const personal = [
 }
 
 .hero-title {
-  max-width: 900px;
+  max-width: 720px;
   width: 100%;
   font-size: 45px;
   line-height: 1.06;
   font-weight: 900;
   color: #ffffff;
-  margin: 0 0 14px;
+  margin: 0 auto 14px;
+  text-align: center;
 }
 
 .hero-text {

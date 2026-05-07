@@ -268,7 +268,7 @@ const formatoMoneda = (valor) => `Q${valor.toLocaleString('es-GT')}`
 
 
 /* HERO */
-.atencion-hero {
+.module-hero {
   min-height: 590px;
   background-size: cover;
   background-position: center;
@@ -298,7 +298,7 @@ const formatoMoneda = (valor) => `Q${valor.toLocaleString('es-GT')}`
 }
 
 .hero-title {
-  max-width: 900px;
+  max-width: 720px;
   width: 100%;
   font-size: 45px;
   line-height: 1.06;

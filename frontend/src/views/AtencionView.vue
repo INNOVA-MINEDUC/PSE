@@ -305,7 +305,7 @@ const tiposAtencion = [
 }
 
 .hero-title {
-  max-width: 900px;
+  max-width: 720px;
   width: 100%;
   font-size: 45px;
   line-height: 1.06;
