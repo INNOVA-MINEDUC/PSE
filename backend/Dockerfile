@@ -1,5 +1,8 @@
-# Usar la imagen oficial de Node.js basada en Alpine para que sea ultra ligera.
-FROM node:22-alpine
+# Usar la imagen oficial de Node.js con la etiqueta estable más reciente
+FROM node:24-alpine3.23
+
+# Actualizar npm globalmente para parchar vulnerabilidades de la imagen base
+RUN npm install -g npm@latest
 
 # Definir el entorno en producción desde el principio
 ENV NODE_ENV=production
