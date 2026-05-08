@@ -16,14 +16,24 @@ jobs:
   analisis-estatico:
     name: Análisis de Código (Semgrep)
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
     steps:
       - name: Checkout del código
         uses: actions/checkout@v4
       
-      - name: Ejecutar Semgrep
-        uses: returntocorp/semgrep-action@v1
+      - name: Instalar y Ejecutar Semgrep
+        run: |
+          python3 -m pip install semgrep
+          semgrep scan --config="p/default" --sarif -o semgrep.sarif
+          
+      - name: Subir Reporte Semgrep a GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
         with:
-          config: "p/default"
+          sarif_file: semgrep.sarif
+          category: semgrep
 
   build-and-push:
     needs: analisis-estatico
@@ -31,6 +41,7 @@ jobs:
     permissions:
       contents: read
       packages: write
+      security-events: write
 
     steps:
       - name: Checkout repository
@@ -95,7 +106,23 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Ejecutar Trivy (Escaneo de Contenedor)
+      - name: Ejecutar Trivy (Generar Reporte de Auditoría)
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'local-scan:latest'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'CRITICAL,HIGH'
+          # Aquí no ponemos exit-code para asegurar que genere el reporte completo
+
+      - name: Subir Reporte Trivy a GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: trivy-results.sarif
+          category: trivy
+
+      - name: Ejecutar Trivy (Control de Calidad - Bloqueo)
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: 'local-scan:latest'
