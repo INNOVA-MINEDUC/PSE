@@ -1,33 +1,39 @@
-# Usar la imagen oficial de Node.js con la etiqueta estable más reciente
-FROM node:24-alpine3.23
+# Etapa 1: Construcción e instalación de dependencias
+FROM node:22-alpine AS deps
 
-# Actualizar npm globalmente para parchar vulnerabilidades de la imagen base
-RUN npm install -g npm@latest
-
-# Definir el entorno en producción desde el principio
-ENV NODE_ENV=production
-
-# Crear y asignar directorio de trabajo
-WORKDIR /app
-
-# Instalar dependencias necesarias para la compilación si hay herramientas en C++ como bcrypt
+# Instalar dependencias necesarias para la compilación de herramientas en C++ como bcrypt
 RUN apk add --no-cache python3 make g++ 
 
-# Copiar solo el package.json (para aprovechar caché de Docker)
+WORKDIR /app
+
+# Copiar solo los manifiestos para aprovechar la caché de Docker
 COPY package*.json ./
 
-# Instalar con --omit=dev asegura que nodemon u otros devDependencies se ignoren
-RUN npm install --omit=dev
+# Instalar dependencias usando ci para asegurar versiones exactas
+RUN npm ci --omit=dev
 
-# Copiar el código de la aplicación (obedeciendo el .dockerignore)
+# Etapa 2: Entorno de producción (Imagen final)
+FROM node:22-alpine AS runner
+
+# Actualizar npm globalmente para parchar vulnerabilidades de la imagen base
+RUN npm install -g npm@latest && npm cache clean --force
+
+# Definir el entorno en producción
+ENV NODE_ENV=production
+
+WORKDIR /app
+
+# Copiar las dependencias ya compiladas desde la Etapa 1
+COPY --from=deps /app/node_modules ./node_modules
+
+# Copiar el código de la aplicación
 COPY . .
 
-# Cambiar del usuario "root" a un usuario sin privilegios que Node.js ya incluye.
-# Esto asegura que el proceso Express no corra como administrador en la máquina.
+# Cambiar al usuario sin privilegios
 USER node
 
-# Exponer el puerto según código
+# Exponer el puerto
 EXPOSE 3000
 
-# Usar node de manera explícita (npm no maneja tan bien las señales de cierre de contenedores SIGTERM)
+# Ejecutar Node de manera explícita
 CMD ["node", "app.js"]
