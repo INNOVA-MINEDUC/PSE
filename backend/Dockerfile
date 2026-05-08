@@ -1,5 +1,5 @@
 # Usar la imagen oficial de Node.js basada en Alpine para que sea ultra ligera.
-FROM node:20-alpine
+FROM node:22-alpine
 
 # Definir el entorno en producción desde el principio
 ENV NODE_ENV=production
