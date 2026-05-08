@@ -1,39 +1,33 @@
-# Etapa 1: Construcción e instalación de dependencias
-FROM node:22-alpine AS deps
-
-# Instalar dependencias necesarias para la compilación de herramientas en C++ como bcrypt
-RUN apk add --no-cache python3 make g++ 
-
-WORKDIR /app
-
-# Copiar solo los manifiestos para aprovechar la caché de Docker
-COPY package*.json ./
-
-# Instalar dependencias usando ci para asegurar versiones exactas
-RUN npm ci --omit=dev
-
-# Etapa 2: Entorno de producción (Imagen final)
-FROM node:22-alpine AS runner
+# Usar la imagen oficial de Node.js con la etiqueta estable más reciente
+FROM node:22-alpine
 
 # Actualizar npm globalmente para parchar vulnerabilidades de la imagen base
-RUN npm install -g npm@latest && npm cache clean --force
+RUN npm install -g npm@latest
 
-# Definir el entorno en producción
+# Definir el entorno en producción desde el principio
 ENV NODE_ENV=production
 
+# Crear y asignar directorio de trabajo
 WORKDIR /app
 
-# Copiar las dependencias ya compiladas desde la Etapa 1
-COPY --from=deps /app/node_modules ./node_modules
+# Instalar dependencias necesarias para la compilación si hay herramientas en C++ como bcrypt
+RUN apk add --no-cache python3 make g++ 
 
-# Copiar el código de la aplicación
+# Copiar solo el package.json (para aprovechar caché de Docker)
+COPY package*.json ./
+
+# Instalar con --omit=dev asegura que nodemon u otros devDependencies se ignoren
+RUN npm install --omit=dev
+
+# Copiar el código de la aplicación (obedeciendo el .dockerignore)
 COPY . .
 
-# Cambiar al usuario sin privilegios
+# Cambiar del usuario "root" a un usuario sin privilegios que Node.js ya incluye.
+# Esto asegura que el proceso Express no corra como administrador en la máquina.
 USER node
 
-# Exponer el puerto
+# Exponer el puerto según código
 EXPOSE 3000
 
-# Ejecutar Node de manera explícita
+# Usar node de manera explícita (npm no maneja tan bien las señales de cierre de contenedores SIGTERM)
 CMD ["node", "app.js"]
