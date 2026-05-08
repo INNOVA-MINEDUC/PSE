@@ -13,7 +13,20 @@ env:
   IMAGE_NAME: ${{ github.repository }}-frontend
 
 jobs:
+  analisis-estatico:
+    name: Análisis de Código (Semgrep)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+      
+      - name: Ejecutar Semgrep
+        uses: returntocorp/semgrep-action@v1
+        with:
+          config: "p/default"
+
   build-and-push:
+    needs: analisis-estatico
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -71,7 +84,24 @@ jobs:
         run: |
           echo "VITE_API_URL=${{ steps.config.outputs.API_URL }}" > ./frontend/.env.production
 
-      - name: Build and push Docker image
+      - name: Construir imagen local para escaneo
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          load: true
+          tags: local-scan:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Ejecutar Trivy (Escaneo de Contenedor)
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'local-scan:latest'
+          format: 'table'
+          exit-code: '1'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Push Docker image
         uses: docker/build-push-action@v5
         with:
           context: ./frontend
@@ -79,7 +109,6 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
-          cache-to: type=gha,mode=max
 
       - name: Workflow Summary
         run: |
