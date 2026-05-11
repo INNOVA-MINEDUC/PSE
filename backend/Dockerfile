@@ -9,10 +9,10 @@ RUN apk add --no-cache python3 make g++
 # Copiar archivos de manifiesto
 COPY package.json package-lock.json ./
 
-# Instalación determinista de todas las dependencias
-RUN npm ci
+# Instalar estrictamente las dependencias de producción
+RUN npm ci --omit=dev --ignore-scripts
 
-# Copiar el código fuente
+# Copiar todo el código de la aplicación
 COPY . .
 
 # 2. Etapa de Producción (Runner)
@@ -22,15 +22,8 @@ ENV NODE_ENV=production
 
 WORKDIR /app
 
-# Copiar archivos de manifiesto nuevamente
-COPY package.json package-lock.json ./
-
-# Instalar estrictamente las dependencias de producción
-RUN npm ci --omit=dev --ignore-scripts
-
-# Copiar el código de la aplicación y dependencias desde la etapa de construcción
-COPY --from=builder /app/src ./src
-COPY --from=builder /app/app.js ./app.js
+# Copiar el código fuente y los node_modules ya compilados desde el builder
+COPY --from=builder /app ./
 
 # Asignar permisos al usuario node
 RUN chown -R node:node /app
