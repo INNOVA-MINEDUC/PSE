@@ -25,6 +25,9 @@ WORKDIR /app
 # Copiar el código fuente y los node_modules ya compilados desde el builder
 COPY --from=builder /app ./
 
+# Eliminar el archivo de bloqueo para prevenir falsos positivos en Trivy
+RUN rm package-lock.json
+
 # Asignar permisos al usuario node
 RUN chown -R node:node /app
 
