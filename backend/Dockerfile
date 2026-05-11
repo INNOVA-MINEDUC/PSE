@@ -1,33 +1,43 @@
-# Usar la imagen oficial de Node.js con la etiqueta estable más reciente
-FROM node:22-alpine
+# 1. Etapa de Construcción (Builder)
+FROM node:22-alpine AS builder
 
-# Actualizar npm globalmente para parchar vulnerabilidades de la imagen base
-RUN npm install -g npm@latest
-
-# Definir el entorno en producción desde el principio
-ENV NODE_ENV=production
-
-# Crear y asignar directorio de trabajo
 WORKDIR /app
 
-# Instalar dependencias necesarias para la compilación si hay herramientas en C++ como bcrypt
-RUN apk add --no-cache python3 make g++ 
+# Instalar dependencias del sistema necesarias para compilar módulos nativos
+RUN apk add --no-cache python3 make g++
 
-# Copiar solo el package.json (para aprovechar caché de Docker)
-COPY package*.json ./
+# Copiar archivos de manifiesto
+COPY package.json package-lock.json ./
 
-# Instalar con --omit=dev asegura que nodemon u otros devDependencies se ignoren
-RUN npm install --omit=dev
+# Instalación determinista de todas las dependencias
+RUN npm ci
 
-# Copiar el código de la aplicación (obedeciendo el .dockerignore)
+# Copiar el código fuente
 COPY . .
 
-# Cambiar del usuario "root" a un usuario sin privilegios que Node.js ya incluye.
-# Esto asegura que el proceso Express no corra como administrador en la máquina.
+# 2. Etapa de Producción (Runner)
+FROM node:22-alpine AS runner
+
+ENV NODE_ENV=production
+
+WORKDIR /app
+
+# Copiar archivos de manifiesto nuevamente
+COPY package.json package-lock.json ./
+
+# Instalar estrictamente las dependencias de producción
+RUN npm ci --omit=dev --ignore-scripts
+
+# Copiar el código de la aplicación y dependencias desde la etapa de construcción
+COPY --from=builder /app/src ./src
+COPY --from=builder /app/app.js ./app.js
+
+# Asignar permisos al usuario node
+RUN chown -R node:node /app
+
+# Cambiar a usuario sin privilegios
 USER node
 
-# Exponer el puerto según código
 EXPOSE 3000
 
-# Usar node de manera explícita (npm no maneja tan bien las señales de cierre de contenedores SIGTERM)
 CMD ["node", "app.js"]
