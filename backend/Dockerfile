@@ -21,6 +21,9 @@ FROM node:22-alpine AS runner
 ENV NODE_ENV=production
 WORKDIR /app
 
+# Remover npm de la imagen de producción por seguridad (trae vulnerabilidades como picomatch)
+RUN rm -rf /usr/local/lib/node_modules/npm /usr/local/bin/npm /usr/local/bin/npx
+
 COPY --from=builder /app ./
 
 RUN chown -R node:node /app
