@@ -248,17 +248,17 @@ const personal = [
 
 
 
+hero-banner-bg {
+  min-height: 590px;
+}
+
+
+
 .hero-inner {
   max-width: 1440px;
   margin: 0 auto;
+  padding: 160px 44px 40px;
   width: 100%;
-  padding: 90px 44px 40px;
-}
-
-.hero-content {
-  max-width: 720px;
-  margin: 0 auto;
-  text-align: center;
 }
 
 .hero-kicker {
@@ -277,17 +277,7 @@ const personal = [
   line-height: 1.06;
   font-weight: 900;
   color: #ffffff;
-  margin: 0 auto 14px;
-  text-align: center;
-}
-
-.hero-text {
-  max-width: 700px;
-  font-size: 15px;
-  line-height: 1.5;
-  color: rgba(255, 255, 255, 0.94);
-  margin: 0;
-  text-align: justify;
+  margin: 0 0 14px;
 }
 
 .highlight {
@@ -308,6 +298,15 @@ const personal = [
   background: linear-gradient(90deg, #15c9e8, #0bb6d6);
   z-index: -1;
   border-radius: 8px;
+}
+
+.hero-text {
+  max-width: 700px;
+  font-size: 15px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.94);
+  margin: 0;
+  text-align: justify;
 }
 
 /* FRANJA */

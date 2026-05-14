@@ -1,30 +1,33 @@
 <template>
   <main class="page">
     <!-- HERO -->
-    <section class="hero">
-      <div class="hero-content">
-        <p class="hero-kicker">
-          ACUERDO GUBERNATIVO 36-2024 Y ACUERDO MINISTERIAL 815-2024
-        </p>
+    <section
+    class="hero"
+    :style="{ backgroundImage: `url(${heroImage})` }">
+    <div class="hero-content">
+      <p class="hero-kicker">
+        ACUERDO GUBERNATIVO 36-2024 Y ACUERDO MINISTERIAL 815-2024
+      </p>
 
-        <h1 class="hero-title">Portal de Salud PSE</h1>
+      <h1 class="hero-title">Portal de Salud PSE</h1>
 
-        <p class="hero-desc">
-          Plataforma del Ministerio de Educación para centralizar atenciones médicas,
-          llamadas, suministro de medicamentos, promoción de la salud y apoyos
-          funerarios para estudiantes del sistema educativo nacional.
-        </p>
+      <p class="hero-desc">
+        Plataforma del Ministerio de Educación para centralizar atenciones médicas,
+        llamadas, suministro de medicamentos, promoción de la salud y apoyos
+        funerarios para estudiantes del sistema educativo nacional.
+      </p>
 
-        <div class="hero-search">
-          <input
-            type="text"
-            class="hero-search-input"
-            placeholder="Buscar información del programa..."
-          />
-          <button class="hero-search-btn" type="button">Buscar</button>
-        </div>
-      </div>
-    </section>
+      <div class="hero-search">
+        <input
+          type="text"
+          class="hero-search-input"
+          placeholder="Buscar información del programa..."
+      />
+      <button class="hero-search-btn" type="button">Buscar</button>
+    </div>
+  </div>
+</section>
+    
 
     <!-- FRANJA LOGOS -->
     <section class="logo-franja">
@@ -235,10 +238,13 @@
 <script setup>
 import { RouterLink } from 'vue-router'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { cos } from '@amcharts/amcharts5/.internal/core/util/Math'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
 
+
 const logoFranja = '/Home/LOGOS/logo-franja.png'
+const heroImage = '/Home/RECURSOS/hero-min.png'
 
 const modulos = [
   {
@@ -454,10 +460,9 @@ onUnmounted(() => {
 /* HERO */
 .hero {
   position: relative;
-  min-height: 680px;
-  height: 74vh;
-  max-height: 780px;
-  background-image: url('/Home/RECURSOS/hero-min.png');
+  min-height: 590px;
+  height: 590px;
+  max-height: 590px;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -465,42 +470,51 @@ onUnmounted(() => {
   align-items: center;
 }
 
+hero-banner-bg {
+  min-height: 590px;
+}
+
+
+.hero-inner {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 160px 44px 40px;
+  width: 100%;
+}
+
 .hero-content {
   width: 100%;
-  max-width: 1720px;
+  max-width: 1440px;
   margin: 0 auto;
-  padding: 0 72px;
+  padding: 120px 44px 40px;
 }
 
 .hero-kicker {
-  margin: 0 0 18px;
-  font-size: 14px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
+  font-size: 0.78rem;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: rgba(0, 224, 255, 0.7);
-  max-width: 760px;
+  color: #60d5f3;
+  margin: 0 0 8px;
+  font-weight: 700;
 }
 
 .hero-title {
-  margin: 0 0 18px;
-  font-size: clamp(56px, 5vw, 90px);
-  line-height: 1;
+  max-width: 720px;
+  width: 100%;
+  font-size: 63px;
+  line-height: 1.06;
   font-weight: 900;
   color: #ffffff;
-  max-width: 760px;
-}
-
-.hero-title .highlight {
-  color: #60d5f3;
+  margin: 0 0 14px;
 }
 
 .hero-desc {
   margin: 0;
-  max-width: 620px;
-  font-size: 18px;
-  line-height: 1.6;
+  max-width: 700px;
+  font-size: 17px;
+  line-height: 1.5;
   color: rgba(255, 255, 255, 0.94);
+  text-align: justify;
 }
 
 .hero-search {

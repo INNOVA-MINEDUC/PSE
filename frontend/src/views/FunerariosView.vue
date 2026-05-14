@@ -8,7 +8,7 @@
    <div class="hero-banner-overlay">
         <div class="hero-inner">
           <div>
-            <p class="hero-kicker">MÓDULO 4</p>
+            <p class="hero-kicker">MÓDULO 5</p>
             <h1 class="hero-title">
               Apoyo
               <span class="highlight">Funerario</span>
