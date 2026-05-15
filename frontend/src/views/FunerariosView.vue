@@ -265,8 +265,6 @@ const formatoMoneda = (valor) => `Q${valor.toLocaleString('es-GT')}`
   padding: 0 32px;
 }
 
-
-
 /* HERO */
 .module-hero {
   min-height: 590px;

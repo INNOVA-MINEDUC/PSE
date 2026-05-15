@@ -29,6 +29,7 @@
         class="logo-franja-img"
         :src="logoFranja"
         alt="Franja de logos institucionales"
+        loading="lazy"
       />
     </section>
     
@@ -197,6 +198,8 @@ import GuateMap from '@/components/GuateMap.vue'
 const bannerAtencion = '/Atencion/banner/banner-atencion.jpg'
 const logoFranja = '/Home/LOGOS/logo-franja.png'
 
+// Sugerencia: agregar versión WebP de las imágenes para mejor performance
+
 const resumen = {
   consultas: 674656,
   estudiantes: 222704,
@@ -362,9 +365,9 @@ const tiposAtencion = [
 }
 
 .atencion-inner {
-  max-width: 1400px;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 24px 48px 0;
+  padding: 24px 24px 0;
 }
 
 /* CARDS GENERALES */
@@ -395,7 +398,7 @@ const tiposAtencion = [
 
 .stats-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1.1fr);
+  grid-template-columns: 1fr 1fr;
   gap: 18px;
 }
 
@@ -528,7 +531,7 @@ const tiposAtencion = [
 
 /* MAPA + DX */
 .row-map {
-  grid-template-columns: minmax(0, 2fr) minmax(0, 1.1fr);
+  grid-template-columns: 1.5fr 1fr;
 }
 
 .map-wrapper {
@@ -551,7 +554,7 @@ const tiposAtencion = [
 
 /* TABLAS INFERIORES */
 .row-bottom {
-  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+  grid-template-columns: 1fr 1fr;
 }
 
 .simple-table {
@@ -608,13 +611,12 @@ const tiposAtencion = [
 /* RESPONSIVE */
 @media (max-width: 1100px) {
   .atencion-inner {
-    padding-inline: 24px;
+    padding-inline: 12px;
   }
-
   .stats-grid,
   .row-map,
   .row-bottom {
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns: 1fr;
   }
 }
 

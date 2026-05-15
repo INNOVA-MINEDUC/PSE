@@ -262,12 +262,18 @@
                 </div>
               </div>
 
+
               <div class="field">
-                <label>URL de imagen</label>
+                <label>Imagen</label>
+                <input type="file" accept="image/*" @change="onImageChange" />
+                <div v-if="modal.data.imagen_url" style="margin-top:8px;">
+                  <img :src="resolveUrl(modal.data.imagen_url)" alt="Imagen subida" style="max-width:120px;max-height:80px;border-radius:6px;" />
+                </div>
                 <input
                   v-model="modal.data.imagen_url"
                   type="text"
                   placeholder="/uploads/noticias/demo.jpg o https://..."
+                  style="margin-top:8px;"
                 />
               </div>
 
@@ -362,6 +368,29 @@
 
 <script setup>
 import { computed, onMounted, ref, watch } from "vue";
+// Subida de imagen para noticias
+const onImageChange = async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const formData = new FormData();
+  formData.append("imagen", file);
+  try {
+    const res = await fetch(`${API_URL}/api/admin/noticias/upload`, {
+      method: "POST",
+      body: formData,
+      headers: { Authorization: token ? `Bearer ${token}` : undefined },
+    });
+    const data = await res.json();
+    if (data.success && data.url) {
+      modal.value.data.imagen_url = data.url;
+      modal.value.error = "";
+    } else {
+      modal.value.error = data.error || "Error al subir la imagen.";
+    }
+  } catch (err) {
+    modal.value.error = "Error de red al subir la imagen.";
+  }
+};
 import { useRouter } from "vue-router";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
