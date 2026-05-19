@@ -13,7 +13,6 @@ router.get("/", getNoticias);
 router.post("/", createNoticia);
 router.put("/:id", updateNoticia);
 router.delete("/:id", deleteNoticia);
-router.post("/upload", uploadNoticias.single("imagen"), ...;)
 
 router.post("/upload", uploadNoticias.single("imagen"), (req, res) => {
   if (!req.file) {
