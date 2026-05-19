@@ -375,7 +375,7 @@ const onImageChange = async (e) => {
   const formData = new FormData();
   formData.append("imagen", file);
   try {
-    const res = await fetch(`${API_URL}/api/admin/noticias/upload`, {
+    const res = await fetch(`${API_URL}/api/noticias/upload`, {
       method: "POST",
       body: formData,
       headers: { Authorization: token ? `Bearer ${token}` : undefined },
