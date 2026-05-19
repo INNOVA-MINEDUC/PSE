@@ -700,8 +700,8 @@ const saveNoticia = async () => {
   try {
     const isEdit = Boolean(noticia.id);
     const url = isEdit
-      ? `${API_URL}/api/admin/noticias/${noticia.id}`
-      : `${API_URL}/api/admin/noticias`;
+      ? `${API_URL}/api/noticias/${noticia.id}`
+      : `${API_URL}/api/noticias`;
 
     const method = isEdit ? "PUT" : "POST";
 
@@ -733,7 +733,7 @@ const deleteNoticia = async (id) => {
   if (!confirm("¿Eliminar esta noticia?")) return;
 
   try {
-    const res = await fetch(`${API_URL}/api/admin/noticias/${id}`, {
+    const res = await fetch(`${API_URL}/api/noticias/${id}`, {
       method: "DELETE",
       headers: authHeaders.value,
     });
