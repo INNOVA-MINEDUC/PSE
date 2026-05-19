@@ -16,13 +16,20 @@ export const createNoticia = async (req, res) => {
   try {
     const {
       titulo,
-      descripcion_corta,
-      imagen_url,
-      fecha_publicacion,
-      modulo,
+      descripcion_corta = "",
+      imagen_url = "",
+      fecha_publicacion = null,
+      modulo = "general",
       activo = 1,
       orden = 0,
     } = req.body;
+
+    if (!titulo) {
+      return res.status(400).json({
+        success: false,
+        error: "El título es requerido",
+      });
+    }
 
     await req.db.query(
       `
@@ -30,11 +37,20 @@ export const createNoticia = async (req, res) => {
       (titulo, descripcion_corta, imagen_url, fecha_publicacion, modulo, activo, orden)
       VALUES (?, ?, ?, ?, ?, ?, ?)
       `,
-      [titulo, descripcion_corta, imagen_url, fecha_publicacion, modulo, activo, orden]
+      [
+        titulo,
+        descripcion_corta,
+        imagen_url,
+        fecha_publicacion,
+        modulo,
+        activo ? 1 : 0,
+        Number(orden) || 0,
+      ]
     );
 
     res.json({ success: true, message: "Noticia creada correctamente" });
   } catch (error) {
+    console.error("ERROR createNoticia:", error);
     res.status(500).json({ success: false, error: error.message });
   }
 };
@@ -42,15 +58,23 @@ export const createNoticia = async (req, res) => {
 export const updateNoticia = async (req, res) => {
   try {
     const { id } = req.params;
+
     const {
       titulo,
-      descripcion_corta,
-      imagen_url,
-      fecha_publicacion,
-      modulo,
-      activo,
-      orden,
+      descripcion_corta = "",
+      imagen_url = "",
+      fecha_publicacion = null,
+      modulo = "general",
+      activo = 1,
+      orden = 0,
     } = req.body;
+
+    if (!titulo) {
+      return res.status(400).json({
+        success: false,
+        error: "El título es requerido",
+      });
+    }
 
     await req.db.query(
       `
@@ -59,11 +83,21 @@ export const updateNoticia = async (req, res) => {
           modulo = ?, activo = ?, orden = ?
       WHERE id = ?
       `,
-      [titulo, descripcion_corta, imagen_url, fecha_publicacion, modulo, activo, orden, id]
+      [
+        titulo,
+        descripcion_corta,
+        imagen_url,
+        fecha_publicacion,
+        modulo,
+        activo ? 1 : 0,
+        Number(orden) || 0,
+        id,
+      ]
     );
 
     res.json({ success: true, message: "Noticia actualizada correctamente" });
   } catch (error) {
+    console.error("ERROR updateNoticia:", error);
     res.status(500).json({ success: false, error: error.message });
   }
 };
@@ -76,6 +110,7 @@ export const deleteNoticia = async (req, res) => {
 
     res.json({ success: true, message: "Noticia eliminada correctamente" });
   } catch (error) {
+    console.error("ERROR deleteNoticia:", error);
     res.status(500).json({ success: false, error: error.message });
   }
 };
