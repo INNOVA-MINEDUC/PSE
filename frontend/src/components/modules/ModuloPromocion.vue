@@ -1,6 +1,5 @@
 <template>
   <section class="modulo-promocion">
-    <!-- ENCABEZADO DEL MÓDULO -->
     <header class="modulo-header">
       <h2>Promoción de la salud y prevención de enfermedades en centros educativos</h2>
 
@@ -89,7 +88,7 @@
 <script setup>
 import { RouterLink } from 'vue-router'
 
-// Puedes ajustar estos textos cuando tengas la info final
+
 const acciones = [
   {
     id: 1,
@@ -128,7 +127,6 @@ const acciones = [
   },
 ]
 
-// Noticias demo (puedes cambiar textos e imágenes después)
 import imgPromocion from '@/assets/mod-promocion.jpg'
 
 const noticias = [

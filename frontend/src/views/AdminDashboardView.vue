@@ -602,7 +602,7 @@ const fetchKpis = async () => {
   loadingKpis.value = true;
 
   try {
-    const res = await fetch(`${API_URL}/api/kpis`);
+    const res = await fetch(`${API_URL}/api/dashboard/kpis`);
     const data = await res.json();
 
     if (data.success) {

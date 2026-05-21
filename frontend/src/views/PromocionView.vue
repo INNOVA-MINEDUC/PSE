@@ -162,22 +162,22 @@ const noticias = computed(() => {
 
 const actividades = [
   {
-    img: '/Promocion/actividades/actividad-1.png',
+    img: '/Promocion/actividades/actividad-1.webp',
     titulo: 'Jornadas de desparasitación escolar',
     desc: 'Acciones para promover la salud y prevenir enfermedades en los centros educativos.'
   },
   {
-    img: '/Promocion/actividades/actividad-2.png',
+    img: '/Promocion/actividades/actividad-2.webp',
     titulo: 'Jornadas de inmunización',
     desc: 'Registro de atenciones médicas y seguimiento de casos de las y los estudiantes.'
   },
   {
-    img: '/Promocion/actividades/actividad-3.png',
+    img: '/Promocion/actividades/actividad-3.webp',
     titulo: 'Prevención del dengue',
     desc: 'Inventario y distribución de medicamentos del programa a los establecimientos.'
   },
   {
-    img: '/Promocion/actividades/actividad-4.png',
+    img: '/Promocion/actividades/actividad-4.webp',
     titulo: 'Promoción de salud renal',
     desc: 'Llamadas recibidas, derivaciones y seguimiento de casos relacionados con PSE.'
   }
