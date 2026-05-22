@@ -1,15 +1,19 @@
 import express from "express";
 import {
   getNoticias,
+  getNoticiaById,
   createNoticia,
   updateNoticia,
   deleteNoticia,
 } from "../controllers/noticias.controller.js";
+
 import { uploadNoticias } from "../meddleware/upload.middleware.js";
 
 const router = express.Router();
 
 router.get("/", getNoticias);
+router.get("/:id", getNoticiaById);
+
 router.post("/", createNoticia);
 router.put("/:id", updateNoticia);
 router.delete("/:id", deleteNoticia);
@@ -23,7 +27,11 @@ router.post("/upload", uploadNoticias.single("imagen"), (req, res) => {
   }
 
   const url = `/uploads/noticias/${req.file.filename}`;
-  res.json({ success: true, url });
+
+  res.json({
+    success: true,
+    url,
+  });
 });
 
 export default router;

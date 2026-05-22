@@ -12,11 +12,40 @@ export const getNoticias = async (req, res) => {
   }
 };
 
+export const getNoticiaById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const [[noticia]] = await req.db.query(
+      `
+      SELECT *
+      FROM noticias
+      WHERE id = ?
+      LIMIT 1
+      `,
+      [id]
+    );
+
+    if (!noticia) {
+      return res.status(404).json({
+        success: false,
+        error: "Noticia no encontrada",
+      });
+    }
+
+    res.json({ success: true, data: noticia });
+  } catch (error) {
+    console.error("ERROR getNoticiaById:", error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+
 export const createNoticia = async (req, res) => {
   try {
     const {
       titulo,
       descripcion_corta = "",
+      contenido = "",
       imagen_url = "",
       fecha_publicacion = null,
       modulo = "general",
@@ -34,12 +63,13 @@ export const createNoticia = async (req, res) => {
     await req.db.query(
       `
       INSERT INTO noticias
-      (titulo, descripcion_corta, imagen_url, fecha_publicacion, modulo, activo, orden)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
+      (titulo, descripcion_corta, contenido, imagen_url, fecha_publicacion, modulo, activo, orden)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
       `,
       [
         titulo,
         descripcion_corta,
+        contenido,
         imagen_url,
         fecha_publicacion,
         modulo,
@@ -62,6 +92,7 @@ export const updateNoticia = async (req, res) => {
     const {
       titulo,
       descripcion_corta = "",
+      contenido = "",
       imagen_url = "",
       fecha_publicacion = null,
       modulo = "general",
@@ -79,13 +110,20 @@ export const updateNoticia = async (req, res) => {
     await req.db.query(
       `
       UPDATE noticias
-      SET titulo = ?, descripcion_corta = ?, imagen_url = ?, fecha_publicacion = ?,
-          modulo = ?, activo = ?, orden = ?
+      SET titulo = ?,
+          descripcion_corta = ?,
+          contenido = ?,
+          imagen_url = ?,
+          fecha_publicacion = ?,
+          modulo = ?,
+          activo = ?,
+          orden = ?
       WHERE id = ?
       `,
       [
         titulo,
         descripcion_corta,
+        contenido,
         imagen_url,
         fecha_publicacion,
         modulo,
