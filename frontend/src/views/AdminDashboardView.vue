@@ -231,6 +231,20 @@
                 <textarea v-model="modal.data.descripcion_corta" rows="3"></textarea>
               </div>
 
+               <div class="field">
+                <label>Contenido completo</label>
+
+                <textarea
+                  v-model="modal.data.contenido"
+                  rows="10"
+                  placeholder="Escribe aquí el contenido completo de la noticia..."
+                ></textarea>
+
+                <small class="field-help">
+                  Este contenido aparecerá en la vista detalle de la noticia.
+                </small>
+              </div>
+
               <div class="field">
                 <label>Módulo</label>
                 <select v-model="modal.data.modulo">
@@ -677,6 +691,7 @@ const openModal = (noticia) => {
       : {
           titulo: "",
           descripcion_corta: "",
+          contenido: "",
           imagen_url: "",
           fecha_publicacion: new Date().toISOString().slice(0, 10),
           modulo: "promocion",
