@@ -214,40 +214,13 @@
       </div>
     </section>
 
-    <!-- FOOTER -->
-    <footer class="footer">
-      <div class="section-shell footer-grid">
-        <div class="footer-col">
-          <h4 class="footer-title">Programa de Salud Escolar (PSE)</h4>
-          <p class="footer-text">
-            Plataforma institucional orientada a acompañar la salud integral de las y los estudiantes del sistema educativo nacional.
-          </p>
-        </div>
-
-        <div class="footer-col">
-          <h4 class="footer-title">Secciones</h4>
-          <RouterLink to="/" class="footer-link">Inicio</RouterLink>
-          <RouterLink to="/promocion" class="footer-link">Promoción y prevención</RouterLink>
-          <RouterLink to="/atencion" class="footer-link">Atención a enfermedades</RouterLink>
-          <RouterLink to="/medicamentos" class="footer-link">Suministro de medicamentos</RouterLink>
-          <RouterLink to="/llamadas" class="footer-link">Centro de llamadas 1528</RouterLink>
-          <RouterLink to="/funerarios" class="footer-link">Apoyo funerario</RouterLink>
-        </div>
-
-        <div class="footer-col">
-          <h4 class="footer-title">Contacto</h4>
-          <p class="footer-text">Ministerio de Educación de Guatemala</p>
-          <p class="footer-text">Dirección General de Gestión de Calidad Educativa</p>
-          <p class="footer-text">Subdirección de Innovación Educativa</p>
-          <p class="footer-text">Correo: saludescolar@mineduc.gob.gt</p>
-        </div>
-      </div>
-    </footer>
+    <AppFooter />
   </main>
 </template>
 
 <script setup>
 import { RouterLink } from 'vue-router'
+import AppFooter from '@/components/AppFooter.vue'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { cos } from '@amcharts/amcharts5/.internal/core/util/Math'
 
@@ -1032,63 +1005,6 @@ hero-banner-bg {
   right: 56px;
 }
 
-/* FOOTER */
-.footer {
-  margin-top: 0;
-  padding: 0;
-  background: #031a33;
-  color: #ffffff;
-  position: relative;
-}
-
-.footer::before {
-  content: "";
-  display: block;
-  width: 100%;
-  height: 10px;
-  background: #17c4e8;
-}
-
-.footer-grid {
-  max-width: 1720px;
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: 1.35fr 1fr 1fr;
-  gap: 36px;
-  padding: 34px 28px 18px;
-}
-
-.footer-title {
-  margin: 0 0 14px;
-  font-size: 16px;
-  font-weight: 800;
-  color: #ffffff;
-}
-
-.footer-text {
-  margin: 0 0 8px;
-  font-size: 13px;
-  line-height: 1.6;
-  color: rgba(255, 255, 255, 0.84);
-}
-
-.footer-link {
-  display: block;
-  margin: 0 0 8px;
-  font-size: 13px;
-  line-height: 1.6;
-  color: rgba(255, 255, 255, 0.84);
-  text-decoration: none;
-}
-
-.footer-link:hover {
-  color: #17c4e8;
-}
-
-.footer-col:last-child .footer-text:last-child {
-  margin-bottom: 0;
-}
-
 /* RESPONSIVE */
 @media (max-width: 1400px) {
   .modulos-grid {
@@ -1127,12 +1043,6 @@ hero-banner-bg {
 
   .resultados-grid-bottom {
     grid-template-columns: 1fr;
-  }
-
-  .footer-grid {
-    grid-template-columns: 1fr;
-    gap: 32px;
-    padding: 36px 30px;
   }
 
   .noticia-body {
@@ -1331,24 +1241,5 @@ hero-banner-bg {
     line-height: 1.4;
   }
 
-  .footer {
-    margin-top: 40px;
-  }
-
-  .footer-grid {
-    padding: 28px 16px;
-    gap: 24px;
-  }
-
-  .footer-title {
-    font-size: 14px;
-    margin-bottom: 12px;
-  }
-
-  .footer-text,
-  .footer-link {
-    font-size: 12px;
-    margin-bottom: 6px;
-  }
 }
 </style>
