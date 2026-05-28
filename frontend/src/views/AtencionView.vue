@@ -197,9 +197,9 @@
 import GuateMap from '@/components/GuateMap.vue'
 import AppFooter from '@/components/AppFooter.vue'
 
-const heroImage = '/Home/RECURSOS/hero-min.png'
-const bannerAtencion = '/Atencion/banner/banner-atencion.jpg'
-const logoFranja = '/Home/LOGOS/logo-franja.png'
+const heroImage = '/Home/RECURSOS/hero-min.webp'
+const bannerAtencion = '/Atencion/banner/banner-atencion.webp'
+const logoFranja = '/Home/LOGOS/logo-franja.webp'
 
 // Sugerencia: 
 

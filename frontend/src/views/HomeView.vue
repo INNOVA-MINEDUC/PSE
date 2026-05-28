@@ -65,6 +65,8 @@
                     :src="modulo.imagen"
                     :alt="modulo.titulo"
                     class="modulo-image"
+                    loading="lazy"
+                    decoding="async"
                   />
                 </div>
 
@@ -186,6 +188,8 @@
               :src="noticiaDestacada.imagen"
               :alt="noticiaDestacada.titulo"
               class="noticia-img"
+              loading="lazy"
+              decoding="async"
             />
 
             <div class="noticia-overlay"></div>
@@ -243,43 +247,43 @@ import { cos } from '@amcharts/amcharts5/.internal/core/util/Math'
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
 
 
-const logoFranja = '/Home/LOGOS/logo-franja.png'
-const heroImage = '/Home/RECURSOS/hero-min.png'
+const logoFranja = '/Home/LOGOS/logo-franja.webp'
+const heroImage = '/Home/RECURSOS/hero-min.webp'
 
 const modulos = [
   {
     id: 1,
     titulo: 'Promoción y Prevención',
     descripcion: 'Acciones para promover la salud y prevenir enfermedades en los centros educativos.',
-    imagen: '/Home/IMAGENES/noticia-jornada-salud.png',
+    imagen: '/Home/IMAGENES/noticia-jornada-salud.webp',
     ruta: '/promocion'
   },
   {
     id: 2,
     titulo: 'Atención a enfermedades',
     descripcion: 'Registro de atenciones médicas y seguimiento de casos de las y los estudiantes.',
-    imagen: '/Home/IMAGENES/noticia-virus.png',
+    imagen: '/Home/IMAGENES/noticia-virus.webp',
     ruta: '/atencion'
   },
   {
     id: 3,
     titulo: 'Suministro de medicamentos',
     descripcion: 'Inventario y distribución de medicamentos del programa a los establecimientos.',
-    imagen: '/Home/IMAGENES/mod-medicamentos.png',
+    imagen: '/Home/IMAGENES/mod-medicamentos.webp',
     ruta: '/medicamentos'
   },
   {
     id: 4,
     titulo: 'Centro de llamadas 1528',
     descripcion: 'Llamadas recibidas, derivaciones y seguimiento de casos relacionados con PSE.',
-    imagen: '/Home/IMAGENES/mod-llamadas.png',
+    imagen: '/Home/IMAGENES/mod-llamadas.webp',
     ruta: '/llamadas'
   },
   {
     id: 5,
     titulo: 'Apoyo funerario',
     descripcion: 'Gestión y apoyo en casos funerarios para estudiantes del sistema educativo nacional.',
-    imagen: '/Home/IMAGENES/noticia-vacunacion.png',
+    imagen: '/Home/IMAGENES/noticia-vacunacion.webp',
     ruta: '/funerarios'
   }
 ]
@@ -342,7 +346,7 @@ const noticiasBase = [
     titulo: 'Jornada de vacunación en escuela rural',
     descripcion:
       'Se realizó una jornada de vacunación, desparasitación y control de crecimiento para niñas y niños de preprimaria y primaria.',
-    imagen: '/Home/IMAGENES/noticia-vacunacion.png'
+    imagen: '/Home/IMAGENES/noticia-vacunacion.webp'
   },
   {
     fecha: '03 FEBRERO 2026',
@@ -350,7 +354,7 @@ const noticiasBase = [
     titulo: 'Aplicación de barniz con flúor en estudiantes de primaria',
     descripcion:
       'Niñas y niños recibieron barniz con flúor y material educativo sobre cuidado dental.',
-    imagen: '/Promocion/noticias/noticia-2.png'
+    imagen: '/Promocion/noticias/noticia-2.webp'
   },
   {
     fecha: '03 FEBRERO 2026',
@@ -358,7 +362,7 @@ const noticiasBase = [
     titulo: 'Campaña de lavado de manos en escuelas urbanas',
     descripcion:
       'Acciones preventivas para fortalecer hábitos de higiene en los establecimientos educativos.',
-    imagen: '/Promocion/noticias/noticia-3.png'
+    imagen: '/Promocion/noticias/noticia-3.webp'
   },
   {
     fecha: '03 FEBRERO 2026',
@@ -366,7 +370,7 @@ const noticiasBase = [
     titulo: 'Prevención del dengue con acciones comunitarias',
     descripcion:
       'Se organizaron brigadas escolares y comunitarias para identificar y eliminar criaderos de zancudos.',
-    imagen: '/Promocion/noticias/noticia-4.png'
+    imagen: '/Promocion/noticias/noticia-4.webp'
   }
 ]
 

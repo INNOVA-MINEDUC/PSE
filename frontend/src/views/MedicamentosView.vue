@@ -30,6 +30,8 @@
         :src="logoFranja"
         alt="Franja de logos institucionales"
         class="logo-franja-img"
+        loading="lazy"
+        decoding="async"
       />
     </section>
 
@@ -222,8 +224,8 @@
 <script setup>
 import GuateMap from '@/components/GuateMap.vue'
 
-const bannerSuministros = '/Suministros/banner/banner-suministros.jpg'
-const logoFranja = '/Home/LOGOS/logo-franja.png'
+const bannerSuministros = '/Suministros/banner/banner-suministros.webp'
+const logoFranja = '/Home/LOGOS/logo-franja.webp'
 
 
 const resumen = {

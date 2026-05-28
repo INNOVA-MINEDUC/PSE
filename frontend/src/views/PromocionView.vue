@@ -29,7 +29,7 @@
           <button class="news-arrow news-arrow-left" type="button" @click="prevNews">‹</button>
 
           <article class="news-featured">
-            <img :src="featuredNews.img" :alt="featuredNews.titulo" class="news-featured-img" />
+            <img :src="featuredNews.img" :alt="featuredNews.titulo" class="news-featured-img" loading="lazy" decoding="async" />
 
             <div class="news-featured-overlay">
               <p class="news-category">{{ featuredNews.categoria }}</p>
@@ -43,7 +43,7 @@
 
         <div class="news-grid">
           <article v-for="(item, i) in noticias" :key="i" class="news-card">
-            <img :src="item.img" :alt="item.titulo" class="news-card-img" />
+            <img :src="item.img" :alt="item.titulo" class="news-card-img" loading="lazy" decoding="async" />
 
             <div class="news-card-overlay">
               <h4 class="news-card-title">{{ item.titulo }}</h4>
@@ -74,6 +74,8 @@
               :src="astronautaActividades"
               alt="Astronauta actividades"
               class="actions-astro"
+              loading="lazy"
+              decoding="async"
             />
           </div>
         </div>
@@ -87,7 +89,7 @@
               :key="index"
               class="action-card"
             >
-              <img :src="actividad.img" :alt="actividad.titulo" class="action-card-img" />
+              <img :src="actividad.img" :alt="actividad.titulo" class="action-card-img" loading="lazy" decoding="async" />
 
               <div class="action-card-overlay">
                 <p class="action-module">MÓDULO {{ index + 1 }}</p>
@@ -110,30 +112,30 @@ import { computed, onMounted, onUnmounted, ref } from 'vue'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
 
-const bannerPromocion = '/Promocion/banner/banner-promocion.png'
-const astronautaActividades = '/Promocion/actividades/astronauta-actividades.png'
+const bannerPromocion = '/Promocion/banner/banner-promocion.webp'
+const astronautaActividades = '/Promocion/actividades/astronauta-actividades.webp'
 
 const noticiasBase = [
   {
-    img: '/Promocion/noticias/noticia-1.png',
+    img: '/Promocion/noticias/noticia-1.webp',
     titulo: 'Jornada de vacunación en escuela rural',
     desc: 'Acciones para promover la salud y prevenir enfermedades en los centros educativos.',
     categoria: 'PROMOCIÓN Y PREVENCIÓN'
   },
   {
-    img: '/Promocion/noticias/noticia-2.png',
+    img: '/Promocion/noticias/noticia-2.webp',
     titulo: 'Aplicación de barniz con flúor en estudiantes de primaria',
     desc: 'Niñas y niños de primero a tercero primaria recibieron barniz con flúor y material educativo sobre cuidado dental.',
     categoria: 'PROMOCIÓN Y PREVENCIÓN'
   },
   {
-    img: '/Promocion/noticias/noticia-3.png',
+    img: '/Promocion/noticias/noticia-3.webp',
     titulo: 'Campaña de lavado de manos en escuelas urbanas',
     desc: 'Acciones preventivas para fortalecer hábitos de higiene en los establecimientos educativos.',
     categoria: 'PROMOCIÓN Y PREVENCIÓN'
   },
   {
-    img: '/Promocion/noticias/noticia-4.png',
+    img: '/Promocion/noticias/noticia-4.webp',
     titulo: 'Prevención del dengue con acciones comunitarias',
     desc: 'Se organizaron brigadas escolares y comunitarias para identificar y eliminar criaderos de zancudos.',
     categoria: 'PROMOCIÓN Y PREVENCIÓN'
@@ -162,7 +164,7 @@ const noticias = computed(() => {
 
 const actividades = [
   {
-    img: '/Promocion/actividades/actividad-1.webp',
+    img: '/Promocion/actividades/actividad-1.webp', // ya era webp
     titulo: 'Jornadas de desparasitación escolar',
     desc: 'Acciones para promover la salud y prevenir enfermedades en los centros educativos.'
   },

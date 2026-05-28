@@ -52,7 +52,7 @@
               <p class="step-description">{{ paso.descripcion }}</p>
 
               <div class="step-image-wrap">
-                <img :src="paso.imagen" :alt="paso.titulo" class="step-image" />
+                <img :src="paso.imagen" :alt="paso.titulo" class="step-image" loading="lazy" decoding="async" />
               </div>
             </article>
           </div>
@@ -101,6 +101,8 @@
               :src="imgFlujo"
               alt="Flujo básico de atención del apoyo funerario"
               class="split-image"
+              loading="lazy"
+              decoding="async"
             />
           </div>
 
@@ -158,6 +160,8 @@
                 :src="imgResumen"
                 alt="Resumen visual del programa de apoyo funerario"
                 class="summary-image"
+                loading="lazy"
+                decoding="async"
               />
             </div>
           </div>
@@ -178,6 +182,8 @@
                   :src="imgMetricas"
                   alt="Ícono de casos atendidos"
                   class="metric-image"
+                  loading="lazy"
+                  decoding="async"
                 />
               </div>
               <h3 class="metric-value">{{ datosFunerarios.totalCasos }}</h3>
@@ -211,12 +217,12 @@
 </template>
 
 <script setup>
-const bannerFunerario = '/Funerario/banner/funerario-banner.png'
-const logoFranja = '/Home/LOGOS/logo-franja.png'
+const bannerFunerario = '/Funerario/banner/funerario-banner.webp'
+const logoFranja = '/Home/LOGOS/logo-franja.webp'
 
-const imgFlujo = '/Funerario/funerario-flujo-atencion.png'
-const imgResumen = '/Funerario/funerario-metrica-casos.png'
-const imgMetricas = '/Funerario/funerario-metrica-casos.png'
+const imgFlujo = '/Funerario/funerario-flujo-atencion.webp'
+const imgResumen = '/Funerario/funerario-metrica-casos.webp'
+const imgMetricas = '/Funerario/funerario-metrica-casos.webp'
 
 const pasos = [
   {
@@ -224,21 +230,21 @@ const pasos = [
     titulo: 'Llama gratis al 1528 o acude a la Dirección Departamental',
     descripcion:
       'Marca sin costo al 1528 o acércate a la Dirección Departamental para recibir orientación inicial sobre el proceso.',
-    imagen: '/Funerario/funerario-paso-2.png'
+    imagen: '/Funerario/funerario-paso-2.webp'
   },
   {
     numero: 2,
     titulo: 'Presenta los documentos requeridos',
     descripcion:
       'Certificado de defunción del estudiante. Fotocopia de DPI y NIT del padre, madre, tutor o encargado (según aplique).',
-    imagen: '/Funerario/funerario-paso-3.png'
+    imagen: '/Funerario/funerario-paso-3.webp'
   },
   {
     numero: 3,
     titulo: 'Elige la funeraria y recibe el apoyo económico',
     descripcion:
       'Como padre, madre, tutor o encargado, eliges la funeraria de tu conveniencia. El aporte económico para gastos funerarios puede ser de hasta Q7,500.00 por estudiante.',
-    imagen: '/Funerario/funerario-paso-1.png'
+    imagen: '/Funerario/funerario-paso-1.webp'
   }
 ]
 
