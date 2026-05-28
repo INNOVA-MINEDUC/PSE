@@ -40,7 +40,7 @@
         </p>
 
         <div v-if="noticia.contenido" class="detalle-body">
-          {{ noticia.contenido }}
+          <p v-for="(parrafo, i) in parrafos" :key="i" class="detalle-parrafo">{{ parrafo }}</p>
         </div>
 
         <div class="detalle-footer-actions">
@@ -91,6 +91,11 @@ const fechaFormateada = computed(() => {
   })
 })
 
+const parrafos = computed(() => {
+  if (!noticia.value?.contenido) return []
+  return noticia.value.contenido.split(/\n\n+/).filter(p => p.trim())
+})
+
 onMounted(async () => {
   try {
     const res  = await fetch(`${API_URL}/api/noticias/${route.params.id}`)
@@ -124,7 +129,7 @@ onMounted(async () => {
 }
 
 .detalle-shell {
-  max-width: 920px;
+  max-width: 900px;
   margin: 0 auto;
   padding: 0 24px;
 }
@@ -223,13 +228,23 @@ onMounted(async () => {
 }
 
 .detalle-body {
-  font-size: 0.97rem;
-  color: #374151;
-  line-height: 1.85;
-  white-space: pre-wrap;
   border-top: 1px solid #e2e8f0;
   padding-top: 28px;
   margin-bottom: 40px;
+}
+
+.detalle-parrafo {
+  font-size: 1rem;
+  color: #374151;
+  line-height: 1.9;
+  text-align: justify;
+  white-space: pre-wrap;
+  hyphens: auto;
+  margin: 0 0 1rem;
+}
+
+.detalle-parrafo:last-child {
+  margin-bottom: 0;
 }
 
 .detalle-footer-actions {
