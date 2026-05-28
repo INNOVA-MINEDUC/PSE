@@ -16,7 +16,7 @@
             <p class="hero-text">
                En caso de fallecimiento de un estudiante inscrito en el sistema
               educativo público, el Programa de Salud Escolar (PSE) contempla un
-              aporte económico de hasta <strong>Q7,500.00</strong> para apoyar a
+              aporte económico de hasta <strong>{{ formatoMoneda(datosFunerarios.montoPorEstudiante) }}</strong> para apoyar a
               la familia en los gastos funerarios. Este apoyo busca acompañar y
               aliviar, en lo posible, a las familias en momentos difíciles.
             </p>
@@ -217,6 +217,9 @@
 </template>
 
 <script setup>
+import { onMounted, ref } from 'vue'
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
 const bannerFunerario = '/Funerario/banner/funerario-banner.webp'
 const logoFranja = '/Home/LOGOS/logo-franja.webp'
 
@@ -248,14 +251,33 @@ const pasos = [
   }
 ]
 
-const datosFunerarios = {
-  totalCasos: 329,
-  masculinos: 193,
-  femeninos: 136,
-  montoTotal: 2467000
-}
+const datosFunerarios = ref({
+  totalCasos:        329,
+  masculinos:        193,
+  femeninos:         136,
+  montoTotal:        2467000,
+  montoPorEstudiante: 7500
+})
 
-const formatoMoneda = (valor) => `Q${valor.toLocaleString('es-GT')}`
+const formatoMoneda = (valor) => `Q${Number(valor || 0).toLocaleString('es-GT')}`
+
+onMounted(async () => {
+  try {
+    const res  = await fetch(`${API_URL}/api/funerario/metricas`)
+    const data = await res.json()
+    if (data.success && data.data) {
+      datosFunerarios.value = {
+        totalCasos:         data.data.familias_beneficiadas   ?? datosFunerarios.value.totalCasos,
+        masculinos:         data.data.casos_masculinos        ?? datosFunerarios.value.masculinos,
+        femeninos:          data.data.casos_femeninos         ?? datosFunerarios.value.femeninos,
+        montoTotal:         data.data.monto_total             ?? datosFunerarios.value.montoTotal,
+        montoPorEstudiante: data.data.monto_por_estudiante    ?? datosFunerarios.value.montoPorEstudiante
+      }
+    }
+  } catch (err) {
+    console.error('Error cargando métricas funerario:', err)
+  }
+})
 </script>
 
 <style scoped>

@@ -35,6 +35,20 @@
       />
     </section>
 
+    <!-- MÉTRICAS -->
+    <section v-if="metricas.total_llamadas" class="llamadas-stats-bar">
+      <div class="llamadas-stats-inner">
+        <div class="lstat-item">
+          <span class="lstat-val">{{ metricas.total_llamadas.toLocaleString('es-GT') }}</span>
+          <span class="lstat-label">Llamadas registradas</span>
+        </div>
+        <div v-if="metricas.periodo" class="lstat-sep"></div>
+        <div v-if="metricas.periodo" class="lstat-item">
+          <span class="lstat-label">Período: <strong>{{ metricas.periodo }}</strong></span>
+        </div>
+      </div>
+    </section>
+
     <!-- CONTENIDO -->
     <section class="llamadas-body">
       <div class="llamadas-inner">
@@ -170,8 +184,28 @@
 </template>
 
 <script setup>
+import { onMounted, ref } from 'vue'
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
 const bannerCentros = '/Centro-1528/banner/llamadas-banner.jpg'
 const logoFranja = '/Home/LOGOS/logo-franja.png'
+
+const metricas = ref({ total_llamadas: 0, periodo: '' })
+
+onMounted(async () => {
+  try {
+    const res  = await fetch(`${API_URL}/api/llamadas/metricas`)
+    const data = await res.json()
+    if (data.success && data.data) {
+      metricas.value = {
+        total_llamadas: data.data.total_llamadas || 0,
+        periodo:        data.data.periodo        || ''
+      }
+    }
+  } catch (err) {
+    console.error('Error cargando métricas llamadas:', err)
+  }
+})
 
 const imgCasos = '/Centro-1528/Tipos-casos.jpg'
 const imgFlujo = '/Centro-1528/llamadas-flujo.jpg'
@@ -613,6 +647,47 @@ hero-banner-bg {
 .flow-list {
   padding-left: 18px;
   margin-top: 8px;
+}
+
+/* STATS BAR */
+.llamadas-stats-bar {
+  background: #f0f4f8;
+  border-bottom: 1px solid #dde3ea;
+  padding: 14px 32px;
+}
+
+.llamadas-stats-inner {
+  max-width: 1320px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.lstat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.lstat-val {
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: #0b4168;
+  line-height: 1;
+}
+
+.lstat-label {
+  font-size: 0.76rem;
+  color: #5b6470;
+  font-weight: 600;
+}
+
+.lstat-sep {
+  width: 1px;
+  height: 36px;
+  background: #c8d4de;
 }
 
 /* RESPONSIVE */

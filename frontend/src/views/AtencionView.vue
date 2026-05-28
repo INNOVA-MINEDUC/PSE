@@ -73,6 +73,8 @@
                   <strong>{{ resumen.porcentajeMujeres }}%</strong>
                 </div>
               </div>
+
+              <p v-if="resumen.periodo" class="resumen-periodo">Período: {{ resumen.periodo }}</p>
             </article>
 
             <!-- BLOQUE MORBILIDADES -->
@@ -194,21 +196,40 @@
 </template>
 
 <script setup>
+import { onMounted, ref } from 'vue'
 import GuateMap from '@/components/GuateMap.vue'
 import AppFooter from '@/components/AppFooter.vue'
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
 const heroImage = '/Home/RECURSOS/hero-min.webp'
 const bannerAtencion = '/Atencion/banner/banner-atencion.webp'
 const logoFranja = '/Home/LOGOS/logo-franja.webp'
 
-// Sugerencia: 
-
-const resumen = {
+const resumen = ref({
   consultas: 674656,
   estudiantes: 222704,
   porcentajeHombres: 52,
-  porcentajeMujeres: 48
-}
+  porcentajeMujeres: 48,
+  periodo: ''
+})
+
+onMounted(async () => {
+  try {
+    const res  = await fetch(`${API_URL}/api/atencion/metricas`)
+    const data = await res.json()
+    if (data.success && data.data) {
+      resumen.value = {
+        consultas:         data.data.consultas_atendidas   ?? resumen.value.consultas,
+        estudiantes:       data.data.estudiantes_atendidos ?? resumen.value.estudiantes,
+        porcentajeHombres: data.data.porcentaje_hombres    ?? resumen.value.porcentajeHombres,
+        porcentajeMujeres: data.data.porcentaje_mujeres    ?? resumen.value.porcentajeMujeres,
+        periodo:           data.data.periodo               || ''
+      }
+    }
+  } catch (err) {
+    console.error('Error cargando métricas atención:', err)
+  }
+})
 
 const morbilidades = [
   {
@@ -609,6 +630,13 @@ const tiposAtencion = [
 .type-list p {
   font-size: 0.78rem;
   color: #4b5563;
+}
+
+.resumen-periodo {
+  font-size: 0.72rem;
+  opacity: 0.72;
+  margin: 10px 0 0;
+  letter-spacing: 0.02em;
 }
 
 /* RESPONSIVE */

@@ -307,74 +307,232 @@
         </template>
 
         <template v-if="activeModule === 'atencion'">
-          <section class="dashboard-card form-card">
-            <p class="section-title">Atención a enfermedades</p>
-            <p class="section-sub">Vista inicial conectada a indicadores generales.</p>
-
-            <div class="field-row">
-              <div class="field">
-                <label>Consultas atendidas</label>
-                <input :value="formatNum(rawKpis.atenciones)" readonly />
+          <section class="dashboard-card">
+            <div class="mod-header">
+              <div class="mod-header-left">
+                <span class="mod-icon-bg" style="background:#dcfce7;color:#16a34a;">🏥</span>
+                <div>
+                  <p class="section-title">Atención a enfermedades</p>
+                  <p class="section-sub">Actualiza los indicadores de atención médica escolar.</p>
+                </div>
               </div>
+              <span v-if="metricaAtencion.periodo" class="period-chip">{{ metricaAtencion.periodo }}</span>
+            </div>
 
-              <div class="field">
-                <label>Estudiantes atendidos</label>
-                <input :value="formatNum(rawKpis.estudiantes)" readonly />
+            <div class="summary-strip">
+              <div class="summary-item">
+                <span class="summary-val">{{ formatNum(rawKpis.atenciones) }}</span>
+                <span class="summary-label">Consultas atendidas</span>
+              </div>
+              <div class="summary-item">
+                <span class="summary-val">{{ formatNum(rawKpis.estudiantes) }}</span>
+                <span class="summary-label">Estudiantes atendidos</span>
               </div>
             </div>
 
-            <p class="form-hint">
-              La edición avanzada por departamento y mapa queda para la siguiente fase.
-            </p>
+            <div class="edit-section">
+              <p class="edit-section-title">Actualizar métricas</p>
+
+              <div class="field-row">
+                <div class="field">
+                  <label>Consultas atendidas</label>
+                  <input v-model.number="metricaAtencion.consultas_atendidas" type="number" min="0" />
+                </div>
+                <div class="field">
+                  <label>Estudiantes atendidos</label>
+                  <input v-model.number="metricaAtencion.estudiantes_atendidos" type="number" min="0" />
+                </div>
+              </div>
+
+              <div class="field-row">
+                <div class="field">
+                  <label>% Hombres</label>
+                  <input v-model.number="metricaAtencion.porcentaje_hombres" type="number" min="0" max="100" />
+                </div>
+                <div class="field">
+                  <label>% Mujeres</label>
+                  <input v-model.number="metricaAtencion.porcentaje_mujeres" type="number" min="0" max="100" />
+                </div>
+                <div class="field">
+                  <label>Período</label>
+                  <input v-model="metricaAtencion.periodo" type="text" placeholder="ej: enero - julio 2025" />
+                </div>
+              </div>
+
+              <div class="save-row">
+                <button class="save-btn" :disabled="savingAtencion" @click="updateMetricaAtencion">
+                  {{ savingAtencion ? "Guardando…" : "Guardar cambios" }}
+                </button>
+                <span v-if="atencionMsg.text" class="form-msg" :class="atencionMsg.type">
+                  {{ atencionMsg.text }}
+                </span>
+              </div>
+            </div>
           </section>
         </template>
 
         <template v-if="activeModule === 'medicamentos'">
-          <section class="dashboard-card form-card">
-            <p class="section-title">Suministro de medicamentos</p>
-            <p class="section-sub">Vista inicial conectada a indicadores generales.</p>
-
-            <div class="field">
-              <label>Medicamentos entregados</label>
-              <input :value="formatNum(rawKpis.medicamentos)" readonly />
+          <section class="dashboard-card">
+            <div class="mod-header">
+              <div class="mod-header-left">
+                <span class="mod-icon-bg" style="background:#fef3c7;color:#d97706;">💊</span>
+                <div>
+                  <p class="section-title">Suministro de medicamentos</p>
+                  <p class="section-sub">Actualiza los indicadores de distribución de medicamentos.</p>
+                </div>
+              </div>
+              <span v-if="metricaMedicamentos.periodo" class="period-chip">{{ metricaMedicamentos.periodo }}</span>
             </div>
 
-            <p class="form-hint">
-              La edición avanzada por departamento queda para la siguiente fase.
-            </p>
+            <div class="summary-strip">
+              <div class="summary-item">
+                <span class="summary-val">{{ formatNum(rawKpis.medicamentos) }}</span>
+                <span class="summary-label">Unidades entregadas</span>
+              </div>
+            </div>
+
+            <div class="edit-section">
+              <p class="edit-section-title">Actualizar métricas</p>
+
+              <div class="field-row">
+                <div class="field">
+                  <label>Unidades entregadas</label>
+                  <input v-model.number="metricaMedicamentos.unidades_entregadas" type="number" min="0" />
+                </div>
+                <div class="field">
+                  <label>Establecimientos con suministro</label>
+                  <input v-model.number="metricaMedicamentos.establecimientos_con_suministro" type="number" min="0" />
+                </div>
+                <div class="field">
+                  <label>Cobertura nacional</label>
+                  <input v-model.number="metricaMedicamentos.cobertura_nacional" type="number" min="0" />
+                </div>
+              </div>
+
+              <div class="field">
+                <label>Período</label>
+                <input v-model="metricaMedicamentos.periodo" type="text" placeholder="ej: enero - julio 2025" />
+              </div>
+
+              <div class="save-row">
+                <button class="save-btn" :disabled="savingMedicamentos" @click="updateMetricaMedicamentos">
+                  {{ savingMedicamentos ? "Guardando…" : "Guardar cambios" }}
+                </button>
+                <span v-if="medicamentosMsg.text" class="form-msg" :class="medicamentosMsg.type">
+                  {{ medicamentosMsg.text }}
+                </span>
+              </div>
+            </div>
           </section>
         </template>
 
         <template v-if="activeModule === 'llamadas'">
-          <section class="dashboard-card form-card">
-            <p class="section-title">Centro de llamadas 1528</p>
-            <p class="section-sub">Vista inicial conectada a indicadores generales.</p>
-
-            <div class="field">
-              <label>Llamadas registradas</label>
-              <input :value="formatNum(rawKpis.llamadas)" readonly />
+          <section class="dashboard-card">
+            <div class="mod-header">
+              <div class="mod-header-left">
+                <span class="mod-icon-bg" style="background:#ede9fe;color:#7c3aed;">📞</span>
+                <div>
+                  <p class="section-title">Centro de llamadas 1528</p>
+                  <p class="section-sub">Actualiza los registros del centro de atención.</p>
+                </div>
+              </div>
+              <span v-if="metricaLlamadas.periodo" class="period-chip">{{ metricaLlamadas.periodo }}</span>
             </div>
 
-            <div class="field">
-              <label>URL de video institucional</label>
-              <input placeholder="Pendiente de conectar en fase siguiente" readonly />
+            <div class="summary-strip">
+              <div class="summary-item">
+                <span class="summary-val">{{ formatNum(rawKpis.llamadas) }}</span>
+                <span class="summary-label">Llamadas registradas</span>
+              </div>
+            </div>
+
+            <div class="edit-section">
+              <p class="edit-section-title">Actualizar métricas</p>
+
+              <div class="field-row">
+                <div class="field">
+                  <label>Total de llamadas</label>
+                  <input v-model.number="metricaLlamadas.total_llamadas" type="number" min="0" />
+                </div>
+                <div class="field">
+                  <label>Período</label>
+                  <input v-model="metricaLlamadas.periodo" type="text" placeholder="ej: 2025" />
+                </div>
+              </div>
+
+              <div class="save-row">
+                <button class="save-btn" :disabled="savingLlamadas" @click="updateMetricaLlamadas">
+                  {{ savingLlamadas ? "Guardando…" : "Guardar cambios" }}
+                </button>
+                <span v-if="llamadasMsg.text" class="form-msg" :class="llamadasMsg.type">
+                  {{ llamadasMsg.text }}
+                </span>
+              </div>
             </div>
           </section>
         </template>
 
         <template v-if="activeModule === 'funerario'">
-          <section class="dashboard-card form-card">
-            <p class="section-title">Apoyo funerario</p>
-            <p class="section-sub">Vista inicial conectada a indicadores generales.</p>
-
-            <div class="field">
-              <label>Familias beneficiadas</label>
-              <input :value="formatNum(rawKpis.funerario)" readonly />
+          <section class="dashboard-card">
+            <div class="mod-header">
+              <div class="mod-header-left">
+                <span class="mod-icon-bg" style="background:#fce7f3;color:#db2777;">🤝</span>
+                <div>
+                  <p class="section-title">Apoyo funerario</p>
+                  <p class="section-sub">Actualiza los indicadores de apoyos y montos registrados.</p>
+                </div>
+              </div>
+              <span v-if="metricaFunerario.periodo" class="period-chip">{{ metricaFunerario.periodo }}</span>
             </div>
 
-            <div class="field">
-              <label>Documentos PDF</label>
-              <input placeholder="Carga de documentos pendiente para fase siguiente" readonly />
+            <div class="summary-strip">
+              <div class="summary-item">
+                <span class="summary-val">{{ formatNum(rawKpis.funerario) }}</span>
+                <span class="summary-label">Familias beneficiadas</span>
+              </div>
+            </div>
+
+            <div class="edit-section">
+              <p class="edit-section-title">Actualizar métricas</p>
+
+              <div class="field-row">
+                <div class="field">
+                  <label>Familias beneficiadas</label>
+                  <input v-model.number="metricaFunerario.familias_beneficiadas" type="number" min="0" />
+                </div>
+                <div class="field">
+                  <label>Monto total (Q)</label>
+                  <input v-model.number="metricaFunerario.monto_total" type="number" min="0" step="0.01" />
+                </div>
+                <div class="field">
+                  <label>Monto por estudiante (Q)</label>
+                  <input v-model.number="metricaFunerario.monto_por_estudiante" type="number" min="0" step="0.01" />
+                </div>
+              </div>
+
+              <div class="field-row">
+                <div class="field">
+                  <label>Casos masculinos</label>
+                  <input v-model.number="metricaFunerario.casos_masculinos" type="number" min="0" />
+                </div>
+                <div class="field">
+                  <label>Casos femeninos</label>
+                  <input v-model.number="metricaFunerario.casos_femeninos" type="number" min="0" />
+                </div>
+                <div class="field">
+                  <label>Período</label>
+                  <input v-model="metricaFunerario.periodo" type="text" placeholder="ej: 2025" />
+                </div>
+              </div>
+
+              <div class="save-row">
+                <button class="save-btn" :disabled="savingFunerario" @click="updateMetricaFunerario">
+                  {{ savingFunerario ? "Guardando…" : "Guardar cambios" }}
+                </button>
+                <span v-if="funerarioMsg.text" class="form-msg" :class="funerarioMsg.type">
+                  {{ funerarioMsg.text }}
+                </span>
+              </div>
             </div>
           </section>
         </template>
@@ -435,28 +593,28 @@ const modules = [
     key: "atencion",
     label: "Atención a enfermedades",
     icon: "🏥",
-    desc: "Consultar métricas de atenciones.",
+    desc: "Actualizar métricas de atención médica.",
     color: "#16a34a",
   },
   {
     key: "medicamentos",
     label: "Suministro de medicamentos",
     icon: "💊",
-    desc: "Consultar unidades entregadas.",
+    desc: "Actualizar unidades y establecimientos.",
     color: "#d97706",
   },
   {
     key: "llamadas",
     label: "Centro de llamadas 1528",
     icon: "📞",
-    desc: "Consultar datos del centro 1528.",
+    desc: "Actualizar registros del centro 1528.",
     color: "#7c3aed",
   },
   {
     key: "funerario",
     label: "Apoyo funerario",
     icon: "🤝",
-    desc: "Consultar apoyos registrados.",
+    desc: "Actualizar apoyos y montos registrados.",
     color: "#db2777",
   },
 ];
@@ -649,6 +807,127 @@ const fetchKpis = async () => {
   }
 };
 
+// ── MÉTRICAS ATENCION ─────────────────────────────────────────
+const metricaAtencion = ref({ consultas_atendidas: 0, estudiantes_atendidos: 0, porcentaje_hombres: 0, porcentaje_mujeres: 0, periodo: "" });
+const savingAtencion  = ref(false);
+const atencionMsg     = ref({ text: "", type: "" });
+
+const fetchMetricaAtencion = async () => {
+  try {
+    const res  = await fetch(`${API_URL}/api/atencion/metricas`);
+    const data = await res.json();
+    if (data.success && data.data) metricaAtencion.value = { ...data.data };
+  } catch (err) { console.error("Error cargando métricas atencion:", err); }
+};
+
+const updateMetricaAtencion = async () => {
+  savingAtencion.value = true;
+  atencionMsg.value = { text: "", type: "" };
+  try {
+    const res = await fetch(`${API_URL}/api/atencion/metricas`, {
+      method: "PUT", headers: authHeaders.value, body: JSON.stringify(metricaAtencion.value),
+    });
+    if (res.status === 401) { handleExpiredSession(); return; }
+    const data = await res.json();
+    atencionMsg.value = data.success
+      ? { text: "Métricas actualizadas correctamente.", type: "success" }
+      : { text: data.error || "Error al guardar.", type: "error" };
+    if (data.success) await fetchKpis();
+  } catch { atencionMsg.value = { text: "Error de red.", type: "error" }; }
+  finally { savingAtencion.value = false; }
+};
+
+// ── MÉTRICAS MEDICAMENTOS ──────────────────────────────────────
+const metricaMedicamentos = ref({ unidades_entregadas: 0, establecimientos_con_suministro: 0, cobertura_nacional: 0, periodo: "" });
+const savingMedicamentos  = ref(false);
+const medicamentosMsg     = ref({ text: "", type: "" });
+
+const fetchMetricaMedicamentos = async () => {
+  try {
+    const res  = await fetch(`${API_URL}/api/medicamentos/metricas`);
+    const data = await res.json();
+    if (data.success && data.data) metricaMedicamentos.value = { ...data.data };
+  } catch (err) { console.error("Error cargando métricas medicamentos:", err); }
+};
+
+const updateMetricaMedicamentos = async () => {
+  savingMedicamentos.value = true;
+  medicamentosMsg.value = { text: "", type: "" };
+  try {
+    const res = await fetch(`${API_URL}/api/medicamentos/metricas`, {
+      method: "PUT", headers: authHeaders.value, body: JSON.stringify(metricaMedicamentos.value),
+    });
+    if (res.status === 401) { handleExpiredSession(); return; }
+    const data = await res.json();
+    medicamentosMsg.value = data.success
+      ? { text: "Métricas actualizadas correctamente.", type: "success" }
+      : { text: data.error || "Error al guardar.", type: "error" };
+    if (data.success) await fetchKpis();
+  } catch { medicamentosMsg.value = { text: "Error de red.", type: "error" }; }
+  finally { savingMedicamentos.value = false; }
+};
+
+// ── MÉTRICAS LLAMADAS ──────────────────────────────────────────
+const metricaLlamadas = ref({ total_llamadas: 0, periodo: "" });
+const savingLlamadas  = ref(false);
+const llamadasMsg     = ref({ text: "", type: "" });
+
+const fetchMetricaLlamadas = async () => {
+  try {
+    const res  = await fetch(`${API_URL}/api/llamadas/metricas`);
+    const data = await res.json();
+    if (data.success && data.data) metricaLlamadas.value = { ...data.data };
+  } catch (err) { console.error("Error cargando métricas llamadas:", err); }
+};
+
+const updateMetricaLlamadas = async () => {
+  savingLlamadas.value = true;
+  llamadasMsg.value = { text: "", type: "" };
+  try {
+    const res = await fetch(`${API_URL}/api/llamadas/metricas`, {
+      method: "PUT", headers: authHeaders.value, body: JSON.stringify(metricaLlamadas.value),
+    });
+    if (res.status === 401) { handleExpiredSession(); return; }
+    const data = await res.json();
+    llamadasMsg.value = data.success
+      ? { text: "Métricas actualizadas correctamente.", type: "success" }
+      : { text: data.error || "Error al guardar.", type: "error" };
+    if (data.success) await fetchKpis();
+  } catch { llamadasMsg.value = { text: "Error de red.", type: "error" }; }
+  finally { savingLlamadas.value = false; }
+};
+
+// ── MÉTRICAS FUNERARIO ─────────────────────────────────────────
+const metricaFunerario = ref({ familias_beneficiadas: 0, monto_total: 0, monto_por_estudiante: 0, casos_masculinos: 0, casos_femeninos: 0, periodo: "" });
+const savingFunerario  = ref(false);
+const funerarioMsg     = ref({ text: "", type: "" });
+
+const fetchMetricaFunerario = async () => {
+  try {
+    const res  = await fetch(`${API_URL}/api/funerario/metricas`);
+    const data = await res.json();
+    if (data.success && data.data) metricaFunerario.value = { ...data.data };
+  } catch (err) { console.error("Error cargando métricas funerario:", err); }
+};
+
+const updateMetricaFunerario = async () => {
+  savingFunerario.value = true;
+  funerarioMsg.value = { text: "", type: "" };
+  try {
+    const res = await fetch(`${API_URL}/api/funerario/metricas`, {
+      method: "PUT", headers: authHeaders.value, body: JSON.stringify(metricaFunerario.value),
+    });
+    if (res.status === 401) { handleExpiredSession(); return; }
+    const data = await res.json();
+    funerarioMsg.value = data.success
+      ? { text: "Métricas actualizadas correctamente.", type: "success" }
+      : { text: data.error || "Error al guardar.", type: "error" };
+    if (data.success) await fetchKpis();
+  } catch { funerarioMsg.value = { text: "Error de red.", type: "error" }; }
+  finally { savingFunerario.value = false; }
+};
+
+// ──────────────────────────────────────────────────────────────
 const noticias = ref([]);
 const loadingNoticias = ref(false);
 const savingNoticia = ref(false);
@@ -795,7 +1074,11 @@ const deleteNoticia = async (id) => {
 };
 
 watch(activeModule, (module) => {
-  if (module === "noticias") fetchNoticias();
+  if (module === "noticias")     fetchNoticias();
+  if (module === "atencion")     fetchMetricaAtencion();
+  if (module === "medicamentos") fetchMetricaMedicamentos();
+  if (module === "llamadas")     fetchMetricaLlamadas();
+  if (module === "funerario")    fetchMetricaFunerario();
 });
 
 onMounted(() => {
@@ -1585,4 +1868,113 @@ onMounted(() => {
     grid-template-columns: 1fr;
   }
 }
+
+/* ── MÓDULOS DE MÉTRICAS ────────────────────────────────────── */
+.mod-header-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.mod-icon-bg {
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  flex-shrink: 0;
+}
+
+.period-chip {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 4px 14px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.summary-strip {
+  display: flex;
+  gap: 14px;
+  padding: 22px 0 6px;
+  flex-wrap: wrap;
+}
+
+.summary-item {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 14px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 150px;
+}
+
+.summary-val {
+  font-size: 1.55rem;
+  font-weight: 900;
+  color: #0f172a;
+  line-height: 1;
+}
+
+.summary-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.edit-section {
+  border-top: 1px solid #e2e8f0;
+  margin-top: 24px;
+  padding-top: 22px;
+}
+
+.edit-section-title {
+  font-size: 0.72rem;
+  font-weight: 900;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin: 0 0 18px;
+}
+
+.save-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 22px;
+  flex-wrap: wrap;
+}
+
+.save-btn {
+  background: #0f172a;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 11px 26px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s, opacity 0.15s;
+}
+.save-btn:hover    { background: #1e293b; }
+.save-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.form-msg {
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 8px;
+}
+.form-msg.success { background: #dcfce7; color: #15803d; }
+.form-msg.error   { background: #fee2e2; color: #b91c1c; }
 </style>
