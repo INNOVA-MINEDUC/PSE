@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS noticias (
   id INT AUTO_INCREMENT PRIMARY KEY,
   titulo VARCHAR(255),
   descripcion_corta TEXT,
+  contenido LONGTEXT NULL,
   imagen_url TEXT,
   fecha_publicacion DATE,
   modulo VARCHAR(100),
@@ -12,6 +13,9 @@ CREATE TABLE IF NOT EXISTS noticias (
   orden INT DEFAULT 0,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Si la BD ya existe, ejecutar manualmente:
+-- ALTER TABLE noticias ADD COLUMN contenido LONGTEXT NULL AFTER descripcion_corta;
 
 -- METRICAS ATENCION----
 CREATE TABLE IF NOT EXISTS metricas_atencion (

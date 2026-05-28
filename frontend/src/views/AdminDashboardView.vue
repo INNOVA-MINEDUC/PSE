@@ -394,6 +394,12 @@ const onImageChange = async (e) => {
       body: formData,
       headers: { Authorization: token ? `Bearer ${token}` : undefined },
     });
+
+    if (res.status === 401) {
+      handleExpiredSession();
+      return;
+    }
+
     const data = await res.json();
     if (data.success && data.url) {
       modal.value.data.imagen_url = data.url;
@@ -532,6 +538,12 @@ const handleLogout = () => {
   router.push("/login");
 };
 
+const handleExpiredSession = () => {
+  localStorage.removeItem("token");
+  localStorage.removeItem("user");
+  router.push({ name: "login", query: { expired: "1" } });
+};
+
 const fetchUser = async () => {
   if (!token) {
     router.push("/login");
@@ -542,6 +554,11 @@ const fetchUser = async () => {
     const res = await fetch(`${API_URL}/api/auth/me`, {
       headers: authHeaders.value,
     });
+
+    if (res.status === 401) {
+      handleExpiredSession();
+      return;
+    }
 
     const data = await res.json();
 
@@ -726,6 +743,11 @@ const saveNoticia = async () => {
       body: JSON.stringify(noticia),
     });
 
+    if (res.status === 401) {
+      handleExpiredSession();
+      return;
+    }
+
     const data = await res.json();
 
     if (!data.success) {
@@ -752,6 +774,11 @@ const deleteNoticia = async (id) => {
       method: "DELETE",
       headers: authHeaders.value,
     });
+
+    if (res.status === 401) {
+      handleExpiredSession();
+      return;
+    }
 
     const data = await res.json();
 

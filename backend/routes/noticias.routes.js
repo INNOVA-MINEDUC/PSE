@@ -8,17 +8,20 @@ import {
 } from "../controllers/noticias.controller.js";
 
 import { uploadNoticias } from "../meddleware/upload.middleware.js";
+import { requireToken } from "../middleware/auth.middleware.js";
 
 const router = express.Router();
 
+// Lectura pública — el portal los consume sin autenticación
 router.get("/", getNoticias);
 router.get("/:id", getNoticiaById);
 
-router.post("/", createNoticia);
-router.put("/:id", updateNoticia);
-router.delete("/:id", deleteNoticia);
+// Escritura protegida — requiere token ASISTO válido
+router.post("/", requireToken, createNoticia);
+router.put("/:id", requireToken, updateNoticia);
+router.delete("/:id", requireToken, deleteNoticia);
 
-router.post("/upload", uploadNoticias.single("imagen"), (req, res) => {
+router.post("/upload", requireToken, uploadNoticias.single("imagen"), (req, res) => {
   if (!req.file) {
     return res.status(400).json({
       success: false,

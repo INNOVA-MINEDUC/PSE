@@ -15,6 +15,10 @@
       <div class="login-card">
         <h1 class="login-title">Iniciar sesión</h1>
 
+        <div v-if="sessionExpired" class="login-expired">
+          Tu sesión ha expirado. Por favor inicia sesión nuevamente.
+        </div>
+
         <div v-if="error" class="login-error">
           {{ error }}
         </div>
@@ -83,7 +87,7 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import logoMinisterio from "@/assets/logo-ministerio.png";
 
@@ -97,6 +101,7 @@ const password     = ref("");
 const error        = ref("");
 const loading      = ref(false);
 const showPassword = ref(false);
+const sessionExpired = computed(() => !!route.query.expired);
 
 const handleSubmit = async () => {
   error.value   = "";
@@ -176,6 +181,16 @@ const handleSubmit = async () => {
   margin-bottom: 22px;
   padding-bottom: 14px;
   border-bottom: 1px solid #e5e7eb;
+}
+
+/* SESIÓN EXPIRADA */
+.login-expired {
+  background: #fef3c7;
+  color: #92400e;
+  border-radius: 10px;
+  padding: 10px;
+  font-size: 0.84rem;
+  margin-bottom: 14px;
 }
 
 /* ERROR */
