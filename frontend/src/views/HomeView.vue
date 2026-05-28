@@ -199,6 +199,13 @@
               <p class="noticia-categoria">{{ noticiaDestacada.categoria }}</p>
               <h3 class="noticia-titulo">{{ noticiaDestacada.titulo }}</h3>
               <p class="noticia-desc">{{ noticiaDestacada.descripcion }}</p>
+              <RouterLink
+                v-if="noticiaDestacada.id"
+                :to="`/noticias/${noticiaDestacada.id}`"
+                class="noticia-ver-btn"
+              >
+                Ver noticia completa →
+              </RouterLink>
             </div>
           </article>
 
@@ -398,6 +405,7 @@ const formatFecha = (fecha) => {
 
 const noticiasCarrusel = computed(() => {
   const dinamicas = noticiasApi.value.map((n) => ({
+    id: n.id,
     fecha: formatFecha(n.fecha_publicacion),
     categoria: 'PROMOCIÓN Y PREVENCIÓN',
     titulo: n.titulo,
@@ -978,6 +986,25 @@ hero-banner-bg {
   font-size: 15px;
   line-height: 1.6;
   color: rgba(255, 255, 255, 0.96);
+}
+
+.noticia-ver-btn {
+  display: inline-block;
+  margin-top: 16px;
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  border: 1.5px solid rgba(255, 255, 255, 0.5);
+  border-radius: 8px;
+  padding: 9px 20px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-decoration: none;
+  font-family: 'Montserrat', sans-serif;
+  transition: background 0.2s, border-color 0.2s;
+}
+.noticia-ver-btn:hover {
+  background: rgba(255, 255, 255, 0.28);
+  border-color: rgba(255, 255, 255, 0.8);
 }
 
 /* FLECHAS */

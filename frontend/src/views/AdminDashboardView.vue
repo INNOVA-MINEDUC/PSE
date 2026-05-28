@@ -181,7 +181,9 @@
                       <div v-else class="thumb-empty"></div>
                     </td>
 
-                    <td class="td-title">{{ n.titulo }}</td>
+                    <td class="td-title">
+                      <div class="title-truncate">{{ n.titulo }}</div>
+                    </td>
 
                     <td>
                       <span class="badge blue">{{ getModuloLabel(n.modulo) }}</span>
@@ -200,6 +202,7 @@
                     <td>
                       <div class="td-actions">
                         <button class="act-btn" @click="openModal(n)">Editar</button>
+                        <a :href="`/noticias/${n.id}`" target="_blank" class="act-btn view-btn">Ver</a>
                         <button class="act-btn danger" @click="deleteNoticia(n.id)">
                           Eliminar
                         </button>
@@ -1303,7 +1306,25 @@ onMounted(() => {
 
 .td-title {
   font-weight: 800;
-  max-width: 320px;
+  max-width: 220px;
+}
+
+.title-truncate {
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.view-btn {
+  text-decoration: none;
+  color: #0369a1;
+  border-color: #bae6fd;
+  background: #f0f9ff;
+}
+.view-btn:hover {
+  background: #e0f2fe;
+  border-color: #7dd3fc;
 }
 
 .td-muted {

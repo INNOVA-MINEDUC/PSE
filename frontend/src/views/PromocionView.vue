@@ -28,7 +28,11 @@
         <div class="news-featured-wrap">
           <button class="news-arrow news-arrow-left" type="button" @click="prevNews">‹</button>
 
-          <article class="news-featured">
+          <article
+            class="news-featured"
+            :class="{ 'news-featured--clickable': featuredNews.id }"
+            @click="irADetalle(featuredNews)"
+          >
             <img :src="featuredNews.img" :alt="featuredNews.titulo" class="news-featured-img" loading="lazy" decoding="async" />
 
             <div class="news-featured-overlay">
@@ -48,7 +52,12 @@
             <div class="news-card-overlay">
               <h4 class="news-card-title">{{ item.titulo }}</h4>
               <p class="news-card-text">{{ item.desc }}</p>
-              <button class="news-card-btn" type="button">VER DETALLE</button>
+              <button
+                class="news-card-btn"
+                :class="{ 'news-card-btn--disabled': !item.id }"
+                type="button"
+                @click="irADetalle(item)"
+              >VER DETALLE</button>
             </div>
           </article>
         </div>
@@ -109,8 +118,10 @@
 
 <script setup>
 import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
+const router = useRouter()
 
 const bannerPromocion = '/Promocion/banner/banner-promocion.webp'
 const astronautaActividades = '/Promocion/actividades/astronauta-actividades.webp'
@@ -153,6 +164,7 @@ const resolveImage = (url) => {
 
 const noticias = computed(() => {
   const dinamicas = noticiasApi.value.map((n) => ({
+    id: n.id,
     img: resolveImage(n.imagen_url),
     titulo: n.titulo,
     desc: n.descripcion_corta,
@@ -161,6 +173,10 @@ const noticias = computed(() => {
 
   return [...noticiasBase, ...dinamicas]
 })
+
+const irADetalle = (item) => {
+  if (item.id) router.push(`/noticias/${item.id}`)
+}
 
 const actividades = [
   {
@@ -229,6 +245,20 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
+.news-featured--clickable {
+  cursor: pointer;
+}
+.news-featured--clickable:hover .news-featured-img {
+  transform: scale(1.03);
+  transition: transform 0.3s ease;
+}
+
+.news-card-btn--disabled {
+  opacity: 0.45;
+  cursor: default;
+  pointer-events: none;
+}
+
 .promo-page {
   background: #f2f5f8;
   min-height: 100vh;
