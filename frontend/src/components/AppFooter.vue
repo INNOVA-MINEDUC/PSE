@@ -1,42 +1,37 @@
 <template>
   <footer class="pse-footer">
-    <div class="footer-container">
 
-      <!-- MARCA -->
-      <div class="footer-brand">
-        <div class="brand-badge">PSE</div>
-        <div class="brand-copy">
-          <h3>Portal de Salud Escolar</h3>
-          <p>Ministerio de Educación de Guatemala</p>
-          <p class="brand-desc">
-            Plataforma institucional para centralizar atenciones médicas, suministro de
-            medicamentos, orientación telefónica y apoyos a estudiantes del sistema
-            educativo nacional.
-          </p>
-        </div>
-      </div>
+    <!-- FRANJA DE LOGOS — tope del footer -->
+    <div class="footer-logo-band">
+      <img
+        :src="logoFranja"
+        alt="Portal de Salud Escolar — MSPAS, Ministerio de Educación, DIGIKAL, DCE"
+        class="footer-franja-img"
+        loading="lazy"
+        decoding="async"
+      />
+    </div>
 
-      <!-- COLUMNAS -->
+    <div class="footer-inner">
+
       <div class="footer-grid">
 
-        <!-- COL 1: INFORMACIÓN INSTITUCIONAL -->
-        <div>
-          <p class="footer-col-title">Institución</p>
-          <ul class="footer-list">
-            <li>Ministerio de Educación de Guatemala</li>
-            <li>Dirección General de Gestión de Calidad Educativa</li>
-            <li>Subdirección de Innovación Educativa</li>
-          </ul>
-          <p class="footer-col-title mt">Marco legal</p>
-          <ul class="footer-list">
-            <li>Acuerdo Gubernativo 36-2024</li>
-            <li>Acuerdo Ministerial 815-2024</li>
-          </ul>
+        <!-- COL 1: IDENTIDAD INSTITUCIONAL -->
+        <div class="footer-col footer-col-brand">
+
+          <p class="footer-portal-name">Portal de Salud Escolar</p>
+
+          <p class="footer-brand-desc">
+            Servicio institucional del Ministerio de Educación de Guatemala
+            para fortalecer la salud integral de los estudiantes del sistema
+            educativo nacional.
+          </p>
+
         </div>
 
-        <!-- COL 2: MÓDULOS -->
-        <div>
-          <p class="footer-col-title">Módulos del portal</p>
+        <!-- COL 2: NAVEGACIÓN -->
+        <div class="footer-col">
+          <p class="footer-col-title">Navegación rápida</p>
           <nav class="footer-nav">
             <RouterLink to="/" class="footer-link">Inicio</RouterLink>
             <RouterLink to="/promocion" class="footer-link">Promoción y Prevención</RouterLink>
@@ -47,27 +42,29 @@
           </nav>
         </div>
 
-        <!-- COL 3: CONTACTO Y LEGAL -->
-        <div>
-          <p class="footer-col-title">Contacto</p>
-          <ul class="footer-list">
-            <li>
-              <span class="footer-label">Correo:</span>
-              <a href="mailto:saludescolar@mineduc.gob.gt" class="footer-link-inline">
-                saludescolar@mineduc.gob.gt
-              </a>
-            </li>
-          </ul>
-          <p class="footer-col-title mt">Información legal</p>
-          <nav class="footer-nav">
+        <!-- COL 3: INFORMACIÓN INSTITUCIONAL -->
+        <div class="footer-col">
+          <p class="footer-col-title">Información institucional</p>
+          <div class="footer-info">
+            <a href="mailto:saludescolar@mineduc.gob.gt" class="footer-link">
+              saludescolar@mineduc.gob.gt
+            </a>
             <a href="#" class="footer-link">Aviso de privacidad</a>
             <a href="#" class="footer-link">Términos de uso</a>
-          </nav>
+          </div>
+        </div>
+
+        <!-- COL 4: MARCO LEGAL -->
+        <div class="footer-col">
+          <p class="footer-col-title">Marco legal</p>
+          <div class="footer-info">
+            <span class="footer-legal-item">Acuerdo Gubernativo 36-2024</span>
+            <span class="footer-legal-item">Acuerdo Ministerial 815-2024</span>
+          </div>
         </div>
 
       </div>
 
-      <!-- PIE -->
       <div class="footer-bottom">
         © {{ year }} Ministerio de Educación de Guatemala – Portal de Salud Escolar
       </div>
@@ -79,176 +76,157 @@
 <script setup>
 import { RouterLink } from 'vue-router'
 
+const logoFranja = '/Home/LOGOS/logo-tras.webp'
 const year = new Date().getFullYear()
 </script>
 
 <style scoped>
 .pse-footer {
-  background: linear-gradient(180deg, #062b4f 0%, #031a33 100%);
+  background: #062b4f;
   color: #ffffff;
+  border-top: 4px solid #17c4e8;
   font-family: 'Montserrat', 'Segoe UI', system-ui, sans-serif;
 }
 
-.pse-footer::before {
-  content: "";
-  display: block;
-  width: 100%;
-  height: 8px;
-  background: linear-gradient(90deg, #17c4e8, #0ea5c6);
-}
-
-.footer-container {
-  max-width: 1320px;
+.footer-inner {
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 48px 32px 28px;
-}
-
-/* MARCA */
-.footer-brand {
-  display: flex;
-  align-items: flex-start;
-  gap: 20px;
-  margin-bottom: 40px;
-  padding-bottom: 32px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-}
-
-.brand-badge {
-  flex-shrink: 0;
-  width: 52px;
-  height: 52px;
-  background: #17c4e8;
-  color: #031a33;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.1rem;
-  font-weight: 900;
-  letter-spacing: 0.02em;
-}
-
-.brand-copy h3 {
-  margin: 0 0 4px;
-  font-size: 1.2rem;
-  font-weight: 900;
-  color: #ffffff;
-  line-height: 1.2;
-}
-
-.brand-copy > p:first-of-type {
-  margin: 0 0 8px;
-  font-size: 0.82rem;
-  font-weight: 700;
-  color: #60d5f3;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-
-.brand-desc {
-  margin: 0;
-  font-size: 0.84rem;
-  line-height: 1.6;
-  color: rgba(255, 255, 255, 0.68);
-  max-width: 520px;
+  padding: 52px 32px 28px;
 }
 
 /* GRID */
 .footer-grid {
   display: grid;
-  grid-template-columns: 1.3fr 1fr 1fr;
-  gap: 48px;
-  margin-bottom: 36px;
+  grid-template-columns: 1.4fr 1fr 1fr 0.85fr;
+  gap: 56px;
+  padding-bottom: 32px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 22px;
+  align-items: start;
 }
 
-.footer-col-title {
-  font-size: 0.7rem;
-  font-weight: 900;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: #60d5f3;
-  margin: 0 0 14px;
+/* FRANJA DE LOGOS */
+.footer-logo-band {
+  background: rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 22px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.footer-col-title.mt {
-  margin-top: 24px;
+.footer-franja-img {
+  height: 48px;
+  width: auto;
+  max-width: 640px;
+  object-fit: contain;
+  display: block;
+  filter: brightness(0) invert(1);
+  opacity: 0.85;
 }
 
-.footer-list {
-  list-style: none;
-  padding: 0;
+/* COL 1 — IDENTIDAD */
+.footer-portal-name {
+  margin: 0 0 10px;
+  font-size: 1rem;
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1.2;
+}
+
+.footer-brand-desc {
   margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 9px;
-  font-size: 0.86rem;
-  color: rgba(255, 255, 255, 0.72);
-  line-height: 1.45;
+  font-size: 0.82rem;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.52);
+  max-width: 340px;
 }
 
-.footer-nav {
+/* COLS 2, 3 y 4 */
+.footer-col-title {
+  margin: 0 0 16px;
+  font-size: 0.66rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #60d5f3;
+}
+
+.footer-nav,
+.footer-info {
   display: flex;
   flex-direction: column;
-  gap: 9px;
+  gap: 10px;
 }
 
 .footer-link {
-  font-size: 0.86rem;
-  color: rgba(255, 255, 255, 0.82);
+  font-size: 0.84rem;
+  color: rgba(255, 255, 255, 0.68);
   text-decoration: none;
   transition: color 0.15s;
+  line-height: 1.4;
 }
 
 .footer-link:hover {
-  color: #60d5f3;
+  color: #ffffff;
 }
 
-.footer-label {
-  font-size: 0.76rem;
-  font-weight: 700;
-  color: rgba(255, 255, 255, 0.48);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+.footer-legal-item {
   display: block;
-  margin-bottom: 2px;
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.55);
+  line-height: 1.5;
 }
 
-.footer-link-inline {
-  font-size: 0.86rem;
-  color: rgba(255, 255, 255, 0.82);
-  text-decoration: none;
-  word-break: break-all;
-}
-
-.footer-link-inline:hover {
-  color: #60d5f3;
-}
-
-/* PIE */
+/* COPYRIGHT */
 .footer-bottom {
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  padding-top: 20px;
-  font-size: 0.76rem;
-  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.74rem;
+  color: rgba(255, 255, 255, 0.32);
   text-align: center;
 }
 
 /* RESPONSIVE */
-@media (max-width: 960px) {
+@media (max-width: 1100px) {
   .footer-grid {
-    grid-template-columns: 1fr 1fr;
-    gap: 32px;
+    grid-template-columns: 1.3fr 1fr 1fr;
+    gap: 36px;
+  }
+
+  .footer-col:last-child {
+    grid-column: 2 / span 2;
   }
 }
 
-@media (max-width: 640px) {
-  .footer-container {
-    padding: 36px 20px 24px;
+@media (max-width: 760px) {
+  .footer-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
   }
 
-  .footer-brand {
-    flex-direction: column;
-    gap: 14px;
+  .footer-col-brand {
+    grid-column: 1 / -1;
+  }
+
+  .footer-col:last-child {
+    grid-column: unset;
+  }
+
+  .footer-brand-desc {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 580px) {
+  .footer-logo-band {
+    padding: 18px 20px;
+  }
+
+  .footer-franja-img {
+    height: 34px;
+  }
+
+  .footer-inner {
+    padding: 40px 20px 24px;
   }
 
   .footer-grid {

@@ -227,7 +227,7 @@ import { cos } from '@amcharts/amcharts5/.internal/core/util/Math'
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
 
 
-const logoFranja = '/Home/LOGOS/logo-franja.webp'
+const logoFranja = '/Home/LOGOS/logo-franja.png'
 const heroImage = '/Home/RECURSOS/hero-min.webp'
 
 const modulos = [

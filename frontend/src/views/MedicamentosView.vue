@@ -229,7 +229,7 @@ import AppFooter from '@/components/AppFooter.vue'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
 const bannerSuministros = '/Suministros/banner/banner-suministros.webp'
-const logoFranja = '/Home/LOGOS/logo-franja.webp'
+const logoFranja = '/Home/LOGOS/logo-franja.png'
 
 const resumen = ref({
   unidades: 800000,
