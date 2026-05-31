@@ -38,133 +38,106 @@
       />
     </section>
 
-    <!-- BENEFICIOS -->
-    <section class="beneficios">
+    <!-- INDICADORES NACIONALES -->
+    <section class="indicadores">
       <div class="section-shell">
-        <div class="beneficios-wrapper">
-          <h2 class="section-title beneficios-title">Beneficios del PSE</h2>
 
-          <p class="section-text beneficios-text">
-            El Portal de Salud PSE del Ministerio de Educación es una plataforma integral
-            diseñada para garantizar el bienestar de los estudiantes del sistema educativo
-            nacional, centralizando servicios médicos, apoyo preventivo y asistencia en
-            momentos críticos.
-          </p>
+        <div class="kpi-divider">
+          <hr class="kpi-divider-line" />
+          <span class="kpi-divider-label">INDICADORES NACIONALES &nbsp;·&nbsp; {{ kpis.periodo || 'enero – julio 2025' }}</span>
+          <hr class="kpi-divider-line" />
+        </div>
 
-          <div class="modulos-area">
-            <button class="slider-arrow slider-arrow-left" type="button">‹</button>
-
-            <div class="modulos-grid">
-              <article
-                v-for="modulo in modulos"
-                :key="modulo.id"
-                class="modulo-card"
-              >
-                <div class="modulo-image-wrap">
-                  <img
-                    :src="modulo.imagen"
-                    :alt="modulo.titulo"
-                    class="modulo-image"
-                    loading="lazy"
-                    decoding="async"
-                  />
-                </div>
-
-                <div class="modulo-overlay"></div>
-
-                <div class="modulo-body">
-                  <p class="modulo-id">MÓDULO {{ modulo.id }}</p>
-                  <h3 class="modulo-title">{{ modulo.titulo }}</h3>
-                  <p class="modulo-desc">{{ modulo.descripcion }}</p>
-
-                  <RouterLink :to="modulo.ruta" class="modulo-btn-link">
-                    <button class="modulo-btn" type="button">Más información</button>
-                  </RouterLink>
-                </div>
-              </article>
-            </div>
-
-            <button class="slider-arrow slider-arrow-right" type="button">›</button>
+        <div class="kpi-grid">
+          <div class="kpi-card" v-for="item in kpiPrincipales" :key="item.id">
+            <div class="kpi-icon-wrap" v-html="item.icon"></div>
+            <div class="kpi-number">{{ item.value }}</div>
+            <div class="kpi-label">{{ item.label }}</div>
           </div>
+        </div>
 
-          <div class="resultados-wrap">
-            <div class="resultados-grid-top">
-              <article
-                v-for="(resultado, index) in resultadosTop"
-                :key="'top-' + index"
-                class="resultado-card"
-              >
-                <p class="resultado-tag">RESULTADOS</p>
-                <h3 class="resultado-title">{{ resultado.titulo }}</h3>
-                <p class="resultado-meta">{{ resultado.periodo }}</p>
-
-                <div class="resultado-stats">
-                  <div
-                    v-for="(item, itemIndex) in resultado.items"
-                    :key="itemIndex"
-                    class="resultado-line"
-                  >
-                    <span class="resultado-emoji">{{ item.icono }}</span>
-
-                    <div class="resultado-copy">
-                      <p class="resultado-label">{{ item.label }}</p>
-                      <p class="resultado-value">{{ item.valor }}</p>
-                    </div>
-                  </div>
-                </div>
-
-                <p class="resultado-footer">{{ resultado.footer }}</p>
-              </article>
-            </div>
-
-            <div class="resultados-grid-bottom">
-              <article class="resultado-card">
-                <p class="resultado-tag">RESULTADOS</p>
-                <h3 class="resultado-title">{{ resultadoBottom1.titulo }}</h3>
-                <p class="resultado-meta">{{ resultadoBottom1.periodo }}</p>
-
-                <div class="resultado-stats">
-                  <div
-                    v-for="(item, index) in resultadoBottom1.items"
-                    :key="index"
-                    class="resultado-line"
-                  >
-                    <span class="resultado-emoji">{{ item.icono }}</span>
-
-                    <div class="resultado-copy">
-                      <p class="resultado-label">{{ item.label }}</p>
-                      <p class="resultado-value">{{ item.valor }}</p>
-                    </div>
-                  </div>
-                </div>
-
-                <p class="resultado-footer">{{ resultadoBottom1.footer }}</p>
-              </article>
-
-              <article class="resultado-card resultado-card-dark">
-                <p class="resultado-tag resultado-tag-cyan">RESULTADOS</p>
-                <h3 class="resultado-title">{{ resultadoBottom2.titulo }}</h3>
-                <p class="resultado-meta">{{ resultadoBottom2.periodo }}</p>
-
-                <div class="resultado-stats">
-                  <div
-                    v-for="(item, index) in resultadoBottom2.items"
-                    :key="index"
-                    class="resultado-line"
-                  >
-                    <span class="resultado-emoji">{{ item.icono }}</span>
-
-                    <div class="resultado-copy">
-                      <p class="resultado-label">{{ item.label }}</p>
-                      <p class="resultado-value">{{ item.valor }}</p>
-                    </div>
-                  </div>
-                </div>
-
-                <p class="resultado-footer">{{ resultadoBottom2.footer }}</p>
-              </article>
-            </div>
+        <div class="sec-grid">
+          <div class="sec-item">
+            <span class="sec-val">{{ displayKpis.estudiantes.toLocaleString('es-GT') }}</span>
+            <span class="sec-label">Estudiantes atendidos</span>
+            <span class="sec-module">Atención médica</span>
           </div>
+          <div class="sec-item">
+            <span class="sec-val">{{ displayKpis.establecimientos.toLocaleString('es-GT') }}</span>
+            <span class="sec-label">Establecimientos con suministro</span>
+            <span class="sec-module">Medicamentos</span>
+          </div>
+          <div class="sec-item">
+            <span class="sec-val">{{ displayKpis.cobertura }}</span>
+            <span class="sec-label">Municipios cubiertos</span>
+            <span class="sec-module">Cobertura nacional</span>
+          </div>
+          <div class="sec-item">
+            <span class="sec-val sec-val--money">{{ formatoMoneda(displayKpis.montoTotal) }}</span>
+            <span class="sec-label">Monto total entregado</span>
+            <span class="sec-module">Apoyo funerario</span>
+          </div>
+          <div class="sec-item sec-item--sex">
+            <div class="sex-bars">
+              <div class="sex-bar-row">
+                <span class="sex-dot sex-dot--m"></span>
+                <div class="sex-bar-track">
+                  <div class="sex-bar-fill sex-bar-fill--m" :style="{ width: displayKpis.porcentajeHombres + '%' }"></div>
+                </div>
+                <span class="sex-pct">{{ displayKpis.porcentajeHombres }}%</span>
+                <span class="sex-name">Hombres</span>
+              </div>
+              <div class="sex-bar-row">
+                <span class="sex-dot sex-dot--f"></span>
+                <div class="sex-bar-track">
+                  <div class="sex-bar-fill sex-bar-fill--f" :style="{ width: displayKpis.porcentajeMujeres + '%' }"></div>
+                </div>
+                <span class="sex-pct">{{ displayKpis.porcentajeMujeres }}%</span>
+                <span class="sex-name">Mujeres</span>
+              </div>
+            </div>
+            <span class="sec-label">Distribución por sexo</span>
+            <span class="sec-module">Atención médica</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- MÓDULOS DEL PROGRAMA -->
+    <section class="modulos-section">
+      <div class="section-shell">
+        <h2 class="section-title modulos-title">Beneficios del PSE</h2>
+        <p class="section-text modulos-intro">
+          El Portal de Salud PSE del Ministerio de Educación garantiza el bienestar integral
+          de los estudiantes del sistema educativo nacional, centralizando atención médica,
+          medicamentos, apoyo preventivo y asistencia en momentos críticos.
+        </p>
+        <div class="modulos-grid">
+          <article
+            v-for="modulo in modulos"
+            :key="modulo.id"
+            class="modulo-card"
+          >
+            <div class="modulo-image-wrap">
+              <img
+                :src="modulo.imagen"
+                :alt="modulo.titulo"
+                class="modulo-image"
+                loading="lazy"
+                decoding="async"
+              />
+            </div>
+            <div class="modulo-overlay"></div>
+            <div class="modulo-body">
+              <p class="modulo-id">MÓDULO {{ String(modulo.id).padStart(2, '0') }}</p>
+              <h3 class="modulo-title">{{ modulo.titulo }}</h3>
+              <p class="modulo-desc">{{ modulo.descripcion }}</p>
+              <RouterLink :to="modulo.ruta" class="modulo-btn-link">
+                <button class="modulo-btn" type="button">Más información</button>
+              </RouterLink>
+            </div>
+          </article>
         </div>
       </div>
     </section>
@@ -175,13 +148,12 @@
         <h2 class="section-title noticias-title">Noticias y actividades</h2>
 
         <p class="section-text noticias-text">
-          El Portal de Salud PSE del Ministerio de Educación es una plataforma integral diseñada para garantizar el
-          bienestar de los estudiantes del sistema educativo nacional, centralizando servicios médicos, apoyo preventivo y
-          asistencia en momentos críticos.
+          Seguimiento de las acciones, jornadas y campañas realizadas por el Programa de Salud Escolar
+          en los establecimientos educativos del sistema nacional.
         </p>
 
         <div class="noticias-wrap">
-          <button class="noticias-arrow noticias-arrow-left" type="button">‹</button>
+          <button class="noticias-arrow noticias-arrow-left" type="button" @click="prevNoticia" aria-label="Noticia anterior">‹</button>
 
           <article class="noticia-card">
             <img
@@ -209,7 +181,7 @@
             </div>
           </article>
 
-          <button class="noticias-arrow noticias-arrow-right" type="button">›</button>
+          <button class="noticias-arrow noticias-arrow-right" type="button" @click="nextNoticia" aria-label="Noticia siguiente">›</button>
         </div>
       </div>
     </section>
@@ -222,9 +194,8 @@
 import { RouterLink } from 'vue-router'
 import AppFooter from '@/components/AppFooter.vue'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
-import { cos } from '@amcharts/amcharts5/.internal/core/util/Math'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
+const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000'
 
 
 const logoFranja = '/Home/LOGOS/logo-franja.png'
@@ -268,55 +239,87 @@ const modulos = [
   }
 ]
 
-const resultadosTop = [
-  {
-    titulo: 'Atención a enfermedades',
-    periodo: 'Periodo de referencia: enero – julio 2025',
-    items: [
-      { icono: '🧑‍⚕️', label: 'Consultas atendidas:', valor: '674,656' },
-      { icono: '👩', label: 'Estudiante con suministro:', valor: '222,704' }
-    ],
-    footer: 'Hombres 52% · Mujeres 48%'
-  },
-  {
-    titulo: 'Suministro de medicamentos',
-    periodo: 'Periodo de referencia: enero – julio 2025',
-    items: [
-      { icono: '💊', label: 'Unidades entregadas:', valor: '674,656' },
-      { icono: '🏥', label: 'Establecimientos con suministro:', valor: '222,704' }
-    ],
-    footer: 'Hombres 52% · Mujeres 48%'
-  },
-  {
-    titulo: 'Centro de llamadas 1528',
-    periodo: 'Periodo de referencia: enero – julio 2025',
-    items: [
-      { icono: '🎧', label: 'Llamadas registradas:', valor: '24,221' },
-      { icono: '📋', label: 'Casos atendidos:', valor: '329' }
-    ],
-    footer: 'Hombres 52% · Mujeres 48%'
-  }
+const ic = {
+  consultas:    `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z" /></svg>`,
+  medicamentos: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 1-6.23-.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" /></svg>`,
+  llamadas:     `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 0 0 2.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 0 1-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 0 0-1.091-.852H4.5A2.25 2.25 0 0 0 2.25 6.75Z" /></svg>`,
+  familias:     `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" /></svg>`,
+  noticias:     `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 0 1-2.25 2.25M16.5 7.5V18a2.25 2.25 0 0 0 2.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 0 0 2.25 2.25h13.5M6 7.5h3v3H6v-3Z" /></svg>`,
+  shield:       `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" /></svg>`,
+  heart:        `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" /></svg>`,
+  home:         `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" /></svg>`,
+  money:        `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.07 60.07 0 0 1 15.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 0 1 3 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 0 0-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 0 1-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 0 0 3 15h-.75M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm3 0h.008v.008H18V10.5Zm-12 0h.008v.008H6V10.5Z" /></svg>`,
+}
+
+const pilares = [
+  { id: 1, icon: ic.shield,       titulo: 'Salud preventiva',      desc: 'Campañas de vacunación, desparasitación y prevención en centros educativos.' },
+  { id: 2, icon: ic.heart,        titulo: 'Atención médica',        desc: 'Registro y seguimiento de atenciones de salud para estudiantes del sistema nacional.' },
+  { id: 3, icon: ic.medicamentos, titulo: 'Medicamentos gratuitos', desc: 'Distribución de medicamentos del programa a establecimientos educativos.' },
+  { id: 4, icon: ic.llamadas,     titulo: 'Línea 1528',             desc: 'Centro de atención telefónica para derivación y seguimiento de casos.' },
+  { id: 5, icon: ic.home,         titulo: 'Apoyo funerario',        desc: 'Aporte económico a familias de estudiantes del sistema educativo nacional.' },
 ]
 
-const resultadoBottom1 = {
-  titulo: 'Apoyo económico funerario',
-  periodo: 'Periodo de referencia: enero – julio 2025',
-  items: [
-    { icono: '👨‍👩‍👧', label: 'Familias beneficiadas:', valor: '329' },
-    { icono: '💰', label: 'Monto máximo por estudiante:', valor: 'Q7,500.00' }
-  ],
-  footer: 'Hombres 52% · Mujeres 48%'
+const kpis = ref({
+  consultas:          674656,
+  medicamentos:       800000,
+  llamadas:           24221,
+  familias:           329,
+  noticias:           4,
+  estudiantes:        222704,
+  establecimientos:   1350,
+  cobertura:          340,
+  montoTotal:         2467000,
+  montoPorEstudiante: 7500,
+  porcentajeHombres:  52,
+  porcentajeMujeres:  48,
+  masculinos:         193,
+  femeninos:          136,
+  periodo:            ''
+})
+
+const formatoMoneda = (val) => {
+  if (!val && val !== 0) return '—'
+  return 'Q' + Number(val).toLocaleString('es-GT')
 }
 
-const resultadoBottom2 = {
-  titulo: 'Aportes a familias',
-  periodo: 'Periodo de referencia: enero – julio 2025',
-  items: [
-    { icono: '👦', label: 'Masculinos:', valor: '193' },
-    { icono: '👧', label: 'Femeninos:', valor: '136' }
-  ],
-  footer: 'Monto total entregado: Q2,467,000'
+/* Valores animados (counter 0 → real) */
+const displayKpis = ref({
+  consultas: 0, medicamentos: 0, llamadas: 0, familias: 0, montoPorEstudiante: 0,
+  estudiantes: 0, establecimientos: 0, cobertura: 0, montoTotal: 0,
+  porcentajeHombres: 0, porcentajeMujeres: 0,
+})
+
+const animateNum = (key, target, duration = 1800) => {
+  const t0 = performance.now()
+  const tick = (now) => {
+    const p = Math.min((now - t0) / duration, 1)
+    const ease = p === 1 ? 1 : 1 - Math.pow(2, -10 * p)
+    displayKpis.value[key] = Math.round(target * ease)
+    if (p < 1) requestAnimationFrame(tick)
+  }
+  requestAnimationFrame(tick)
 }
+
+const animateAll = () => {
+  animateNum('consultas',          kpis.value.consultas)
+  animateNum('medicamentos',       kpis.value.medicamentos)
+  animateNum('llamadas',           kpis.value.llamadas)
+  animateNum('familias',           kpis.value.familias)
+  animateNum('montoPorEstudiante', kpis.value.montoPorEstudiante, 1200)
+  animateNum('estudiantes',        kpis.value.estudiantes)
+  animateNum('establecimientos',   kpis.value.establecimientos, 1200)
+  animateNum('cobertura',          kpis.value.cobertura, 1000)
+  animateNum('montoTotal',         kpis.value.montoTotal)
+  animateNum('porcentajeHombres',  kpis.value.porcentajeHombres, 1000)
+  animateNum('porcentajeMujeres',  kpis.value.porcentajeMujeres, 1000)
+}
+
+const kpiPrincipales = computed(() => [
+  { id: 'consultas',    icon: ic.consultas,    value: displayKpis.value.consultas.toLocaleString('es-GT'),    label: 'Consultas atendidas'    },
+  { id: 'medicamentos', icon: ic.medicamentos, value: displayKpis.value.medicamentos.toLocaleString('es-GT'), label: 'Medicamentos entregados' },
+  { id: 'llamadas',     icon: ic.llamadas,     value: displayKpis.value.llamadas.toLocaleString('es-GT'),     label: 'Llamadas registradas'   },
+  { id: 'familias',     icon: ic.familias,     value: displayKpis.value.familias.toLocaleString('es-GT'),     label: 'Familias beneficiadas'  },
+])
 
 /* NOTICIAS HOME + PROMOCIÓN */
 const noticiasBase = [
@@ -413,6 +416,7 @@ const cargarNoticias = async () => {
       noticiasApi.value = data.data
         .filter((n) => Number(n.activo) === 1 && n.modulo === 'promocion')
         .sort((a, b) => Number(a.orden || 0) - Number(b.orden || 0))
+      kpis.value.noticias = noticiasBase.length + noticiasApi.value.length
     }
   } catch (error) {
     console.error('Error cargando noticias en Home:', error)
@@ -421,12 +425,60 @@ const cargarNoticias = async () => {
 
 let noticiaInterval = null
 
-onMounted(() => {
+onMounted(async () => {
   cargarNoticias()
 
   noticiaInterval = setInterval(() => {
     nextNoticia()
   }, 5000)
+
+  try {
+    const [atencionRes, medRes, llamadasRes, funerarioRes] = await Promise.allSettled([
+      fetch(`${API_URL}/api/atencion/metricas`),
+      fetch(`${API_URL}/api/medicamentos/metricas`),
+      fetch(`${API_URL}/api/llamadas/metricas`),
+      fetch(`${API_URL}/api/funerario/metricas`)
+    ])
+
+    if (atencionRes.status === 'fulfilled') {
+      const data = await atencionRes.value.json()
+      if (data.success && data.data) {
+        kpis.value.consultas         = data.data.consultas_atendidas   ?? kpis.value.consultas
+        kpis.value.estudiantes       = data.data.estudiantes_atendidos ?? kpis.value.estudiantes
+        kpis.value.porcentajeHombres = data.data.porcentaje_hombres    ?? kpis.value.porcentajeHombres
+        kpis.value.porcentajeMujeres = data.data.porcentaje_mujeres    ?? kpis.value.porcentajeMujeres
+        if (data.data.periodo) kpis.value.periodo = data.data.periodo
+      }
+    }
+    if (medRes.status === 'fulfilled') {
+      const data = await medRes.value.json()
+      if (data.success && data.data) {
+        kpis.value.medicamentos    = data.data.unidades_entregadas              ?? kpis.value.medicamentos
+        kpis.value.establecimientos = data.data.establecimientos_con_suministro ?? kpis.value.establecimientos
+        kpis.value.cobertura       = data.data.cobertura_nacional               ?? kpis.value.cobertura
+      }
+    }
+    if (llamadasRes.status === 'fulfilled') {
+      const data = await llamadasRes.value.json()
+      if (data.success && data.data) {
+        kpis.value.llamadas = data.data.total_llamadas ?? kpis.value.llamadas
+      }
+    }
+    if (funerarioRes.status === 'fulfilled') {
+      const data = await funerarioRes.value.json()
+      if (data.success && data.data) {
+        kpis.value.familias           = data.data.familias_beneficiadas  ?? kpis.value.familias
+        kpis.value.masculinos         = data.data.casos_masculinos        ?? kpis.value.masculinos
+        kpis.value.femeninos          = data.data.casos_femeninos         ?? kpis.value.femeninos
+        kpis.value.montoTotal         = data.data.monto_total             ?? kpis.value.montoTotal
+        kpis.value.montoPorEstudiante = data.data.monto_por_estudiante    ?? kpis.value.montoPorEstudiante
+      }
+    }
+  } catch (err) {
+    console.error('Error cargando métricas de módulos:', err)
+  } finally {
+    animateAll()
+  }
 })
 
 onUnmounted(() => {
@@ -553,9 +605,9 @@ hero-banner-bg {
 .logo-franja-img {
   display: block;
   width: 100%;
-  max-width: 1350px;
+  max-width: 900px;
   margin: 0 auto;
-  padding: 18px 56px;
+  padding: 14px 40px;
 }
 
 /* GENERALES */
@@ -583,9 +635,15 @@ hero-banner-bg {
   color: #4b5c77;
 }
 
+/* INDICADORES NACIONALES */
+.indicadores {
+  padding: 52px 0 44px;
+  background: #ffffff;
+}
+
 /* BENEFICIOS */
 .beneficios {
-  padding: 56px 0;
+  padding: 48px 0;
   background: #ffffff;
 }
 
@@ -609,38 +667,300 @@ hero-banner-bg {
   margin-bottom: 24px;
 }
 
-/* MODULOS */
-.modulos-area {
-  position: relative;
+/* PILARES */
+.pilares-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.pilar-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 20px 14px 18px;
+  background: #ffffff;
+  border-radius: 10px;
+  border: 1px solid #dce8f0;
+}
+
+.pilar-icon-wrap {
+  width: 40px;
+  height: 40px;
+  color: #17c4e8;
+  margin-bottom: 11px;
+}
+
+.pilar-icon-wrap :deep(svg) {
+  width: 100%;
+  height: 100%;
+}
+
+.pilar-titulo {
+  margin: 0 0 6px;
+  font-size: 13px;
+  font-weight: 800;
+  color: #10233f;
+  line-height: 1.2;
+}
+
+.pilar-desc {
+  margin: 0;
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: #5a7089;
+}
+
+/* DIVISOR KPI */
+.kpi-divider {
   display: flex;
   align-items: center;
   gap: 14px;
+  margin: 4px 0 18px;
 }
+
+.kpi-divider-line {
+  flex: 1;
+  border: none;
+  border-top: 1px solid #c6d8e6;
+  margin: 0;
+}
+
+.kpi-divider-label {
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+  color: #8da7be;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* KPI PRINCIPALES */
+@keyframes kpiEnter {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.kpi-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 22px 14px 18px;
+  background: #ffffff;
+  border-radius: 10px;
+  border: 1px solid #dce8f0;
+  box-shadow: 0 2px 8px rgba(16, 35, 63, 0.04);
+  cursor: default;
+  animation: kpiEnter 0.45s ease both;
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
+}
+
+.kpi-card:nth-child(1) { animation-delay: 0.05s; }
+.kpi-card:nth-child(2) { animation-delay: 0.12s; }
+.kpi-card:nth-child(3) { animation-delay: 0.19s; }
+.kpi-card:nth-child(4) { animation-delay: 0.26s; }
+.kpi-card:nth-child(5) { animation-delay: 0.33s; }
+
+.kpi-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 28px rgba(16, 35, 63, 0.13);
+}
+
+.kpi-icon-wrap {
+  width: 34px;
+  height: 34px;
+  color: #17c4e8;
+  margin-bottom: 10px;
+}
+
+.kpi-icon-wrap :deep(svg) {
+  width: 100%;
+  height: 100%;
+}
+
+.kpi-number {
+  font-size: clamp(20px, 2.2vw, 30px);
+  font-weight: 900;
+  color: #10233f;
+  line-height: 1;
+  margin-bottom: 6px;
+  letter-spacing: -0.02em;
+}
+
+.kpi-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #6a8299;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  line-height: 1.3;
+}
+
+/* INDICADORES SECUNDARIOS */
+@keyframes secEnter {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+.sec-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  background: #10233f;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.sec-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 28px 16px 24px;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  cursor: default;
+  transition: background 0.22s ease;
+  animation: secEnter 0.4s ease both;
+}
+
+.sec-item:nth-child(1) { animation-delay: 0.35s; }
+.sec-item:nth-child(2) { animation-delay: 0.42s; }
+.sec-item:nth-child(3) { animation-delay: 0.49s; }
+.sec-item:nth-child(4) { animation-delay: 0.56s; }
+.sec-item:nth-child(5) { animation-delay: 0.63s; }
+
+.sec-item:hover {
+  background: rgba(23, 196, 232, 0.07);
+}
+
+.sec-item:last-child {
+  border-right: none;
+}
+
+.sec-val {
+  font-size: clamp(22px, 2.2vw, 30px);
+  font-weight: 900;
+  color: #17c4e8;
+  line-height: 1;
+  margin-bottom: 7px;
+}
+
+.sec-val--money {
+  font-size: clamp(16px, 1.6vw, 22px);
+}
+
+.sec-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.90);
+  line-height: 1.35;
+  margin-bottom: 4px;
+}
+
+.sec-module {
+  font-size: 9.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: rgba(255, 255, 255, 0.35);
+  margin-top: 2px;
+}
+
+/* Distribución por sexo */
+.sex-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  width: 100%;
+  margin-bottom: 6px;
+}
+
+.sex-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.sex-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.sex-dot--m { background: #17c4e8; }
+.sex-dot--f { background: #f472b6; }
+
+.sex-bar-track {
+  flex: 1;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.sex-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.9s ease;
+}
+
+.sex-bar-fill--m { background: #17c4e8; }
+.sex-bar-fill--f { background: #f472b6; }
+
+.sex-pct {
+  font-size: 11px;
+  font-weight: 700;
+  color: #ffffff;
+  min-width: 28px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.sex-name {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.55);
+  min-width: 40px;
+  flex-shrink: 0;
+}
+
+/* MÓDULOS DEL PROGRAMA */
+.modulos-section {
+  padding: 48px 0 56px;
+  background: #ffffff;
+}
+
+.modulos-title {
+  margin-bottom: 14px;
+}
+
+.modulos-intro {
+  max-width: 820px;
+  margin: 0 auto 28px;
+  font-size: 15px;
+  line-height: 1.7;
+  color: #4b5c77;
+}
+
 
 .modulos-grid {
-  flex: 1;
   display: grid;
-  grid-template-columns: repeat(5, minmax(220px, 1fr));
+  grid-template-columns: repeat(5, minmax(180px, 1fr));
   gap: 14px;
-}
-
-.slider-arrow {
-  width: 40px;
-  height: 40px;
-  border-radius: 999px;
-  border: 1px solid #d4dce5;
-  background: #ffffff;
-  color: #7b8ea5;
-  font-size: 30px;
-  line-height: 1;
-  cursor: pointer;
-  box-shadow: 0 4px 10px rgba(16, 35, 63, 0.08);
-  flex-shrink: 0;
 }
 
 .modulo-card {
   position: relative;
-  min-height: 260px;
+  min-height: 320px;
   border-radius: 12px;
   overflow: hidden;
   background: #0a4a7a;
@@ -663,8 +983,8 @@ hero-banner-bg {
   inset: 0;
   background: linear-gradient(
     180deg,
-    rgba(7, 62, 105, 0.12) 0%,
-    rgba(8, 63, 106, 0.62) 52%,
+    rgba(7, 62, 105, 0.10) 0%,
+    rgba(8, 63, 106, 0.58) 50%,
     rgba(6, 56, 95, 0.96) 100%
   );
 }
@@ -673,7 +993,8 @@ hero-banner-bg {
   position: relative;
   z-index: 2;
   height: 100%;
-  padding: 112px 16px 16px;
+  min-height: 320px;
+  padding: 70px 16px 16px;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
@@ -681,26 +1002,27 @@ hero-banner-bg {
 }
 
 .modulo-id {
-  margin: 0 0 6px;
-  font-size: 11px;
+  margin: 0 0 5px;
+  font-size: 10.5px;
   font-weight: 800;
   color: #17c4e8;
   text-transform: uppercase;
+  letter-spacing: 0.08em;
 }
 
 .modulo-title {
   margin: 0 0 8px;
-  font-size: 18px;
-  line-height: 1.1;
+  font-size: 17px;
+  line-height: 1.15;
   font-weight: 800;
   color: #ffffff;
 }
 
 .modulo-desc {
-  margin: 0 0 12px;
+  margin: 0 0 14px;
   font-size: 11px;
-  line-height: 1.45;
-  color: rgba(255, 255, 255, 0.92);
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.90);
 }
 
 .modulo-btn-link {
@@ -709,8 +1031,7 @@ hero-banner-bg {
 }
 
 .modulo-btn {
-  align-self: center;
-  border: 1px solid rgba(23, 196, 232, 0.8);
+  border: 1.5px solid rgba(23, 196, 232, 0.75);
   border-radius: 6px;
   background: transparent;
   color: #ffffff;
@@ -718,144 +1039,15 @@ hero-banner-bg {
   font-size: 10px;
   font-weight: 800;
   text-transform: uppercase;
-  padding: 8px 14px;
+  letter-spacing: 0.06em;
+  padding: 8px 16px;
   cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
 }
 
-/* RESULTADOS */
-.resultados-wrap {
-  margin-top: 18px;
-}
-
-.resultados-grid-top {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 18px;
-}
-
-.resultados-grid-bottom {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(320px, 470px));
-  justify-content: center;
-  gap: 18px;
-  margin-top: 18px;
-}
-
-.resultado-card {
-  background: #ffffff;
-  border-radius: 10px;
-  padding: 18px 20px;
-  box-shadow: 0 8px 18px rgba(16, 35, 63, 0.08);
-  min-height: 245px;
-}
-
-.resultado-card-dark {
-  background: #034876;
-}
-
-.resultado-tag {
-  display: inline-block;
-  margin: 0 0 14px;
-  padding: 5px 11px;
-  border-radius: 4px;
-  background: #0a4675;
-  color: #ffffff;
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-
-.resultado-tag-cyan {
-  background: #18c6e8;
-}
-
-.resultado-title {
-  margin: 0 0 4px;
-  font-size: 17px;
-  font-weight: 800;
-  color: #16365f;
-}
-
-.resultado-card-dark .resultado-title {
-  color: #ffffff;
-}
-
-.resultado-meta {
-  margin: 0 0 16px;
-  font-size: 12px;
-  color: #60728a;
-}
-
-.resultado-card-dark .resultado-meta {
-  color: rgba(255, 255, 255, 0.84);
-}
-
-.resultado-stats {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.resultado-line {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-}
-
-.resultado-emoji {
-  width: 26px;
-  height: 26px;
-  border-radius: 999px;
-  background: rgba(10, 70, 117, 0.08);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
-  flex-shrink: 0;
-  margin-top: 2px;
-}
-
-.resultado-card-dark .resultado-emoji {
-  background: rgba(255, 255, 255, 0.15);
-}
-
-.resultado-copy {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-  align-items: baseline;
-}
-
-.resultado-label {
-  margin: 0;
-  font-size: 13px;
-  color: #35577d;
-}
-
-.resultado-value {
-  margin: 0;
-  font-size: 13px;
-  font-weight: 800;
-  color: #16365f;
-}
-
-.resultado-card-dark .resultado-label,
-.resultado-card-dark .resultado-value {
-  color: #ffffff;
-}
-
-.resultado-footer {
-  margin: 18px 0 0;
-  padding-top: 12px;
-  border-top: 1px solid #dbe3eb;
-  font-size: 12px;
-  color: #5f7188;
-}
-
-.resultado-card-dark .resultado-footer {
-  border-top: 1px solid rgba(255, 255, 255, 0.22);
-  color: rgba(255, 255, 255, 0.84);
+.modulo-btn:hover {
+  background: rgba(23, 196, 232, 0.15);
+  border-color: rgba(23, 196, 232, 1);
 }
 
 /* NOTICIAS */
@@ -893,7 +1085,7 @@ hero-banner-bg {
 .noticia-card {
   position: relative;
   width: 100%;
-  height: 420px;
+  height: 560px;
   border-radius: 0;
   overflow: hidden;
   background: #0a4a7a;
@@ -1005,13 +1197,31 @@ hero-banner-bg {
   right: 56px;
 }
 
-/* RESPONSIVE */
-@media (max-width: 1400px) {
-  .modulos-grid {
-    grid-template-columns: repeat(3, 1fr);
+/* PANTALLAS GRANDES — TV / Ultrawide */
+@media (min-width: 1441px) {
+  .noticia-body {
+    max-width: 1440px;
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+    padding: 0 180px 36px;
+  }
+
+  .noticias-arrow-left  { left:  calc(50% - 720px + 32px); }
+  .noticias-arrow-right { right: calc(50% - 720px + 32px); }
+}
+
+@media (min-width: 1921px) {
+  .hero-content {
+    padding: 160px 80px 60px;
+  }
+
+  .noticia-card {
+    height: 640px;
   }
 }
 
+/* RESPONSIVE */
 @media (max-width: 1200px) {
   .hero {
     min-height: 520px;
@@ -1034,15 +1244,15 @@ hero-banner-bg {
   }
 
   .modulos-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
   }
 
-  .resultados-grid-top {
-    grid-template-columns: 1fr;
+  .sec-grid {
+    grid-template-columns: repeat(3, 1fr);
   }
 
-  .resultados-grid-bottom {
-    grid-template-columns: 1fr;
+  .sec-item:nth-child(3) {
+    border-right: none;
   }
 
   .noticia-body {
@@ -1095,17 +1305,38 @@ hero-banner-bg {
     padding: 24px 20px;
   }
 
+  .kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
   .modulos-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
   }
 
-  .slider-arrow {
-    display: none;
+  /* 5ta tarjeta de módulos sola → ocupa las 2 columnas */
+  .modulos-grid .modulo-card:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+    max-width: 50%;
+    margin: 0 auto;
   }
 
-  .resultados-grid-top,
-  .resultados-grid-bottom {
-    grid-template-columns: 1fr;
+  .sec-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .sec-item:nth-child(2),
+  .sec-item:nth-child(4) {
+    border-right: none;
+  }
+
+  .sec-item:nth-child(3) {
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  /* Último item de sec-grid si queda solo */
+  .sec-item:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+    border-right: none;
   }
 }
 
@@ -1177,22 +1408,43 @@ hero-banner-bg {
     margin-bottom: 20px;
   }
 
+  .kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .modulos-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .sec-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .kpi-divider-label {
+    font-size: 9px;
+  }
+
+  /* Reducir padding sec-item en móvil */
+  .sec-item {
+    padding: 18px 12px 16px;
+  }
+
+  /* Secciones con menos aire en móvil */
+  .indicadores {
+    padding: 32px 0 28px;
+  }
+
+  .modulos-section {
+    padding: 32px 0 40px;
+  }
+
   .modulo-card {
-    min-height: 200px;
+    min-height: 240px;
   }
 
   .modulo-body {
-    padding: 80px 12px 12px;
-  }
-
-  .modulo-title {
-    font-size: 14px;
-    margin-bottom: 6px;
-  }
-
-  .modulo-desc {
-    font-size: 11px;
-    margin-bottom: 10px;
+    min-height: 240px;
+    padding: 60px 12px 14px;
   }
 
   .noticias {

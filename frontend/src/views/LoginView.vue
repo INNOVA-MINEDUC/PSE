@@ -91,7 +91,7 @@ import { ref, computed } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import logoMinisterio from "@/assets/logo-ministerio.png";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
 
 const router = useRouter();
 const route  = useRoute();

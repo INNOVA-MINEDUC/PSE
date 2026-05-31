@@ -59,7 +59,7 @@ import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import AppFooter from '@/components/AppFooter.vue'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
+const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000'
 
 const route  = useRoute()
 const router = useRouter()
