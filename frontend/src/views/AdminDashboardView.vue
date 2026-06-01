@@ -2,132 +2,153 @@
   <main class="admin-shell">
     <aside class="sidebar">
       <div class="brand">
-        <div class="brand-badge">PSE</div>
+        <span class="mineduc-badge">MINEDUC</span>
         <div>
-          <p class="brand-name">Portal Salud Escolar</p>
-          <p class="brand-sub">Panel administrativo</p>
+          <p class="brand-name">Portal PSE</p>
+          <p class="brand-sub">Salud Escolar</p>
         </div>
       </div>
 
       <nav class="sidebar-nav">
-        <p class="nav-label">General</p>
-
-        <button
-          class="nav-item"
-          :class="{ active: activeModule === 'dashboard' }"
-          @click="go('dashboard')"
-        >
-          <span class="nav-sq"></span>
-          Dashboard
+        <p class="nav-section">Principal</p>
+        <button class="nav-item" :class="{ active: activeModule === 'dashboard' }" @click="go('dashboard')">
+          <span class="nav-sq" :class="{ active: activeModule === 'dashboard' }"></span>
+          Panel
         </button>
 
-        <p class="nav-label mt">Módulos</p>
-
-        <button
-          v-for="m in modules"
-          :key="m.key"
-          class="nav-item"
-          :class="{ active: activeModule === m.key }"
-          @click="go(m.key)"
-        >
-          <span class="nav-dot" :class="{ active: activeModule === m.key }"></span>
-          {{ m.label }}
+        <p class="nav-section">Servicios</p>
+        <button class="nav-item" :class="{ active: activeModule === 'atencion' }" @click="go('atencion')">
+          <span class="nav-dot" :class="{ active: activeModule === 'atencion' }"></span>
+          Atenciones
         </button>
+        <button class="nav-item" :class="{ active: activeModule === 'medicamentos' }" @click="go('medicamentos')">
+          <span class="nav-dot" :class="{ active: activeModule === 'medicamentos' }"></span>
+          Medicamentos
+        </button>
+        <button class="nav-item" :class="{ active: activeModule === 'llamadas' }" @click="go('llamadas')">
+          <span class="nav-dot" :class="{ active: activeModule === 'llamadas' }"></span>
+          Centro 1528
+        </button>
+        <button class="nav-item" :class="{ active: activeModule === 'funerario' }" @click="go('funerario')">
+          <span class="nav-dot" :class="{ active: activeModule === 'funerario' }"></span>
+          Apoyo funerario
+        </button>
+        <button class="nav-item" :class="{ active: activeModule === 'noticias' }" @click="go('noticias')">
+          <span class="nav-dot" :class="{ active: activeModule === 'noticias' }"></span>
+          Noticias
+        </button>
+
       </nav>
+
+      <div class="sidebar-footer">
+        <div class="sf-avatar">{{ initials }}</div>
+        <div class="sf-info">
+          <p class="sf-name">{{ fullName }}</p>
+          <p class="sf-role">{{ roleText }}</p>
+        </div>
+        <button class="sf-logout" @click="handleLogout" title="Cerrar sesión">⏻</button>
+      </div>
     </aside>
 
     <div class="main">
-      <header class="topbar">
+      <header class="topbar" v-if="activeModule !== 'dashboard'">
         <div>
-          <p class="eyebrow">Administración del sistema</p>
           <h1>{{ currentTitle }}</h1>
         </div>
-
         <div class="topbar-right">
           <div class="info-pill">
             <span class="pill-label">Fecha</span>
             <strong>{{ currentDate }}</strong>
           </div>
-
-          <div class="info-pill">
-            <span class="pill-label">Rol</span>
-            <strong>{{ roleText }}</strong>
-          </div>
-
           <button class="logout-btn" @click="handleLogout">Cerrar sesión</button>
         </div>
       </header>
 
       <div class="content">
         <template v-if="activeModule === 'dashboard'">
-          <section class="hero-card">
-            <div class="hero-left">
-              <div class="avatar">{{ initials }}</div>
+
+          <!-- GREETING -->
+          <div class="dh-greeting">
+            <div>
+              <h2 class="dh-title">Bienvenido, {{ user?.nombres || 'Administrador' }}</h2>
+              <p class="dh-sub">{{ currentDate }} · Portal de Salud Escolar</p>
+            </div>
+            <div class="dh-user">
+              <div class="avatar-sm2">{{ initials }}</div>
               <div>
-                <p class="hero-role-label">Usuario activo</p>
-                <p class="hero-name">{{ fullName }}</p>
-                <p class="hero-email">
-                  {{ user?.correoElectronico || "Usuario autenticado" }}
-                </p>
+                <p class="dh-uname">{{ fullName }}</p>
+                <p class="dh-urole">{{ roleText }}</p>
               </div>
             </div>
+          </div>
 
-            <span class="chip">Administrador PSE</span>
-          </section>
+          <!-- 5 KPI CARDS -->
+          <div class="dh-kpis">
+            <article
+              v-for="kpi in kpiCards"
+              :key="kpi.key"
+              class="dh-kpi"
+              :style="{ '--c': kpi.color, '--cs': kpi.softColor }"
+              @click="go(kpi.key)"
+            >
+              <p class="dh-kpi-label">{{ kpi.label }}</p>
+              <h3 class="dh-kpi-val">{{ loadingKpis ? '…' : formatNum(kpi.value) }}</h3>
+              <p class="dh-kpi-cap">
+                <span class="dh-dot" :style="{ background: kpi.color }"></span>
+                {{ kpi.caption }}
+              </p>
+            </article>
+          </div>
 
-          <section class="dashboard-card">
-            <div class="section-heading">
-              <div>
-                <p class="section-title">Resumen del sistema</p>
-                <p class="section-sub">Indicadores conectados a la base de datos.</p>
-              </div>
-            </div>
-
-            <div class="kpi-row">
-              <article
-                v-for="kpi in kpiCards"
-                :key="kpi.key"
-                class="kpi"
-                @click="go(kpi.key)"
-              >
-                <div class="kpi-top">
-                  <span class="kpi-icon" :style="{ background: kpi.softColor }">
-                    {{ kpi.icon }}
-                  </span>
-                </div>
-
-                <p class="kpi-label">{{ kpi.label }}</p>
-                <h3 class="kpi-val">{{ loadingKpis ? "…" : formatNum(kpi.value) }}</h3>
-
-                <p class="kpi-cap">
-                  <span class="kpi-dot-color" :style="{ background: kpi.color }"></span>
-                  {{ kpi.caption }}
-                </p>
-              </article>
-            </div>
-          </section>
-
-          <section class="dashboard-card">
-            <div class="section-heading">
-              <div>
-                <p class="section-title">Accesos rápidos</p>
-                <p class="section-sub">Selecciona un módulo para administrarlo.</p>
-              </div>
-            </div>
-
-            <div class="quick-row">
-              <button
-                v-for="m in modules"
-                :key="m.key"
-                class="quick-card"
-                @click="go(m.key)"
-              >
-                <span class="quick-icon">{{ m.icon }}</span>
-                <h3>{{ m.label }}</h3>
-                <p>{{ m.desc }}</p>
-              </button>
-            </div>
-          </section>
+          <!-- TABLA RESUMEN -->
+          <div class="dh-table-card">
+            <table class="dh-table">
+              <thead>
+                <tr>
+                  <th>Módulo</th>
+                  <th>Indicador principal</th>
+                  <th>Detalle 1</th>
+                  <th>Detalle 2</th>
+                  <th>Período</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="dh-td-mod">Atención a enfermedades</td>
+                  <td><span class="dh-td-big">{{ formatNum(rawKpis.atenciones) }}</span><span class="dh-td-unit">consultas</span></td>
+                  <td><span class="dh-td-big">{{ formatNum(rawKpis.estudiantes) }}</span><span class="dh-td-unit">estudiantes</span></td>
+                  <td><span class="dh-td-big">{{ dashStats.atencion.porcentaje_hombres||0 }}%</span><span class="dh-td-unit">masculino</span></td>
+                  <td class="dh-td-period">{{ dashStats.atencion.periodo || '—' }}</td>
+                  <td><button class="dh-td-btn" @click="go('atencion')">Editar</button></td>
+                </tr>
+                <tr>
+                  <td class="dh-td-mod">Suministro de medicamentos</td>
+                  <td><span class="dh-td-big">{{ formatNum(rawKpis.medicamentos) }}</span><span class="dh-td-unit">unidades</span></td>
+                  <td><span class="dh-td-big">{{ formatNum(dashStats.medicamentos.establecimientos_con_suministro) }}</span><span class="dh-td-unit">establecimientos</span></td>
+                  <td><span class="dh-td-big">{{ formatNum(dashStats.medicamentos.cobertura_nacional) }}</span><span class="dh-td-unit">municipios</span></td>
+                  <td class="dh-td-period">{{ dashStats.medicamentos.periodo || '—' }}</td>
+                  <td><button class="dh-td-btn" @click="go('medicamentos')">Editar</button></td>
+                </tr>
+                <tr>
+                  <td class="dh-td-mod">Centro de llamadas 1528</td>
+                  <td><span class="dh-td-big">{{ formatNum(rawKpis.llamadas) }}</span><span class="dh-td-unit">llamadas</span></td>
+                  <td><span class="dh-td-big">{{ formatNum(dashStats.llamadas.casos_atendidos) }}</span><span class="dh-td-unit">casos atendidos</span></td>
+                  <td><span class="dh-td-big">{{ formatNum(dashStats.llamadas.usuarios_beneficiados) }}</span><span class="dh-td-unit">usuarios</span></td>
+                  <td class="dh-td-period">{{ dashStats.llamadas.periodo || '—' }}</td>
+                  <td><button class="dh-td-btn" @click="go('llamadas')">Editar</button></td>
+                </tr>
+                <tr>
+                  <td class="dh-td-mod">Apoyo funerario</td>
+                  <td><span class="dh-td-big">{{ formatNum(rawKpis.funerario) }}</span><span class="dh-td-unit">familias</span></td>
+                  <td><span class="dh-td-big">Q{{ formatNum(dashStats.funerario.monto_total) }}</span><span class="dh-td-unit">monto total</span></td>
+                  <td><span class="dh-td-big">{{ formatNum(dashStats.funerario.apoyos_otorgados) }}</span><span class="dh-td-unit">apoyos otorgados</span></td>
+                  <td class="dh-td-period">{{ dashStats.funerario.periodo || '—' }}</td>
+                  <td><button class="dh-td-btn" @click="go('funerario')">Editar</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </template>
 
         <template v-if="activeModule === 'noticias'">
@@ -798,43 +819,6 @@ const token = localStorage.getItem("token");
 const user = ref(JSON.parse(localStorage.getItem("user") || "null"));
 const activeModule = ref("dashboard");
 
-const modules = [
-  {
-    key: "noticias",
-    label: "Noticias y promoción",
-    icon: "📰",
-    desc: "Gestionar noticias visibles en el portal.",
-    color: "#2563eb",
-  },
-  {
-    key: "atencion",
-    label: "Atención a enfermedades",
-    icon: "🏥",
-    desc: "Actualizar métricas de atención médica.",
-    color: "#16a34a",
-  },
-  {
-    key: "medicamentos",
-    label: "Suministro de medicamentos",
-    icon: "💊",
-    desc: "Actualizar unidades y establecimientos.",
-    color: "#d97706",
-  },
-  {
-    key: "llamadas",
-    label: "Centro de llamadas 1528",
-    icon: "📞",
-    desc: "Actualizar registros del centro 1528.",
-    color: "#7c3aed",
-  },
-  {
-    key: "funerario",
-    label: "Apoyo funerario",
-    icon: "🤝",
-    desc: "Actualizar apoyos y montos registrados.",
-    color: "#db2777",
-  },
-];
 
 const pageTitles = {
   dashboard: "Panel de administración PSE",
@@ -899,7 +883,11 @@ const initials = computed(() => {
 
 const roleText = computed(() => {
   if (!user.value?.roles?.length) return "Administrador";
-  return user.value.roles.map((role) => role.nombre).join(", ");
+  return user.value.roles
+    .map((role) => role.nombre.replace(/\bASISTO\b/gi, "").trim())
+    .join(", ")
+    .replace(/\s+/g, " ")
+    .trim() || "Administrador";
 });
 
 const currentDate = computed(() =>
@@ -947,6 +935,28 @@ const fetchUser = async () => {
   } catch (error) {
     console.error("Error cargando usuario:", error);
   }
+};
+
+const dashStats = ref({
+  atencion:     { periodo: "", porcentaje_hombres: 0, porcentaje_mujeres: 0 },
+  medicamentos: { establecimientos_con_suministro: 0, cobertura_nacional: 0 },
+  llamadas:     { casos_atendidos: 0, usuarios_beneficiados: 0 },
+  funerario:    { monto_total: 0, apoyos_otorgados: 0 },
+});
+
+const fetchDashStats = async () => {
+  try {
+    const [ra, rm, rl, rf] = await Promise.all([
+      fetch(`${API_URL}/api/atencion/metricas`).then(r => r.json()),
+      fetch(`${API_URL}/api/medicamentos/metricas`).then(r => r.json()),
+      fetch(`${API_URL}/api/llamadas/metricas`).then(r => r.json()),
+      fetch(`${API_URL}/api/funerario/metricas`).then(r => r.json()),
+    ]);
+    if (ra.success && ra.data) dashStats.value.atencion     = ra.data;
+    if (rm.success && rm.data) dashStats.value.medicamentos = rm.data;
+    if (rl.success && rl.data) dashStats.value.llamadas     = rl.data;
+    if (rf.success && rf.data) dashStats.value.funerario    = rf.data;
+  } catch (err) { console.error("Error cargando dashStats:", err); }
 };
 
 const loadingKpis = ref(true);
@@ -1345,6 +1355,7 @@ watch(activeModule, (module) => {
 onMounted(() => {
   fetchUser();
   fetchKpis();
+  fetchDashStats();
   fetchNoticias();
 });
 </script>
@@ -1354,166 +1365,213 @@ onMounted(() => {
   box-sizing: border-box;
 }
 
+/* ── SHELL ───────────────────────────────────────────── */
 .admin-shell {
   display: grid;
-  grid-template-columns: 270px 1fr;
+  grid-template-columns: 250px 1fr;
   min-height: 100vh;
   font-family: "Montserrat", "Segoe UI", system-ui, sans-serif;
   background: #edf3f8;
 }
 
+/* ── SIDEBAR ─────────────────────────────────────────── */
 .sidebar {
   background:
-    radial-gradient(circle at top left, rgba(23, 196, 232, 0.18), transparent 38%),
+    radial-gradient(circle at top left, rgba(23,196,232,0.18), transparent 38%),
     linear-gradient(180deg, #071a40 0%, #0e2a5c 100%);
   color: #fff;
-  padding: 28px 22px;
+  padding: 0;
   position: sticky;
   top: 0;
   height: 100vh;
   overflow-y: auto;
-  box-shadow: 18px 0 40px rgba(15, 23, 42, 0.16);
+  display: flex;
+  flex-direction: column;
+  box-shadow: 18px 0 40px rgba(15,23,42,0.16);
 }
 
 .brand {
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding-bottom: 24px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-  margin-bottom: 14px;
+  gap: 12px;
+  padding: 24px 20px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
 }
 
-.brand-badge {
-  width: 52px;
-  height: 52px;
-  border-radius: 16px;
-  background: linear-gradient(135deg, #17c4e8, #ffffff);
-  color: #071a40;
-  display: grid;
-  place-items: center;
+.mineduc-badge {
+  background: #22c55e;
+  color: #fff;
+  font-size: 9px;
   font-weight: 900;
-  font-size: 16px;
-  box-shadow: 0 18px 28px rgba(23, 196, 232, 0.18);
+  padding: 4px 8px;
+  border-radius: 6px;
+  letter-spacing: 0.06em;
+  flex-shrink: 0;
 }
 
 .brand-name {
   margin: 0;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 800;
-  line-height: 1.3;
+  color: #fff;
+  line-height: 1.2;
 }
 
 .brand-sub {
-  margin: 4px 0 0;
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.66);
+  margin: 2px 0 0;
+  font-size: 11px;
+  color: rgba(255,255,255,0.5);
 }
 
 .sidebar-nav {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  padding: 10px 14px;
+  gap: 2px;
+  flex: 1;
 }
 
-.nav-label {
-  margin: 16px 0 6px;
-  font-size: 11px;
+.nav-section {
+  margin: 16px 0 5px 10px;
+  font-size: 10px;
   text-transform: uppercase;
-  letter-spacing: 0.11em;
-  color: rgba(255, 255, 255, 0.46);
-  padding-left: 12px;
+  letter-spacing: 0.12em;
+  color: rgba(255,255,255,0.36);
   font-weight: 700;
 }
 
-.nav-label.mt {
-  margin-top: 22px;
-}
+.nav-section:first-child { margin-top: 8px; }
 
 .nav-item {
   width: 100%;
   border: none;
   background: transparent;
-  color: rgba(255, 255, 255, 0.78);
+  color: rgba(255,255,255,0.7);
   text-align: left;
-  padding: 14px 14px;
-  border-radius: 15px;
+  padding: 10px 12px;
+  border-radius: 12px;
   cursor: pointer;
   display: flex;
-  gap: 11px;
+  gap: 10px;
   align-items: center;
-  font-size: 14px;
-  transition: 0.2s ease;
+  font-size: 13.5px;
+  font-family: inherit;
+  transition: background 0.15s, color 0.15s;
 }
 
 .nav-item:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255,255,255,0.09);
   color: #fff;
-  transform: translateX(2px);
 }
 
 .nav-item.active {
-  background: rgba(255, 255, 255, 0.16);
+  background: rgba(255,255,255,0.14);
   color: #fff;
-  font-weight: 800;
-  box-shadow: inset 4px 0 0 #17c4e8;
+  font-weight: 700;
+  box-shadow: inset 3px 0 0 #17c4e8;
+}
+
+.nav-item--disabled {
+  opacity: 0.3;
+  cursor: default;
+  pointer-events: none;
 }
 
 .nav-sq {
-  width: 17px;
-  height: 17px;
-  border-radius: 5px;
-  border: 2px solid rgba(255, 255, 255, 0.54);
+  width: 15px;
+  height: 15px;
+  border-radius: 4px;
+  border: 1.5px solid rgba(255,255,255,0.45);
+  flex-shrink: 0;
 }
 
+.nav-sq.active { border-color: #17c4e8; background: rgba(23,196,232,0.2); }
+
 .nav-dot {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.42);
+  background: rgba(255,255,255,0.3);
+  flex-shrink: 0;
 }
 
 .nav-dot.active {
   background: #17c4e8;
-  box-shadow: 0 0 0 5px rgba(23, 196, 232, 0.14);
+  box-shadow: 0 0 0 3px rgba(23,196,232,0.18);
 }
 
+.sidebar-footer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+.sf-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #17c4e8, #2563eb);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-weight: 900;
+  font-size: 13px;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(23,196,232,0.3);
+}
+
+.sf-info { flex: 1; min-width: 0; }
+.sf-name { margin: 0; font-size: 12px; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sf-role { margin: 1px 0 0; font-size: 10.5px; color: rgba(255,255,255,0.4); }
+
+.sf-logout {
+  border: none;
+  background: rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.45);
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  display: grid;
+  place-items: center;
+  transition: background 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+
+.sf-logout:hover { background: rgba(220,38,38,0.2); color: #fca5a5; }
+
+/* ── MAIN ────────────────────────────────────────────── */
 .main {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
   background:
-    radial-gradient(circle at top right, rgba(23, 196, 232, 0.1), transparent 30%),
+    radial-gradient(circle at top right, rgba(23,196,232,0.07), transparent 30%),
     #edf3f8;
 }
 
+/* ── TOPBAR ──────────────────────────────────────────── */
 .topbar {
-  background: rgba(255, 255, 255, 0.92);
+  background: rgba(255,255,255,0.92);
   backdrop-filter: blur(14px);
-  border-bottom: 1px solid rgba(226, 232, 240, 0.8);
-  padding: 24px 34px;
+  border-bottom: 1px solid rgba(226,232,240,0.8);
+  padding: 20px 32px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 22px;
+  gap: 18px;
   position: sticky;
   top: 0;
   z-index: 10;
-  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.045);
-}
-
-.eyebrow {
-  margin: 0 0 7px;
-  font-size: 12px;
-  font-weight: 900;
-  color: #0ea5c6;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
+  box-shadow: 0 8px 24px rgba(15,23,42,0.04);
 }
 
 .topbar h1 {
   margin: 0;
-  font-size: 27px;
+  font-size: 24px;
   font-weight: 900;
   color: #0f172a;
 }
@@ -1521,118 +1579,123 @@ onMounted(() => {
 .topbar-right {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   flex-wrap: wrap;
 }
 
 .info-pill {
   background: #fff;
   border: 1px solid #dfe8f3;
-  border-radius: 14px;
-  padding: 11px 16px;
+  border-radius: 12px;
+  padding: 9px 14px;
   font-size: 13px;
   color: #0f172a;
-  min-width: 145px;
-  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.055);
+  box-shadow: 0 2px 8px rgba(15,23,42,0.04);
 }
 
 .pill-label {
   display: block;
   font-size: 10px;
   color: #94a3b8;
-  margin-bottom: 3px;
+  margin-bottom: 2px;
 }
 
 .logout-btn {
   background: #fff1f2;
   border: 1px solid #fca5a5;
   border-radius: 999px;
-  padding: 12px 19px;
+  padding: 9px 16px;
   font-size: 13px;
-  font-weight: 900;
+  font-weight: 700;
   color: #dc2626;
   cursor: pointer;
-  box-shadow: 0 12px 22px rgba(220, 38, 38, 0.08);
+  font-family: inherit;
 }
 
-.logout-btn:hover {
-  background: #fee2e2;
-}
+.logout-btn:hover { background: #fee2e2; }
 
 .content {
-  padding: 34px 38px;
+  padding: 30px 34px;
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: 22px;
   flex: 1;
 }
 
-.hero-card,
 .dashboard-card {
-  background: rgba(255, 255, 255, 0.96);
-  border: 1px solid #dfe8f3;
-  border-radius: 28px;
-  box-shadow:
-    0 24px 50px rgba(15, 23, 42, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  background: rgba(255,255,255,0.97);
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(15,23,42,0.06);
 }
 
+/* ── HERO CARD ───────────────────────────────────────── */
 .hero-card {
-  padding: 30px 34px;
+  background: #151929;
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 16px;
+  padding: 24px 28px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
 }
+
 
 .hero-left {
   display: flex;
   align-items: center;
   gap: 18px;
+  position: relative;
+  z-index: 1;
 }
 
 .avatar {
-  width: 68px;
-  height: 68px;
+  width: 72px;
+  height: 72px;
   border-radius: 22px;
-  background: linear-gradient(135deg, #2563eb, #17c4e8);
+  background: linear-gradient(135deg, #17c4e8, #2563eb);
   color: #fff;
   display: grid;
   place-items: center;
   font-weight: 900;
-  font-size: 22px;
-  box-shadow: 0 16px 28px rgba(37, 99, 235, 0.24);
+  font-size: 24px;
+  box-shadow: 0 8px 24px rgba(23, 196, 232, 0.4);
+  border: 2px solid rgba(255,255,255,0.15);
 }
 
 .hero-role-label {
-  margin: 0 0 5px;
-  font-size: 11px;
-  color: #94a3b8;
-  font-weight: 900;
+  margin: 0 0 4px;
+  font-size: 10px;
+  color: #17c4e8;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
 }
 
 .hero-name {
   margin: 0;
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 900;
-  color: #0f172a;
+  color: #f1f5f9;
 }
 
 .hero-email {
-  margin: 5px 0 0;
-  font-size: 14px;
-  color: #64748b;
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: #475569;
 }
 
 .chip {
-  background: #eff6ff;
-  border: 1px solid #bfdbfe;
+  background: rgba(23,196,232,0.12);
+  border: 1px solid rgba(23,196,232,0.3);
   border-radius: 999px;
-  padding: 11px 18px;
-  font-size: 13px;
-  font-weight: 900;
-  color: #1d4ed8;
+  padding: 8px 16px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #17c4e8;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
 }
 
 .dashboard-card {
@@ -1640,20 +1703,32 @@ onMounted(() => {
 }
 
 .section-heading {
-  margin-bottom: 18px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.section-heading::before {
+  content: "";
+  width: 3px;
+  height: 22px;
+  border-radius: 4px;
+  background: linear-gradient(180deg, #17c4e8, #2563eb);
+  flex-shrink: 0;
 }
 
 .section-title {
-  margin: 0 0 6px;
-  font-size: 22px;
+  margin: 0 0 4px;
+  font-size: 18px;
   font-weight: 900;
   color: #0f172a;
 }
 
 .section-sub {
   margin: 0;
-  font-size: 15px;
-  color: #64748b;
+  font-size: 13px;
+  color: #94a3b8;
 }
 
 .kpi-row {
@@ -1665,63 +1740,66 @@ onMounted(() => {
 .kpi {
   background: #fff;
   border: 1px solid #e1e9f3;
-  border-radius: 24px;
-  padding: 24px;
+  border-radius: 20px;
+  padding: 24px 22px 18px;
   cursor: pointer;
-  min-height: 168px;
   transition: 0.22s ease;
-  box-shadow: 0 16px 32px rgba(15, 23, 42, 0.055);
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.kpi::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: var(--kpi-color, #2563eb);
+  border-radius: 20px 20px 0 0;
 }
 
 .kpi:hover {
-  transform: translateY(-5px);
-  border-color: #b8ddff;
-  box-shadow: 0 24px 42px rgba(15, 23, 42, 0.12);
-}
-
-.kpi-top {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 14px;
-}
-
-.kpi-icon {
-  width: 46px;
-  height: 46px;
-  border-radius: 16px;
-  display: grid;
-  place-items: center;
-  font-size: 22px;
+  transform: translateY(-4px);
+  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.11);
 }
 
 .kpi-label {
-  margin: 0 0 8px;
-  font-size: 14px;
-  color: #64748b;
-  font-weight: 800;
+  margin: 0;
+  font-size: 11px;
+  color: #94a3b8;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
 }
 
 .kpi-val {
   margin: 0;
-  font-size: 36px;
-  font-weight: 950;
+  font-size: 38px;
+  font-weight: 900;
   color: #0f172a;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.03em;
+  line-height: 1;
 }
 
 .kpi-cap {
-  margin: 10px 0 0;
-  font-size: 12px;
+  margin: 14px 0 0;
+  font-size: 11.5px;
   color: #94a3b8;
   display: flex;
   align-items: center;
   gap: 6px;
+  padding-top: 12px;
+  border-top: 1px solid #f1f5f9;
 }
 
 .kpi-dot-color {
-  width: 7px;
-  height: 7px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
+  flex-shrink: 0;
 }
 
 .quick-row {
@@ -1733,39 +1811,195 @@ onMounted(() => {
 .quick-card {
   background: #fff;
   border: 1px solid #e1e9f3;
-  border-radius: 24px;
-  padding: 24px;
+  border-radius: 20px;
+  padding: 22px 20px 18px;
   text-align: left;
   cursor: pointer;
-  min-height: 150px;
-  transition: 0.2s ease;
-  box-shadow: 0 16px 32px rgba(15, 23, 42, 0.055);
+  transition: 0.22s ease;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.quick-card::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--mod-color, #2563eb);
+  border-radius: 20px 20px 0 0;
 }
 
 .quick-card:hover {
-  transform: translateY(-5px);
-  border-color: #b8ddff;
-  box-shadow: 0 24px 42px rgba(15, 23, 42, 0.11);
+  transform: translateY(-4px);
+  border-color: var(--mod-color, #2563eb);
+  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.1);
 }
 
 .quick-icon {
-  font-size: 27px;
-  margin-bottom: 13px;
-  display: block;
+  font-size: 22px;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
 }
 
 .quick-card h3 {
-  margin: 0 0 8px;
-  font-size: 16px;
+  margin: 0 0 6px;
+  font-size: 14px;
   font-weight: 900;
   color: #0f172a;
+  line-height: 1.3;
 }
 
 .quick-card p {
   margin: 0;
-  font-size: 13px;
-  color: #64748b;
+  font-size: 12px;
+  color: #94a3b8;
   line-height: 1.5;
+  flex: 1;
+}
+
+.quick-arrow {
+  display: block;
+  margin-top: 14px;
+  font-size: 14px;
+  font-weight: 900;
+  color: var(--mod-color, #2563eb);
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: 0.2s ease;
+}
+
+.quick-card:hover .quick-arrow {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* ── INDICADORES POR MÓDULO ─────────────────────────── */
+.mod-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.mod-stat-card {
+  border: 1px solid #e1e9f3;
+  border-radius: 18px;
+  padding: 20px;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  position: relative;
+  overflow: hidden;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.mod-stat-card::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--mod-c, #2563eb);
+  border-radius: 18px 18px 0 0;
+}
+
+.mod-stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.1);
+}
+
+.mod-stat-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.mod-stat-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.mod-stat-name {
+  font-size: 12px;
+  font-weight: 800;
+  color: #334155;
+  line-height: 1.3;
+}
+
+.mod-stat-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+}
+
+.mod-stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.mod-stat-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.mod-stat-lbl {
+  font-size: 11.5px;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.mod-stat-val {
+  font-size: 14px;
+  font-weight: 900;
+  color: #0f172a;
+}
+
+.mod-stat-period {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.mod-stat-btn {
+  margin-top: 16px;
+  border: none;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--mod-c, #2563eb);
+  cursor: pointer;
+  text-align: left;
+  padding: 0;
+  font-family: inherit;
+  transition: opacity 0.15s;
+}
+
+.mod-stat-btn:hover { opacity: 0.7; }
+
+@media (max-width: 1200px) {
+  .mod-stats-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 640px) {
+  .mod-stats-grid { grid-template-columns: 1fr; }
 }
 
 .mod-header {
@@ -2130,7 +2364,8 @@ onMounted(() => {
   }
 }
 
-/* ── MÓDULOS DE MÉTRICAS ────────────────────────────────────── */
+
+/* ── MÓDULOS DE MÉTRICAS ─────────────────────────────────────── */
 .mod-header-left {
   display: flex;
   align-items: center;
@@ -2247,6 +2482,545 @@ onMounted(() => {
   margin: 4px 0 0;
   font-size: 0.76rem;
   color: #94a3b8;
+}
+
+/* ── DASHBOARD DARK ─────────────────────────────────── */
+.dh-greeting {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dh-title {
+  margin: 0 0 4px;
+  font-size: 22px;
+  font-weight: 900;
+  color: #0f172a;
+}
+
+.dh-sub {
+  margin: 0;
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.dh-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 10px 14px;
+  box-shadow: 0 2px 8px rgba(15,23,42,0.04);
+}
+
+.avatar-sm2 {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #17c4e8, #2563eb);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-weight: 900;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+.dh-uname { margin: 0; font-size: 13px; font-weight: 700; color: #0f172a; }
+.dh-urole { margin: 1px 0 0; font-size: 11px; color: #94a3b8; }
+
+/* KPI ROW */
+.dh-kpis {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 14px;
+}
+
+.dh-kpi {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 18px 16px 14px;
+  cursor: pointer;
+  transition: box-shadow 0.18s, transform 0.18s;
+  position: relative;
+  overflow: hidden;
+}
+
+.dh-kpi::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--c, #2563eb);
+  border-radius: 14px 14px 0 0;
+}
+
+.dh-kpi:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(15,23,42,0.1);
+  border-color: #bfdbfe;
+}
+
+.dh-kpi-label {
+  margin: 0 0 10px;
+  font-size: 10.5px;
+  color: #94a3b8;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.dh-kpi-val {
+  margin: 0;
+  font-size: 30px;
+  font-weight: 900;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.dh-kpi-cap {
+  margin: 10px 0 0;
+  font-size: 11px;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding-top: 10px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.dh-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* TABLA RESUMEN */
+/* TABLA RESUMEN */
+.dh-table-card {
+  background: #fff;
+  border: 1px solid #dfe8f3;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(15,23,42,0.06);
+}
+
+.dh-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.dh-table thead tr {
+  background: linear-gradient(90deg, #071a40 0%, #0e2a5c 100%);
+}
+
+.dh-table th {
+  padding: 14px 22px;
+  text-align: left;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.6);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.dh-table tbody tr {
+  border-bottom: 1px solid #edf3f8;
+  transition: background 0.12s;
+}
+
+.dh-table tbody tr:last-child { border-bottom: none; }
+.dh-table tbody tr:hover { background: #f0f7ff; }
+
+.dh-table td {
+  padding: 16px 22px;
+  vertical-align: middle;
+}
+
+.dh-td-mod {
+  font-size: 13px;
+  font-weight: 800;
+  color: #071a40;
+  white-space: nowrap;
+}
+
+.dh-td-big {
+  display: block;
+  font-size: 17px;
+  font-weight: 900;
+  color: #0f172a;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+}
+
+.dh-td-unit {
+  display: block;
+  font-size: 10px;
+  color: #94a3b8;
+  margin-top: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.dh-td-period {
+  font-size: 12px;
+  color: #64748b;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.dh-td-btn {
+  border: none;
+  background: linear-gradient(135deg, #17c4e8, #2563eb);
+  border-radius: 8px;
+  padding: 7px 16px;
+  font-size: 11.5px;
+  font-weight: 800;
+  color: #fff;
+  cursor: pointer;
+  font-family: inherit;
+  transition: opacity 0.15s, transform 0.15s;
+  white-space: nowrap;
+  box-shadow: 0 4px 10px rgba(23,196,232,0.2);
+}
+
+.dh-td-btn:hover {
+  opacity: 0.88;
+  transform: translateY(-1px);
+}
+
+/* MOD CARD */
+.dh-mod {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 20px 20px 16px;
+  box-shadow: 0 2px 10px rgba(15,23,42,0.05);
+}
+
+.dh-mod-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 14px;
+}
+
+.dh-mod-tag {
+  margin: 0 0 6px;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.dh-mod-num {
+  margin: 0 0 4px;
+  font-size: 28px;
+  font-weight: 900;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.dh-mod-sub {
+  margin: 0;
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+.dh-mod-aside { text-align: right; }
+.dh-mod-aside-num { margin: 0 0 2px; font-size: 18px; font-weight: 900; color: #334155; }
+.dh-mod-aside-lbl { margin: 0; font-size: 11px; color: #94a3b8; }
+
+
+/* BARS */
+.dh-bars {
+  border-top: 1px solid #f1f5f9;
+  padding-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  margin-bottom: 14px;
+}
+
+.dh-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: #64748b;
+}
+
+.dh-bar-row span { min-width: 70px; }
+.dh-bar-row b { min-width: 48px; text-align: right; font-size: 11px; color: #334155; }
+
+.dh-bar {
+  flex: 1;
+  height: 5px;
+  background: #f1f5f9;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.dh-bar > div {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
+
+/* LIST */
+.dh-list {
+  border-top: 1px solid #f1f5f9;
+  margin-bottom: 14px;
+}
+
+.dh-list-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #f8fafc;
+  font-size: 12px;
+}
+
+.dh-list-row span { color: #64748b; }
+.dh-list-row b    { color: #0f172a; font-size: 13px; }
+
+.dh-goto {
+  border: none;
+  background: transparent;
+  font-size: 11.5px;
+  font-weight: 800;
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
+  transition: opacity 0.15s;
+}
+.dh-goto:hover { opacity: 0.6; }
+
+@media (max-width: 1400px) {
+  .dh-mods { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 1200px) {
+  .dh-kpis { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 768px) {
+  .dh-kpis { grid-template-columns: repeat(2, 1fr); }
+  .dh-mods { grid-template-columns: 1fr; }
+  .dh-greeting { flex-direction: column; align-items: flex-start; gap: 12px; }
+}
+
+
+/* ── MODAL ANCHO ────────────────────────────────────── */
+.modal-card--wide {
+  max-width: 860px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-close-btn {
+  border: none;
+  background: transparent;
+  font-size: 1.1rem;
+  cursor: pointer;
+  color: #64748b;
+  padding: 4px 8px;
+}
+
+.modal-close-btn:hover { color: #0f172a; }
+
+.modal-section-label {
+  font-size: 0.72rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #17c4e8;
+  margin: 8px 0 2px;
+  padding-top: 10px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.req { color: #dc2626; }
+
+.field-hint {
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: #94a3b8;
+  margin-left: 4px;
+}
+
+/* ── IMÁGENES ───────────────────────────────────────── */
+.img-fields-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.img-field-block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.img-field-title {
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: #334155;
+  margin: 0;
+}
+
+.img-preview-area {
+  width: 100%;
+}
+
+.img-preview {
+  width: 100%;
+  object-fit: cover;
+  border-radius: 10px;
+  display: block;
+}
+
+.img-preview--4x3  { aspect-ratio: 4 / 3; }
+.img-preview--16x9 { aspect-ratio: 16 / 9; }
+
+.img-preview-empty {
+  width: 100%;
+  background: #f1f5f9;
+  border: 1.5px dashed #cbd5e1;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.file-upload-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 9px 16px;
+  background: #f1f5f9;
+  border: 1.5px dashed #94a3b8;
+  border-radius: 10px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #475569;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  font-family: inherit;
+}
+
+.file-upload-btn:hover {
+  background: #e2e8f0;
+  border-color: #64748b;
+}
+
+.file-upload-btn--galeria {
+  width: 100%;
+}
+
+.url-input {
+  border: 1px solid #dbe3ef;
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 0.8rem;
+  color: #64748b;
+  width: 100%;
+  font-family: inherit;
+  outline: none;
+}
+
+.url-input:focus { border-color: #17c4e8; }
+
+/* ── GALERÍA ────────────────────────────────────────── */
+.galeria-admin-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.galeria-admin-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 8px;
+}
+
+.galeria-admin-item {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  aspect-ratio: 4 / 3;
+}
+
+.galeria-admin-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.galeria-admin-item-overlay {
+  position: absolute;
+  bottom: 4px;
+  left: 4px;
+}
+
+.galeria-admin-orden {
+  background: rgba(0,0,0,0.55);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.galeria-admin-remove {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(220,38,38,0.85);
+  color: #fff;
+  font-size: 0.7rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.galeria-admin-empty {
+  font-size: 0.82rem;
+  color: #94a3b8;
+  margin: 0;
+}
+
+.galeria-admin-hint {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  margin: 0;
+}
+
+@media (max-width: 640px) {
+  .img-fields-grid { grid-template-columns: 1fr; }
+  .modal-card--wide { max-width: 100%; }
 }
 
 .pdf-upload-row {

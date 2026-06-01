@@ -471,23 +471,25 @@ onUnmounted(() => {
 
 .news-featured-wrap {
   position: relative;
-  width: 100%;
+  width: 100vw;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 28px;
+  margin-bottom: 28px;
 }
 
 .news-featured {
-  width: 100vw;
-  height: 360px;
+  width: 100%;
+  height: 420px;
   position: relative;
   overflow: hidden;
-  border-radius: 0;
-  margin-left: -10px;
 }
 
 .news-featured-img {
-  width: 100vw;
+  width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center;
+  object-position: center center;
   display: block;
 }
 
@@ -827,13 +829,7 @@ onUnmounted(() => {
   }
 
   .news-featured {
-    width: 100%;
     height: 360px;
-    margin-left: 0;
-  }
-
-  .news-featured-img {
-    width: 100%;
   }
 }
 
