@@ -17,14 +17,6 @@
         funerarios para estudiantes del sistema educativo nacional.
       </p>
 
-      <div class="hero-search">
-        <input
-          type="text"
-          class="hero-search-input"
-          placeholder="Buscar información del programa..."
-      />
-      <button class="hero-search-btn" type="button">Buscar</button>
-    </div>
   </div>
 </section>
     
@@ -518,48 +510,6 @@ hero-banner-bg {
   text-align: justify;
 }
 
-.hero-search {
-  display: flex;
-  gap: 12px;
-  margin-top: 28px;
-  max-width: 560px;
-}
-
-.hero-search-input {
-  flex: 1;
-  height: 48px;
-  border: none;
-  border-radius: 999px;
-  padding: 0 18px;
-  font-size: 14px;
-  outline: none;
-  color: #10233f;
-  background: #ffffff;
-}
-
-.hero-search-input::placeholder {
-  color: #7b8ea5;
-}
-
-.hero-search-btn {
-  height: 48px;
-  padding: 0 24px;
-  border: none;
-  border-radius: 999px;
-  background: #17c4e8;
-  color: #ffffff;
-  font-family: inherit;
-  font-size: 14px;
-  font-weight: 800;
-  cursor: pointer;
-  box-shadow: 0 8px 18px rgba(23, 196, 232, 0.25);
-  transition: transform 0.2s ease, opacity 0.2s ease;
-}
-
-.hero-search-btn:hover {
-  transform: translateY(-1px);
-  opacity: 0.95;
-}
 
 /* FRANJA */
 .logo-franja {
@@ -1335,18 +1285,7 @@ hero-banner-bg {
     font-size: 14px;
   }
 
-  .hero-search {
-    flex-direction: column;
-    max-width: 100%;
-    margin-top: 24px;
-  }
-
-  .hero-search-btn,
-  .hero-search-input {
-    width: 100%;
-  }
-
-  .logo-franja-img {
+.logo-franja-img {
     padding: 12px 16px;
   }
 
