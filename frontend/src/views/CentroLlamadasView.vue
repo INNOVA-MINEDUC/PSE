@@ -36,15 +36,25 @@
     </section>
 
     <!-- MÉTRICAS -->
-    <section v-if="metricas.total_llamadas" class="llamadas-stats-bar">
+    <section class="llamadas-stats-bar">
       <div class="llamadas-stats-inner">
         <div class="lstat-item">
-          <span class="lstat-val">{{ metricas.total_llamadas.toLocaleString('es-GT') }}</span>
-          <span class="lstat-label">Llamadas registradas</span>
+          <span class="lstat-val">{{ (metricas.total_llamadas || 0).toLocaleString('es-GT') }}</span>
+          <span class="lstat-label">Total de llamadas</span>
+        </div>
+        <div class="lstat-sep"></div>
+        <div class="lstat-item">
+          <span class="lstat-val">{{ (metricas.casos_atendidos || 0).toLocaleString('es-GT') }}</span>
+          <span class="lstat-label">Casos atendidos</span>
+        </div>
+        <div class="lstat-sep"></div>
+        <div class="lstat-item">
+          <span class="lstat-val">{{ (metricas.usuarios_beneficiados || 0).toLocaleString('es-GT') }}</span>
+          <span class="lstat-label">Usuarios beneficiados</span>
         </div>
         <div v-if="metricas.periodo" class="lstat-sep"></div>
         <div v-if="metricas.periodo" class="lstat-item">
-          <span class="lstat-label">Período: <strong>{{ metricas.periodo }}</strong></span>
+          <span class="lstat-label lstat-periodo">Período: <strong>{{ metricas.periodo }}</strong></span>
         </div>
       </div>
     </section>
@@ -73,8 +83,20 @@
 
         <!-- VIDEO -->
         <section class="section-card video-section">
-          <div class="video-box">
-            <span class="play-button">▶</span>
+          <div :class="embedUrl ? 'video-embed-wrap' : 'video-box'">
+            <iframe
+              v-if="embedUrl"
+              :src="embedUrl"
+              class="video-iframe"
+              frameborder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen
+              title="Video institucional Centro de llamadas 1528"
+            ></iframe>
+            <div v-else class="video-play-wrap">
+              <span class="play-button">▶</span>
+              <p class="video-coming-label">Video institucional — próximamente</p>
+            </div>
           </div>
 
           <div class="section-head centered video-caption">
@@ -185,14 +207,27 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import AppFooter from '@/components/AppFooter.vue'
 
 const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000'
+
 const bannerCentros = '/Centro-1528/banner/llamadas-banner.webp'
 const logoFranja = '/Home/LOGOS/logo-franja.png'
 
-const metricas = ref({ total_llamadas: 0, periodo: '' })
+const metricas = ref({ total_llamadas: 0, casos_atendidos: 0, usuarios_beneficiados: 0, periodo: '', video_url: '' })
+
+const toEmbedUrl = (url) => {
+  if (!url) return ''
+  if (url.includes('youtube.com/embed/')) return url
+  const shortMatch = url.match(/youtu\.be\/([^?&]+)/)
+  if (shortMatch) return `https://www.youtube.com/embed/${shortMatch[1]}`
+  const watchMatch = url.match(/[?&]v=([^?&]+)/)
+  if (watchMatch) return `https://www.youtube.com/embed/${watchMatch[1]}`
+  return url
+}
+
+const embedUrl = computed(() => toEmbedUrl(metricas.value.video_url))
 
 onMounted(async () => {
   try {
@@ -200,8 +235,11 @@ onMounted(async () => {
     const data = await res.json()
     if (data.success && data.data) {
       metricas.value = {
-        total_llamadas: data.data.total_llamadas || 0,
-        periodo:        data.data.periodo        || ''
+        total_llamadas:       data.data.total_llamadas       || 0,
+        casos_atendidos:      data.data.casos_atendidos      || 0,
+        usuarios_beneficiados: data.data.usuarios_beneficiados || 0,
+        periodo:              data.data.periodo              || '',
+        video_url:            data.data.video_url            || '',
       }
     }
   } catch (err) {
@@ -469,26 +507,61 @@ hero-banner-bg {
   overflow: hidden;
 }
 
+.video-embed-wrap {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+}
+
+.video-iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}
+
 .video-box {
   width: 100%;
-  min-height: 520px;
-  background: #003e68;
+  height: 260px;
+  background: linear-gradient(135deg, #003e68 0%, #0b5d96 100%);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
+.video-play-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
 .play-button {
-  width: 140px;
-  height: 140px;
+  width: 68px;
+  height: 68px;
   border-radius: 999px;
-  background: #ffffff;
-  color: #003e68;
+  background: rgba(255, 255, 255, 0.15);
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 3.2rem;
+  font-size: 1.5rem;
   font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.play-button:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.video-coming-label {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
 }
 
 .video-caption {
@@ -690,6 +763,10 @@ hero-banner-bg {
   width: 1px;
   height: 36px;
   background: #c8d4de;
+}
+
+.lstat-periodo {
+  font-size: 0.82rem;
 }
 
 /* RESPONSIVE */

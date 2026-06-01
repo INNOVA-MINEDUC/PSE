@@ -208,6 +208,33 @@ app.use("/api/llamadas", llamadasRoutes);
 app.use("/api/funerario", funerarioRoutes);
 app.use("/api/archivos", archivosRoutes);
 
+async function runMigrations(pool) {
+  const alteraciones = [
+    `ALTER TABLE metricas_llamadas ADD COLUMN casos_atendidos INT DEFAULT 0 AFTER total_llamadas`,
+    `ALTER TABLE metricas_llamadas ADD COLUMN usuarios_beneficiados INT DEFAULT 0 AFTER casos_atendidos`,
+    `ALTER TABLE metricas_llamadas ADD COLUMN video_url TEXT NULL AFTER periodo`,
+    `ALTER TABLE metricas_funerario ADD COLUMN apoyos_otorgados INT DEFAULT 0 AFTER familias_beneficiadas`,
+    `ALTER TABLE metricas_funerario ADD COLUMN cobertura VARCHAR(255) DEFAULT '' AFTER apoyos_otorgados`,
+    `ALTER TABLE metricas_funerario ADD COLUMN video_url TEXT NULL AFTER periodo`,
+    `ALTER TABLE metricas_funerario ADD COLUMN folleto_url TEXT NULL AFTER video_url`,
+    `ALTER TABLE metricas_funerario ADD COLUMN formulario_url TEXT NULL AFTER folleto_url`,
+    `ALTER TABLE noticias ADD COLUMN miniatura_url TEXT NULL AFTER imagen_url`,
+    `ALTER TABLE noticias ADD COLUMN hero_url TEXT NULL AFTER miniatura_url`,
+    `ALTER TABLE noticias ADD COLUMN autor VARCHAR(255) NULL AFTER hero_url`,
+  ];
+
+  for (const sql of alteraciones) {
+    try {
+      await pool.query(sql);
+    } catch (err) {
+      if (err.code !== "ER_DUP_FIELDNAME") {
+        console.warn("Migración omitida:", err.message);
+      }
+    }
+  }
+  console.log("Migraciones aplicadas.");
+}
+
 async function start() {
   db = await mysql.createPool({
     host: process.env.DB_HOST,
@@ -218,6 +245,8 @@ async function start() {
     waitForConnections: true,
     connectionLimit: 10,
   });
+
+  await runMigrations(db);
 
   app.listen(PORT, "0.0.0.0", () => {
     console.log(`Servidor corriendo en http://localhost:${PORT}`);

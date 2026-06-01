@@ -60,10 +60,20 @@
 
         <!-- VIDEO -->
         <section class="block-card video-section">
-          <div class="video-placeholder">
-            <button class="play-button" type="button" aria-label="Reproducir video">
-              ▶
-            </button>
+          <div :class="embedUrl ? 'video-embed-wrap' : 'video-placeholder'">
+            <iframe
+              v-if="embedUrl"
+              :src="embedUrl"
+              class="video-iframe"
+              frameborder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen
+              title="Video informativo apoyo funerario"
+            ></iframe>
+            <div v-else class="video-play-wrap">
+              <button class="play-button" type="button" aria-label="Reproducir video">▶</button>
+              <p class="video-coming-label">Video institucional — próximamente</p>
+            </div>
           </div>
 
           <div class="video-content">
@@ -74,7 +84,7 @@
 
             <div class="action-buttons">
               <a
-                href="/docs/pse-apoyo-funerario-folleto.pdf"
+                :href="datosFunerarios.folleto_url || '/docs/pse-apoyo-funerario-folleto.pdf'"
                 target="_blank"
                 rel="noopener"
                 class="btn btn-outline"
@@ -83,7 +93,7 @@
               </a>
 
               <a
-                href="/docs/pse-apoyo-funerario-formulario.pdf"
+                :href="datosFunerarios.formulario_url || '/docs/pse-apoyo-funerario-formulario.pdf'"
                 target="_blank"
                 rel="noopener"
                 class="btn btn-primary"
@@ -173,33 +183,30 @@
             <h2 class="section-title">
               Aportes económicos a familias de estudiantes fallecidos
             </h2>
+            <p v-if="datosFunerarios.periodo" class="metrics-periodo">
+              Período: <strong>{{ datosFunerarios.periodo }}</strong>
+            </p>
           </div>
 
           <div class="metrics-grid">
             <article class="metric-card">
               <div class="metric-icon metric-icon-image">
-                <img
-                  :src="imgMetricas"
-                  alt="Ícono de casos atendidos"
-                  class="metric-image"
-                  loading="lazy"
-                  decoding="async"
-                />
+                <img :src="imgMetricas" alt="Familias beneficiadas" class="metric-image" loading="lazy" decoding="async" />
               </div>
-              <h3 class="metric-value">{{ datosFunerarios.totalCasos }}</h3>
-              <p class="metric-label">Casos atendidos</p>
+              <h3 class="metric-value">{{ (datosFunerarios.totalCasos || 0).toLocaleString('es-GT') }}</h3>
+              <p class="metric-label">Familias beneficiadas</p>
             </article>
 
             <article class="metric-card metric-card-accent">
-              <div class="metric-icon">👨</div>
-              <h3 class="metric-value">{{ datosFunerarios.masculinos }}</h3>
-              <p class="metric-label">Masculinos</p>
+              <div class="metric-icon">🤝</div>
+              <h3 class="metric-value">{{ (datosFunerarios.apoyos_otorgados || 0).toLocaleString('es-GT') }}</h3>
+              <p class="metric-label">Apoyos otorgados</p>
             </article>
 
             <article class="metric-card">
-              <div class="metric-icon">👩</div>
-              <h3 class="metric-value">{{ datosFunerarios.femeninos }}</h3>
-              <p class="metric-label">Femeninos</p>
+              <div class="metric-icon">🗺</div>
+              <h3 class="metric-value metric-value-cobertura">{{ datosFunerarios.cobertura || '—' }}</h3>
+              <p class="metric-label">Cobertura</p>
             </article>
 
             <article class="metric-card">
@@ -218,7 +225,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import AppFooter from '@/components/AppFooter.vue'
 
 const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000'
@@ -253,12 +260,30 @@ const pasos = [
   }
 ]
 
+const toEmbedUrl = (url) => {
+  if (!url) return ''
+  if (url.includes('youtube.com/embed/')) return url
+  const shortMatch = url.match(/youtu\.be\/([^?&]+)/)
+  if (shortMatch) return `https://www.youtube.com/embed/${shortMatch[1]}`
+  const watchMatch = url.match(/[?&]v=([^?&]+)/)
+  if (watchMatch) return `https://www.youtube.com/embed/${watchMatch[1]}`
+  return url
+}
+
+const embedUrl = computed(() => toEmbedUrl(datosFunerarios.value.video_url))
+
 const datosFunerarios = ref({
-  totalCasos:        329,
-  masculinos:        193,
-  femeninos:         136,
-  montoTotal:        2467000,
-  montoPorEstudiante: 7500
+  totalCasos:         329,
+  apoyos_otorgados:   0,
+  cobertura:          "",
+  masculinos:         193,
+  femeninos:          136,
+  montoTotal:         2467000,
+  montoPorEstudiante: 7500,
+  periodo:            "",
+  video_url:          "",
+  folleto_url:        "",
+  formulario_url:     "",
 })
 
 const formatoMoneda = (valor) => `Q${Number(valor || 0).toLocaleString('es-GT')}`
@@ -270,10 +295,16 @@ onMounted(async () => {
     if (data.success && data.data) {
       datosFunerarios.value = {
         totalCasos:         data.data.familias_beneficiadas   ?? datosFunerarios.value.totalCasos,
+        apoyos_otorgados:   data.data.apoyos_otorgados        ?? 0,
+        cobertura:          data.data.cobertura               || "",
         masculinos:         data.data.casos_masculinos        ?? datosFunerarios.value.masculinos,
         femeninos:          data.data.casos_femeninos         ?? datosFunerarios.value.femeninos,
         montoTotal:         data.data.monto_total             ?? datosFunerarios.value.montoTotal,
-        montoPorEstudiante: data.data.monto_por_estudiante    ?? datosFunerarios.value.montoPorEstudiante
+        montoPorEstudiante: data.data.monto_por_estudiante    ?? datosFunerarios.value.montoPorEstudiante,
+        periodo:            data.data.periodo                 || "",
+        video_url:          data.data.video_url               || "",
+        folleto_url:        data.data.folleto_url             || "",
+        formulario_url:     data.data.formulario_url          || "",
       }
     }
   } catch (err) {
@@ -503,27 +534,60 @@ onMounted(async () => {
   padding: 0;
 }
 
+.video-embed-wrap {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 18px 18px 0 0;
+  overflow: hidden;
+}
+
+.video-iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}
+
 .video-placeholder {
   width: 100%;
-  height: 600px;
-  background: #003f69;
+  height: 260px;
+  background: linear-gradient(135deg, #003f69 0%, #0b5d96 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 18px 18px 0 0;
 }
 
+.video-play-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
 .play-button {
-  width: 92px;
-  height: 92px;
+  width: 68px;
+  height: 68px;
   border: none;
   border-radius: 50%;
-  background: #ffffff;
-  color: #003f69;
-  font-size: 2rem;
-  font-weight: 800;
+  background: rgba(255, 255, 255, 0.15);
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  color: #ffffff;
+  font-size: 1.5rem;
   cursor: pointer;
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.15);
+  transition: background 0.2s;
+}
+
+.play-button:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.video-coming-label {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
 }
 
 .video-content {
@@ -678,6 +742,16 @@ onMounted(async () => {
 /* METRICAS */
 .metrics-heading {
   margin-bottom: 14px;
+}
+
+.metrics-periodo {
+  margin: 6px 0 0;
+  font-size: 0.82rem;
+  color: #5d6873;
+}
+
+.metric-value-cobertura {
+  font-size: 1.3rem;
 }
 
 .metrics-grid {
