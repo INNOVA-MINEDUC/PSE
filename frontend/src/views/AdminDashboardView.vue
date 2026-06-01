@@ -221,55 +221,62 @@
           </section>
 
           <div class="modal-overlay" v-if="modal.open" @click.self="modal.open = false">
-            <div class="modal-card">
-              <h3>{{ modal.data.id ? "Editar noticia" : "Nueva noticia" }}</h3>
+            <div class="modal-card modal-card--wide">
+              <div class="modal-header">
+                <h3>{{ modal.data.id ? "Editar noticia" : "Nueva noticia" }}</h3>
+                <button class="modal-close-btn" type="button" @click="modal.open = false">✕</button>
+              </div>
+
+              <!-- SECCIÓN: INFORMACIÓN -->
+              <p class="modal-section-label">Información básica</p>
 
               <div class="field">
-                <label>Título</label>
-                <input v-model="modal.data.titulo" type="text" />
+                <label>Título <span class="req">*</span></label>
+                <input v-model="modal.data.titulo" type="text" placeholder="Título de la noticia" />
               </div>
 
               <div class="field">
-                <label>Descripción breve</label>
-                <textarea v-model="modal.data.descripcion_corta" rows="3"></textarea>
+                <label>Descripción breve
+                  <span class="field-hint">— aparece en la card del listado</span>
+                </label>
+                <textarea v-model="modal.data.descripcion_corta" rows="3" placeholder="Resumen corto visible en la tarjeta..."></textarea>
               </div>
 
-               <div class="field">
-                <label>Contenido completo</label>
-
+              <div class="field">
+                <label>Contenido completo
+                  <span class="field-hint">— cuerpo del artículo en la vista detalle</span>
+                </label>
                 <textarea
                   v-model="modal.data.contenido"
                   rows="10"
-                  placeholder="Escribe aquí el contenido completo de la noticia..."
+                  placeholder="Desarrolla aquí el contenido completo. Separa párrafos con doble salto de línea."
                 ></textarea>
-
-                <small class="field-help">
-                  Este contenido aparecerá en la vista detalle de la noticia.
-                </small>
               </div>
 
               <div class="field">
-                <label>Módulo</label>
-                <select v-model="modal.data.modulo">
-                  <option value="promocion">Promoción y prevención</option>
-                  <option value="atencion">Atención a enfermedades</option>
-                  <option value="medicamentos">Suministro de medicamentos</option>
-                  <option value="llamadas">Centro de llamadas 1528</option>
-                  <option value="funerario">Apoyo funerario</option>
-                </select>
+                <label>Autor / Publicado por</label>
+                <input v-model="modal.data.autor" type="text" placeholder="Ej: Programa de Salud Escolar — MINEDUC" />
               </div>
 
               <div class="field-row">
                 <div class="field">
+                  <label>Módulo</label>
+                  <select v-model="modal.data.modulo">
+                    <option value="promocion">Promoción y prevención</option>
+                    <option value="atencion">Atención a enfermedades</option>
+                    <option value="medicamentos">Suministro de medicamentos</option>
+                    <option value="llamadas">Centro de llamadas 1528</option>
+                    <option value="funerario">Apoyo funerario</option>
+                  </select>
+                </div>
+                <div class="field">
                   <label>Fecha</label>
                   <input v-model="modal.data.fecha_publicacion" type="date" />
                 </div>
-
                 <div class="field">
                   <label>Orden</label>
                   <input v-model.number="modal.data.orden" type="number" min="0" />
                 </div>
-
                 <div class="field">
                   <label>Estado</label>
                   <select v-model.number="modal.data.activo">
@@ -279,27 +286,128 @@
                 </div>
               </div>
 
+              <!-- SECCIÓN: IMÁGENES -->
+              <p class="modal-section-label">Imágenes</p>
 
-              <div class="field">
-                <label>Imagen</label>
-                <input type="file" accept="image/*" @change="onImageChange" />
-                <div v-if="modal.data.imagen_url" style="margin-top:8px;">
-                  <img :src="resolveUrl(modal.data.imagen_url)" alt="Imagen subida" style="max-width:120px;max-height:80px;border-radius:6px;" />
+              <div class="img-fields-grid">
+
+                <!-- MINIATURA -->
+                <div class="img-field-block">
+                  <p class="img-field-title">
+                    Miniatura
+                    <span class="field-hint">— card del listado</span>
+                  </p>
+                  <div class="img-preview-area">
+                    <img
+                      v-if="modal.data.miniatura_url"
+                      :src="resolveUrl(modal.data.miniatura_url)"
+                      class="img-preview img-preview--4x3"
+                      alt="Miniatura"
+                    />
+                    <div v-else class="img-preview-empty img-preview--4x3">
+                      <span>Sin imagen</span>
+                    </div>
+                  </div>
+                  <label class="file-upload-btn">
+                    <input type="file" accept="image/*" class="hidden-input"
+                      @change="(e) => onImageChange(e, 'miniatura_url')" />
+                    Seleccionar miniatura
+                  </label>
+                  <input
+                    v-model="modal.data.miniatura_url"
+                    type="text"
+                    class="url-input"
+                    placeholder="O pega una URL..."
+                  />
                 </div>
-                <input
-                  v-model="modal.data.imagen_url"
-                  type="text"
-                  placeholder="/uploads/noticias/demo.jpg o https://..."
-                  style="margin-top:8px;"
-                />
+
+                <!-- HERO -->
+                <div class="img-field-block">
+                  <p class="img-field-title">
+                    Imagen principal (hero)
+                    <span class="field-hint">— encabezado del artículo</span>
+                  </p>
+                  <div class="img-preview-area">
+                    <img
+                      v-if="modal.data.hero_url"
+                      :src="resolveUrl(modal.data.hero_url)"
+                      class="img-preview img-preview--16x9"
+                      alt="Hero"
+                    />
+                    <div v-else class="img-preview-empty img-preview--16x9">
+                      <span>Sin imagen</span>
+                    </div>
+                  </div>
+                  <label class="file-upload-btn">
+                    <input type="file" accept="image/*" class="hidden-input"
+                      @change="(e) => onImageChange(e, 'hero_url')" />
+                    Seleccionar imagen hero
+                  </label>
+                  <input
+                    v-model="modal.data.hero_url"
+                    type="text"
+                    class="url-input"
+                    placeholder="O pega una URL..."
+                  />
+                </div>
+
+              </div>
+
+              <!-- SECCIÓN: GALERÍA -->
+              <p class="modal-section-label">
+                Galería de imágenes adicionales
+                <span class="field-hint">— aparecen al final del artículo · sin límite</span>
+              </p>
+
+              <div class="galeria-admin-wrap">
+
+                <!-- IMÁGENES YA EN GALERÍA -->
+                <div v-if="galeriaLocal.length" class="galeria-admin-grid">
+                  <div
+                    v-for="(img, i) in galeriaLocal"
+                    :key="img.tempId"
+                    class="galeria-admin-item"
+                  >
+                    <img :src="img.preview" class="galeria-admin-thumb" alt="" />
+                    <div class="galeria-admin-item-overlay">
+                      <span class="galeria-admin-orden">{{ i + 1 }}</span>
+                    </div>
+                    <button
+                      class="galeria-admin-remove"
+                      type="button"
+                      @click="removeGaleriaLocal(i)"
+                      title="Eliminar imagen"
+                    >✕</button>
+                  </div>
+                </div>
+
+                <p v-if="galeriaLocal.length === 0" class="galeria-admin-empty">
+                  No hay imágenes en la galería. Agrega con el botón de abajo.
+                </p>
+
+                <!-- AGREGAR -->
+                <label class="file-upload-btn file-upload-btn--galeria">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    class="hidden-input"
+                    @change="onGaleriaFilesChange"
+                  />
+                  + Agregar imágenes a la galería
+                </label>
+                <p class="galeria-admin-hint">
+                  Formatos: JPG, PNG, WebP. Puedes seleccionar varias a la vez.
+                </p>
+
               </div>
 
               <p v-if="modal.error" class="form-error">{{ modal.error }}</p>
 
               <div class="modal-actions">
-                <button class="secondary-btn" @click="modal.open = false">Cancelar</button>
-                <button class="add-btn" :disabled="savingNoticia" @click="saveNoticia">
-                  {{ savingNoticia ? "Guardando…" : "Guardar" }}
+                <button class="secondary-btn" type="button" @click="modal.open = false">Cancelar</button>
+                <button class="add-btn" type="button" :disabled="savingNoticia" @click="saveNoticia">
+                  {{ savingNoticia ? "Guardando…" : "Guardar noticia" }}
                 </button>
               </div>
             </div>
@@ -544,7 +652,7 @@
 <script setup>
 import { computed, onMounted, ref, watch } from "vue";
 // Subida de imagen para noticias
-const onImageChange = async (e) => {
+const onImageChange = async (e, targetField = "miniatura_url") => {
   const file = e.target.files[0];
   if (!file) return;
   const formData = new FormData();
@@ -563,7 +671,9 @@ const onImageChange = async (e) => {
 
     const data = await res.json();
     if (data.success && data.url) {
-      modal.value.data.imagen_url = data.url;
+      modal.value.data[targetField] = data.url;
+      // compatibilidad hacia atrás: imagen_url apunta a miniatura
+      if (targetField === "miniatura_url") modal.value.data.imagen_url = data.url;
       modal.value.error = "";
     } else {
       modal.value.error = data.error || "Error al subir la imagen.";
@@ -571,6 +681,30 @@ const onImageChange = async (e) => {
   } catch (err) {
     modal.value.error = "Error de red al subir la imagen.";
   }
+};
+
+/* ── GALERÍA LOCAL (mockup — Fase 0) ─────────────────────────────── */
+const galeriaLocal = ref([]);
+
+const onGaleriaFilesChange = (e) => {
+  const files = Array.from(e.target.files);
+  files.forEach((file) => {
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      galeriaLocal.value.push({
+        tempId: `${Date.now()}_${Math.random()}`,
+        preview: ev.target.result,
+        file,
+      });
+    };
+    reader.readAsDataURL(file);
+  });
+  // limpiar input para poder volver a seleccionar los mismos archivos
+  e.target.value = "";
+};
+
+const removeGaleriaLocal = (index) => {
+  galeriaLocal.value.splice(index, 1);
 };
 import { useRouter } from "vue-router";
 
@@ -975,6 +1109,7 @@ const fetchNoticias = async () => {
 };
 
 const openModal = (noticia) => {
+  galeriaLocal.value = [];
   modal.value = {
     open: true,
     error: "",
@@ -984,18 +1119,24 @@ const openModal = (noticia) => {
           fecha_publicacion: noticia.fecha_publicacion
             ? String(noticia.fecha_publicacion).slice(0, 10)
             : new Date().toISOString().slice(0, 10),
-          activo: Number(noticia.activo ?? 1),
-          orden: Number(noticia.orden ?? 0),
+          activo:       Number(noticia.activo ?? 1),
+          orden:        Number(noticia.orden  ?? 0),
+          miniatura_url: noticia.miniatura_url || noticia.imagen_url || "",
+          hero_url:      noticia.hero_url      || noticia.imagen_url || "",
+          autor:         noticia.autor         || "",
         }
       : {
-          titulo: "",
+          titulo:           "",
           descripcion_corta: "",
-          contenido: "",
-          imagen_url: "",
+          contenido:        "",
+          imagen_url:       "",
+          miniatura_url:    "",
+          hero_url:         "",
+          autor:            "",
           fecha_publicacion: new Date().toISOString().slice(0, 10),
-          modulo: "promocion",
-          activo: 1,
-          orden: 0,
+          modulo:  "promocion",
+          activo:  1,
+          orden:   0,
         },
   };
 };
@@ -1977,4 +2118,225 @@ onMounted(() => {
 }
 .form-msg.success { background: #dcfce7; color: #15803d; }
 .form-msg.error   { background: #fee2e2; color: #b91c1c; }
+
+/* ── MODAL NOTICIAS — ESTILOS FASE 0 ──────────────────────────────── */
+.modal-card--wide {
+  max-width: 820px;
+  width: 100%;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.modal-header h3 { margin: 0; font-size: 1.1rem; font-weight: 800; color: #10233f; }
+
+.modal-close-btn {
+  background: #f1f5f9;
+  border: none;
+  color: #64748b;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.modal-close-btn:hover { background: #e2e8f0; color: #10233f; }
+
+.modal-section-label {
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #17c4e8;
+  margin: 24px 0 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.req { color: #ef4444; }
+
+.field-hint {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #94a3b8;
+  margin-left: 4px;
+}
+
+/* Imágenes en dos columnas */
+.img-fields-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 4px;
+}
+
+.img-field-block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.img-field-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #374151;
+  margin: 0;
+}
+
+.img-preview-area {
+  width: 100%;
+}
+
+.img-preview {
+  width: 100%;
+  border-radius: 8px;
+  object-fit: cover;
+  display: block;
+  border: 1px solid #e2e8f0;
+}
+
+.img-preview--4x3  { aspect-ratio: 4/3; }
+.img-preview--16x9 { aspect-ratio: 16/9; }
+
+.img-preview-empty {
+  width: 100%;
+  background: #f8fafc;
+  border: 2px dashed #cbd5e1;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.file-upload-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: #f1f5f9;
+  border: 1.5px solid #d1d5db;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #374151;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s, border-color 0.15s;
+}
+.file-upload-btn:hover { background: #e8f8fc; border-color: #17c4e8; color: #17c4e8; }
+
+.file-upload-btn--galeria {
+  width: 100%;
+  padding: 12px;
+  background: rgba(23, 196, 232, 0.06);
+  border-color: #17c4e8;
+  color: #0e9ab5;
+}
+.file-upload-btn--galeria:hover { background: rgba(23, 196, 232, 0.14); }
+
+.hidden-input { display: none; }
+
+.url-input {
+  width: 100%;
+  border: 1.5px solid #d1d5db;
+  border-radius: 7px;
+  padding: 7px 10px;
+  font-size: 0.78rem;
+  font-family: inherit;
+  color: #374151;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.url-input:focus { border-color: #17c4e8; }
+
+/* Galería admin */
+.galeria-admin-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.galeria-admin-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 10px;
+}
+
+.galeria-admin-item {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  aspect-ratio: 4/3;
+  border: 1.5px solid #e2e8f0;
+}
+
+.galeria-admin-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.galeria-admin-item-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(16, 35, 63, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px;
+}
+
+.galeria-admin-orden {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.galeria-admin-remove {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(239, 68, 68, 0.85);
+  color: #ffffff;
+  font-size: 0.6rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+.galeria-admin-remove:hover { background: #ef4444; }
+
+.galeria-admin-empty {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  text-align: center;
+  padding: 20px;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 1.5px dashed #d1d5db;
+  margin: 0;
+}
+
+.galeria-admin-hint {
+  font-size: 0.72rem;
+  color: #94a3b8;
+  margin: 0;
+}
 </style>

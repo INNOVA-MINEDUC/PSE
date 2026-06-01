@@ -16,6 +16,16 @@
       </div>
     </section>
 
+    <!-- FRANJA LOGOS -->
+    <section class="logo-franja">
+      <img
+        class="logo-franja-img"
+        :src="logoFranja"
+        alt="Franja de logos institucionales"
+        loading="lazy"
+      />
+    </section>
+
     <section class="promo-news-section">
       <div class="promo-news-inner">
         <div class="news-header">
@@ -32,6 +42,7 @@
         </div>
 
         <template v-else>
+          <!-- CARRUSEL DESTACADO ARRIBA -->
           <div class="news-featured-wrap">
             <button class="news-arrow news-arrow-left" type="button" @click="prevNews">‹</button>
 
@@ -43,32 +54,47 @@
               <img :src="featuredNews.img" :alt="featuredNews.titulo" class="news-featured-img" loading="lazy" decoding="async" />
 
               <div class="news-featured-overlay">
+                <p class="news-date">{{ featuredNews.fecha }}</p>
                 <p class="news-category">{{ featuredNews.categoria }}</p>
                 <h3 class="news-title">{{ featuredNews.titulo }}</h3>
                 <p class="news-text">{{ featuredNews.desc }}</p>
+                <RouterLink v-if="featuredNews.id" :to="`/noticias/${featuredNews.id}`" class="news-ver-btn">
+                  Ver noticia completa →
+                </RouterLink>
               </div>
             </article>
 
             <button class="news-arrow news-arrow-right" type="button" @click="nextNews">›</button>
           </div>
+
+          <!-- 4 CARDS ABAJO -->
+          <div class="news-grid">
+            <article
+              v-for="(item, i) in noticiasPagina"
+              :key="item.id || i"
+              class="news-card"
+            >
+              <img :src="item.img" :alt="item.titulo" class="news-card-img" loading="lazy" decoding="async" />
+              <div class="news-card-overlay">
+                <h4 class="news-card-title">{{ item.titulo }}</h4>
+                <p class="news-card-text">{{ item.desc }}</p>
+                <button
+                  class="news-card-btn"
+                  :class="{ 'news-card-btn--disabled': !item.id }"
+                  type="button"
+                  @click="irADetalle(item)"
+                >VER DETALLE</button>
+              </div>
+            </article>
+          </div>
+
+          <!-- PAGINACIÓN -->
+          <nav v-if="totalPaginas >= 1" class="news-pagination" aria-label="Paginación de noticias">
+            <button class="pag-arrow" type="button" :disabled="paginaActual === 1" @click="irAPagina(paginaActual - 1)">‹</button>
+            <button v-for="n in totalPaginas" :key="n" class="pag-btn" :class="{ 'pag-btn--active': n === paginaActual }" type="button" @click="irAPagina(n)">{{ n }}</button>
+            <button class="pag-arrow" type="button" :disabled="paginaActual === totalPaginas" @click="irAPagina(paginaActual + 1)">›</button>
+          </nav>
         </template>
-
-        <div class="news-grid">
-          <article v-for="(item, i) in noticias" :key="i" class="news-card">
-            <img :src="item.img" :alt="item.titulo" class="news-card-img" loading="lazy" decoding="async" />
-
-            <div class="news-card-overlay">
-              <h4 class="news-card-title">{{ item.titulo }}</h4>
-              <p class="news-card-text">{{ item.desc }}</p>
-              <button
-                class="news-card-btn"
-                :class="{ 'news-card-btn--disabled': !item.id }"
-                type="button"
-                @click="irADetalle(item)"
-              >VER DETALLE</button>
-            </div>
-          </article>
-        </div>
       </div>
     </section>
 
@@ -109,15 +135,12 @@
               <img :src="actividad.img" :alt="actividad.titulo" class="action-card-img" loading="lazy" decoding="async" />
 
               <div class="action-card-overlay">
-                <p class="action-module">MÓDULO {{ index + 1 }}</p>
                 <h3 class="action-title">{{ actividad.titulo }}</h3>
                 <p class="action-text">{{ actividad.desc }}</p>
                 <button class="action-btn" type="button">VER DETALLE</button>
               </div>
             </article>
           </div>
-
-          <button class="actions-arrow actions-arrow-right" type="button">›</button>
         </div>
       </div>
     </section>
@@ -126,15 +149,19 @@
 </template>
 
 <script setup>
-import { computed, onMounted, onUnmounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { computed, ref, onMounted, onUnmounted } from 'vue'
+import { RouterLink, useRouter } from 'vue-router'
 import AppFooter from '@/components/AppFooter.vue'
 
 const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000'
 const router = useRouter()
 
-const bannerPromocion = '/Promocion/banner/banner-promocion.webp'
+const bannerPromocion      = '/Promocion/banner/banner-promocion.webp'
 const astronautaActividades = '/Promocion/actividades/astronauta-actividades.webp'
+const logoFranja           = '/Home/LOGOS/logo-franja.png'
+
+const POR_PAGINA   = 4
+const paginaActual = ref(1)
 
 const noticiasApi = ref([])
 const cargandoNoticias = ref(true)
@@ -146,15 +173,39 @@ const resolveImage = (url) => {
   return `${API_URL}${url}`
 }
 
+const formatFecha = (fecha) => {
+  if (!fecha) return ''
+  const [y, m, d] = String(fecha).slice(0, 10).split('-').map(Number)
+  return new Date(y, m - 1, d).toLocaleDateString('es-GT', {
+    day: 'numeric', month: 'long', year: 'numeric',
+  })
+}
+
 const noticias = computed(() =>
   noticiasApi.value.map((n) => ({
     id: n.id,
     img: resolveImage(n.imagen_url),
     titulo: n.titulo,
     desc: n.descripcion_corta,
+    fecha: formatFecha(n.fecha_publicacion),
     categoria: 'PROMOCIÓN Y PREVENCIÓN'
   }))
 )
+
+const totalPaginas = computed(() =>
+  Math.ceil(noticias.value.length / POR_PAGINA)
+)
+
+const noticiasPagina = computed(() => {
+  const inicio = (paginaActual.value - 1) * POR_PAGINA
+  return noticias.value.slice(inicio, inicio + POR_PAGINA)
+})
+
+const irAPagina = (n) => {
+  if (n < 1 || n > totalPaginas.value) return
+  paginaActual.value = n
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+}
 
 const irADetalle = (item) => {
   if (item.id) router.push(`/noticias/${item.id}`)
@@ -180,7 +231,7 @@ const actividades = [
     img: '/Promocion/actividades/actividad-4.webp',
     titulo: 'Promoción de salud renal',
     desc: 'Llamadas recibidas, derivaciones y seguimiento de casos relacionados con PSE.'
-  }
+  },
 ]
 
 const currentNews = ref(0)
@@ -251,7 +302,7 @@ onUnmounted(() => {
 }
 
 .promo-page {
-  background: #f2f5f8;
+  background: #ffffff;
   min-height: 100vh;
   color: #111827;
 }
@@ -310,11 +361,72 @@ onUnmounted(() => {
   text-align: justify;
 }
 
+/* FRANJA LOGOS */
+.logo-franja {
+  background: #ffffff;
+  border-bottom: 1px solid #e8edf3;
+}
+
+.logo-franja-img {
+  display: block;
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 14px 40px;
+}
+
 .promo-news-section,
 .promo-actions-section {
   padding: 52px 10px 48px;
-  background: #f2f5f8;
+  background: #ffffff;
 }
+
+/* PAGINACIÓN */
+.news-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  margin-top: 36px;
+}
+
+.pag-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: #374151;
+  font-size: 0.9rem;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.pag-btn:hover { background: #e8f8fc; color: #17c4e8; }
+
+.pag-btn--active {
+  background: #10233f;
+  color: #ffffff;
+  font-weight: 900;
+}
+
+.pag-arrow {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1.5px solid #d1d5db;
+  background: #ffffff;
+  color: #374151;
+  font-size: 1.1rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.pag-arrow:hover:not(:disabled) { border-color: #17c4e8; color: #17c4e8; }
+.pag-arrow:disabled { opacity: 0.3; cursor: default; }
 
 .promo-news-inner,
 .promo-actions-inner {
@@ -385,15 +497,44 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  padding: 0 86px 28px;
+  padding: 0 72px 30px;
   background: linear-gradient(
-    to top,
-    rgba(0, 52, 92, 0.9) 0%,
-    rgba(0, 52, 92, 0.4) 25%,
-    rgba(0, 52, 92, 0) 40%
+    180deg,
+    rgba(0, 52, 92, 0.08) 0%,
+    rgba(0, 52, 92, 0.42) 48%,
+    rgba(0, 52, 92, 0.92) 100%
   );
-  border-bottom: 6px solid #15c9e8;
   color: #fff;
+}
+
+.news-date {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.85);
+  margin: 0 0 8px;
+}
+
+.news-ver-btn {
+  display: inline-block;
+  margin-top: 14px;
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  border: 1.5px solid rgba(255, 255, 255, 0.5);
+  border-radius: 8px;
+  padding: 9px 20px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-decoration: none;
+  font-family: 'Montserrat', sans-serif;
+  transition: background 0.2s, border-color 0.2s;
+  align-self: flex-start;
+}
+
+.news-ver-btn:hover {
+  background: rgba(255, 255, 255, 0.28);
+  border-color: rgba(255, 255, 255, 0.8);
 }
 
 .news-category {
@@ -446,14 +587,13 @@ onUnmounted(() => {
   right: 10px;
 }
 
+/* ── CARDS DISEÑO ORIGINAL ─────────────────────────────────────── */
 .news-grid {
   margin-top: 18px;
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 14px;
-  max-width: 1600px;
-  margin-left: auto;
-  margin-right: auto;
+  width: 100%;
 }
 
 .news-card {
@@ -514,6 +654,18 @@ onUnmounted(() => {
   font-size: 0.6rem;
   font-weight: 700;
   cursor: pointer;
+  font-family: inherit;
+  transition: background 0.18s;
+}
+
+.news-card-btn:hover {
+  background: rgba(21, 201, 232, 0.18);
+}
+
+.news-card-btn--disabled {
+  opacity: 0.45;
+  cursor: default;
+  pointer-events: none;
 }
 
 /* ACTIVIDADES */
@@ -527,7 +679,7 @@ onUnmounted(() => {
 
 .actions-top {
   display: grid;
-  grid-template-columns: 1.45fr 0.9fr;
+  grid-template-columns: 1.6fr 0.8fr;
   gap: 26px;
   align-items: center;
   margin-bottom: 22px;
@@ -547,14 +699,16 @@ onUnmounted(() => {
   align-items: center;
   background: #0b4d7a;
   border-radius: 18px;
-  min-height: 190px;
   overflow: hidden;
+  height: 220px;
+  width: 100%;
 }
 
 .actions-astro {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center top;
 }
 
 .actions-cards-wrap {
@@ -564,12 +718,12 @@ onUnmounted(() => {
 .actions-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 22px;
+  gap: 14px;
 }
 
 .action-card {
   position: relative;
-  min-height: 340px;
+  height: 380px;
   border-radius: 12px;
   overflow: hidden;
 }
@@ -577,7 +731,6 @@ onUnmounted(() => {
 .action-card-img {
   width: 100%;
   height: 100%;
-  min-height: 340px;
   object-fit: cover;
   object-position: center;
   display: block;
@@ -609,8 +762,8 @@ onUnmounted(() => {
 }
 
 .action-title {
-  font-size: 1.15rem;
-  line-height: 1.06;
+  font-size: 1.05rem;
+  line-height: 1.12;
   font-weight: 900;
   margin: 0 0 8px;
   text-align: center;
@@ -659,14 +812,12 @@ onUnmounted(() => {
   right: -18px;
 }
 
-@media (max-width: 1400px) {
-  .news-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
 @media (max-width: 1200px) {
-  .news-grid,
+  .news-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+
   .actions-grid {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -726,15 +877,8 @@ onUnmounted(() => {
     font-size: 14px;
   }
 
-  .news-grid,
-  .actions-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .news-card-img,
-  .action-card-img {
-    min-height: 260px;
-  }
+  .news-grid        { grid-template-columns: 1fr; }
+  .actions-grid     { grid-template-columns: 1fr; }
 
   .news-arrow,
   .actions-arrow {
