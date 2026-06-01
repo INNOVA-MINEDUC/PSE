@@ -5,7 +5,7 @@ export const getLlamadas = async (req, res) => {
 export const getMetricasLlamadas = async (req, res) => {
   try {
     const [[row]] = await req.db.query(
-      `SELECT id, total_llamadas, periodo
+      `SELECT id, total_llamadas, casos_atendidos, usuarios_beneficiados, periodo, video_url
        FROM metricas_llamadas ORDER BY id DESC LIMIT 1`
     );
     if (!row) return res.status(404).json({ success: false, error: "Sin datos registrados" });
@@ -18,14 +18,23 @@ export const getMetricasLlamadas = async (req, res) => {
 
 export const updateMetricasLlamadas = async (req, res) => {
   try {
-    const { total_llamadas = 0, periodo = "" } = req.body;
+    const {
+      total_llamadas = 0,
+      casos_atendidos = 0,
+      usuarios_beneficiados = 0,
+      periodo = "",
+      video_url = "",
+    } = req.body;
 
     await req.db.query(
       `UPDATE metricas_llamadas
        SET total_llamadas = ?,
-           periodo = ?
+           casos_atendidos = ?,
+           usuarios_beneficiados = ?,
+           periodo = ?,
+           video_url = ?
        ORDER BY id DESC LIMIT 1`,
-      [total_llamadas, periodo]
+      [total_llamadas, casos_atendidos, usuarios_beneficiados, periodo, video_url]
     );
 
     res.json({ success: true, message: "Métricas de llamadas actualizadas" });

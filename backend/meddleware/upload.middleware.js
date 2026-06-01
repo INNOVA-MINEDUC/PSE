@@ -56,3 +56,29 @@ export const uploadNoticias = {
 		};
 	},
 };
+
+const pdfFilter = (req, file, cb) => {
+	if (file.mimetype === "application/pdf") {
+		cb(null, true);
+	} else {
+		cb(new Error("Solo se permiten archivos PDF"), false);
+	}
+};
+
+const multerPdf = multer({
+	storage: multer.diskStorage({
+		destination: async (req, file, cb) => {
+			const dir = path.join(process.cwd(), "uploads", "docs");
+			await fs.mkdir(dir, { recursive: true });
+			cb(null, dir);
+		},
+		filename: (req, file, cb) => {
+			const base = path.basename(file.originalname, ".pdf").replace(/[^a-zA-Z0-9_-]/g, "_");
+			cb(null, `${base}_${Date.now()}.pdf`);
+		},
+	}),
+	fileFilter: pdfFilter,
+	limits: { fileSize: 20 * 1024 * 1024 }, // 20 MB
+});
+
+export const uploadPdf = multerPdf;

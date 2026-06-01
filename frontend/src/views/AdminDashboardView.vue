@@ -547,10 +547,21 @@
               <span v-if="metricaLlamadas.periodo" class="period-chip">{{ metricaLlamadas.periodo }}</span>
             </div>
 
+            <div v-if="loadingLlamadas" class="loading-state">Cargando métricas…</div>
+
+            <template v-else>
             <div class="summary-strip">
               <div class="summary-item">
-                <span class="summary-val">{{ formatNum(rawKpis.llamadas) }}</span>
-                <span class="summary-label">Llamadas registradas</span>
+                <span class="summary-val">{{ formatNum(metricaLlamadas.total_llamadas) }}</span>
+                <span class="summary-label">Total de llamadas</span>
+              </div>
+              <div class="summary-item">
+                <span class="summary-val">{{ formatNum(metricaLlamadas.casos_atendidos) }}</span>
+                <span class="summary-label">Casos atendidos</span>
+              </div>
+              <div class="summary-item">
+                <span class="summary-val">{{ formatNum(metricaLlamadas.usuarios_beneficiados) }}</span>
+                <span class="summary-label">Usuarios beneficiados</span>
               </div>
             </div>
 
@@ -563,9 +574,23 @@
                   <input v-model.number="metricaLlamadas.total_llamadas" type="number" min="0" />
                 </div>
                 <div class="field">
+                  <label>Casos atendidos</label>
+                  <input v-model.number="metricaLlamadas.casos_atendidos" type="number" min="0" />
+                </div>
+                <div class="field">
+                  <label>Usuarios beneficiados</label>
+                  <input v-model.number="metricaLlamadas.usuarios_beneficiados" type="number" min="0" />
+                </div>
+                <div class="field">
                   <label>Período</label>
                   <input v-model="metricaLlamadas.periodo" type="text" placeholder="ej: 2025" />
                 </div>
+              </div>
+
+              <div class="field">
+                <label>Video institucional (URL embed)</label>
+                <input v-model="metricaLlamadas.video_url" type="text" placeholder="https://www.youtube.com/embed/XXXXXXXXX" />
+                <p class="field-hint-block">Pega la URL embed de YouTube: youtube.com/embed/ID_DEL_VIDEO</p>
               </div>
 
               <div class="save-row">
@@ -577,6 +602,7 @@
                 </span>
               </div>
             </div>
+            </template>
           </section>
         </template>
 
@@ -593,10 +619,21 @@
               <span v-if="metricaFunerario.periodo" class="period-chip">{{ metricaFunerario.periodo }}</span>
             </div>
 
+            <div v-if="loadingFunerario" class="loading-state">Cargando métricas…</div>
+
+            <template v-else>
             <div class="summary-strip">
               <div class="summary-item">
-                <span class="summary-val">{{ formatNum(rawKpis.funerario) }}</span>
+                <span class="summary-val">{{ formatNum(metricaFunerario.familias_beneficiadas) }}</span>
                 <span class="summary-label">Familias beneficiadas</span>
+              </div>
+              <div class="summary-item">
+                <span class="summary-val">{{ formatNum(metricaFunerario.apoyos_otorgados) }}</span>
+                <span class="summary-label">Apoyos otorgados</span>
+              </div>
+              <div v-if="metricaFunerario.cobertura" class="summary-item">
+                <span class="summary-val summary-val--sm">{{ metricaFunerario.cobertura }}</span>
+                <span class="summary-label">Cobertura</span>
               </div>
             </div>
 
@@ -609,6 +646,21 @@
                   <input v-model.number="metricaFunerario.familias_beneficiadas" type="number" min="0" />
                 </div>
                 <div class="field">
+                  <label>Apoyos otorgados</label>
+                  <input v-model.number="metricaFunerario.apoyos_otorgados" type="number" min="0" />
+                </div>
+                <div class="field">
+                  <label>Cobertura</label>
+                  <input v-model="metricaFunerario.cobertura" type="text" placeholder="ej: 22 departamentos" />
+                </div>
+                <div class="field">
+                  <label>Período</label>
+                  <input v-model="metricaFunerario.periodo" type="text" placeholder="ej: 2025" />
+                </div>
+              </div>
+
+              <div class="field-row">
+                <div class="field">
                   <label>Monto total (Q)</label>
                   <input v-model.number="metricaFunerario.monto_total" type="number" min="0" step="0.01" />
                 </div>
@@ -616,9 +668,6 @@
                   <label>Monto por estudiante (Q)</label>
                   <input v-model.number="metricaFunerario.monto_por_estudiante" type="number" min="0" step="0.01" />
                 </div>
-              </div>
-
-              <div class="field-row">
                 <div class="field">
                   <label>Casos masculinos</label>
                   <input v-model.number="metricaFunerario.casos_masculinos" type="number" min="0" />
@@ -627,9 +676,42 @@
                   <label>Casos femeninos</label>
                   <input v-model.number="metricaFunerario.casos_femeninos" type="number" min="0" />
                 </div>
+              </div>
+
+              <div class="field">
+                <label>Video institucional (URL embed)</label>
+                <input v-model="metricaFunerario.video_url" type="text" placeholder="https://www.youtube.com/embed/XXXXXXXXX" />
+                <p class="field-hint-block">Pega la URL embed de YouTube: youtube.com/embed/ID_DEL_VIDEO</p>
+              </div>
+
+              <div class="field-row">
                 <div class="field">
-                  <label>Período</label>
-                  <input v-model="metricaFunerario.periodo" type="text" placeholder="ej: 2025" />
+                  <label>Folleto PDF</label>
+                  <div class="pdf-upload-row">
+                    <label class="pdf-upload-btn">
+                      <input type="file" accept="application/pdf" class="hidden-input"
+                        @change="(e) => onPdfChange(e, 'folleto_url', 'funerario')" />
+                      {{ uploadingPdf.folleto ? 'Subiendo…' : 'Subir PDF' }}
+                    </label>
+                    <span v-if="metricaFunerario.folleto_url" class="pdf-filename">
+                      <a :href="resolveUrl(metricaFunerario.folleto_url)" target="_blank" class="pdf-link">Ver archivo</a>
+                    </span>
+                  </div>
+                  <input v-model="metricaFunerario.folleto_url" type="text" class="url-input-sm" placeholder="O pega una URL directa…" />
+                </div>
+                <div class="field">
+                  <label>Formulario PDF</label>
+                  <div class="pdf-upload-row">
+                    <label class="pdf-upload-btn">
+                      <input type="file" accept="application/pdf" class="hidden-input"
+                        @change="(e) => onPdfChange(e, 'formulario_url', 'funerario')" />
+                      {{ uploadingPdf.formulario ? 'Subiendo…' : 'Subir PDF' }}
+                    </label>
+                    <span v-if="metricaFunerario.formulario_url" class="pdf-filename">
+                      <a :href="resolveUrl(metricaFunerario.formulario_url)" target="_blank" class="pdf-link">Ver archivo</a>
+                    </span>
+                  </div>
+                  <input v-model="metricaFunerario.formulario_url" type="text" class="url-input-sm" placeholder="O pega una URL directa…" />
                 </div>
               </div>
 
@@ -642,6 +724,7 @@
                 </span>
               </div>
             </div>
+            </template>
           </section>
         </template>
       </div>
@@ -1001,17 +1084,51 @@ const updateMetricaMedicamentos = async () => {
   finally { savingMedicamentos.value = false; }
 };
 
+// ── CARGA DE PDF ───────────────────────────────────────────────
+const uploadingPdf = ref({ folleto: false, formulario: false });
+
+const onPdfChange = async (e, targetField, modulo) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const key = targetField === "folleto_url" ? "folleto" : "formulario";
+  uploadingPdf.value[key] = true;
+  const formData = new FormData();
+  formData.append("archivo", file);
+  try {
+    const res = await fetch(`${API_URL}/api/${modulo}/upload-pdf`, {
+      method: "POST",
+      body: formData,
+      headers: { Authorization: token ? `Bearer ${token}` : undefined },
+    });
+    if (res.status === 401) { handleExpiredSession(); return; }
+    const data = await res.json();
+    if (data.success && data.url) {
+      if (modulo === "funerario") metricaFunerario.value[targetField] = data.url;
+    } else {
+      alert(data.error || "Error al subir el PDF.");
+    }
+  } catch {
+    alert("Error de red al subir el PDF.");
+  } finally {
+    uploadingPdf.value[key] = false;
+    e.target.value = "";
+  }
+};
+
 // ── MÉTRICAS LLAMADAS ──────────────────────────────────────────
-const metricaLlamadas = ref({ total_llamadas: 0, periodo: "" });
+const metricaLlamadas = ref({ total_llamadas: 0, casos_atendidos: 0, usuarios_beneficiados: 0, periodo: "", video_url: "" });
 const savingLlamadas  = ref(false);
+const loadingLlamadas = ref(false);
 const llamadasMsg     = ref({ text: "", type: "" });
 
 const fetchMetricaLlamadas = async () => {
+  loadingLlamadas.value = true;
   try {
     const res  = await fetch(`${API_URL}/api/llamadas/metricas`);
     const data = await res.json();
     if (data.success && data.data) metricaLlamadas.value = { ...data.data };
   } catch (err) { console.error("Error cargando métricas llamadas:", err); }
+  finally { loadingLlamadas.value = false; }
 };
 
 const updateMetricaLlamadas = async () => {
@@ -1026,22 +1143,25 @@ const updateMetricaLlamadas = async () => {
     llamadasMsg.value = data.success
       ? { text: "Métricas actualizadas correctamente.", type: "success" }
       : { text: data.error || "Error al guardar.", type: "error" };
-    if (data.success) await fetchKpis();
+    if (data.success) { await fetchKpis(); await fetchMetricaLlamadas(); }
   } catch { llamadasMsg.value = { text: "Error de red.", type: "error" }; }
   finally { savingLlamadas.value = false; }
 };
 
 // ── MÉTRICAS FUNERARIO ─────────────────────────────────────────
-const metricaFunerario = ref({ familias_beneficiadas: 0, monto_total: 0, monto_por_estudiante: 0, casos_masculinos: 0, casos_femeninos: 0, periodo: "" });
+const metricaFunerario = ref({ familias_beneficiadas: 0, apoyos_otorgados: 0, cobertura: "", monto_total: 0, monto_por_estudiante: 0, casos_masculinos: 0, casos_femeninos: 0, periodo: "", video_url: "", folleto_url: "", formulario_url: "" });
 const savingFunerario  = ref(false);
+const loadingFunerario = ref(false);
 const funerarioMsg     = ref({ text: "", type: "" });
 
 const fetchMetricaFunerario = async () => {
+  loadingFunerario.value = true;
   try {
     const res  = await fetch(`${API_URL}/api/funerario/metricas`);
     const data = await res.json();
     if (data.success && data.data) metricaFunerario.value = { ...data.data };
   } catch (err) { console.error("Error cargando métricas funerario:", err); }
+  finally { loadingFunerario.value = false; }
 };
 
 const updateMetricaFunerario = async () => {
@@ -1056,7 +1176,7 @@ const updateMetricaFunerario = async () => {
     funerarioMsg.value = data.success
       ? { text: "Métricas actualizadas correctamente.", type: "success" }
       : { text: data.error || "Error al guardar.", type: "error" };
-    if (data.success) await fetchKpis();
+    if (data.success) { await fetchKpis(); await fetchMetricaFunerario(); }
   } catch { funerarioMsg.value = { text: "Error de red.", type: "error" }; }
   finally { savingFunerario.value = false; }
 };
@@ -2064,6 +2184,10 @@ onMounted(() => {
   line-height: 1;
 }
 
+.summary-val--sm {
+  font-size: 1.1rem;
+}
+
 .summary-label {
   font-size: 0.72rem;
   font-weight: 700;
@@ -2119,224 +2243,62 @@ onMounted(() => {
 .form-msg.success { background: #dcfce7; color: #15803d; }
 .form-msg.error   { background: #fee2e2; color: #b91c1c; }
 
-/* ── MODAL NOTICIAS — ESTILOS FASE 0 ──────────────────────────────── */
-.modal-card--wide {
-  max-width: 820px;
-  width: 100%;
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.modal-header h3 { margin: 0; font-size: 1.1rem; font-weight: 800; color: #10233f; }
-
-.modal-close-btn {
-  background: #f1f5f9;
-  border: none;
-  color: #64748b;
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  font-size: 0.85rem;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-.modal-close-btn:hover { background: #e2e8f0; color: #10233f; }
-
-.modal-section-label {
-  font-size: 0.72rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: #17c4e8;
-  margin: 24px 0 12px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid #e2e8f0;
-}
-
-.req { color: #ef4444; }
-
-.field-hint {
-  font-size: 0.72rem;
-  font-weight: 600;
+.field-hint-block {
+  margin: 4px 0 0;
+  font-size: 0.76rem;
   color: #94a3b8;
-  margin-left: 4px;
 }
 
-/* Imágenes en dos columnas */
-.img-fields-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-  margin-bottom: 4px;
-}
-
-.img-field-block {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.img-field-title {
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: #374151;
-  margin: 0;
-}
-
-.img-preview-area {
-  width: 100%;
-}
-
-.img-preview {
-  width: 100%;
-  border-radius: 8px;
-  object-fit: cover;
-  display: block;
-  border: 1px solid #e2e8f0;
-}
-
-.img-preview--4x3  { aspect-ratio: 4/3; }
-.img-preview--16x9 { aspect-ratio: 16/9; }
-
-.img-preview-empty {
-  width: 100%;
-  background: #f8fafc;
-  border: 2px dashed #cbd5e1;
-  border-radius: 8px;
+.pdf-upload-row {
   display: flex;
   align-items: center;
-  justify-content: center;
-  font-size: 0.75rem;
-  color: #94a3b8;
-  font-weight: 600;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
-.file-upload-btn {
+.hidden-input {
+  display: none;
+}
+
+.pdf-upload-btn {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  gap: 6px;
+  padding: 9px 16px;
   background: #f1f5f9;
-  border: 1.5px solid #d1d5db;
-  border-radius: 8px;
-  padding: 8px 14px;
-  font-size: 0.78rem;
+  border: 1.5px dashed #94a3b8;
+  border-radius: 10px;
+  font-size: 0.82rem;
   font-weight: 700;
-  color: #374151;
+  color: #475569;
   cursor: pointer;
-  font-family: inherit;
   transition: background 0.15s, border-color 0.15s;
 }
-.file-upload-btn:hover { background: #e8f8fc; border-color: #17c4e8; color: #17c4e8; }
 
-.file-upload-btn--galeria {
-  width: 100%;
-  padding: 12px;
-  background: rgba(23, 196, 232, 0.06);
-  border-color: #17c4e8;
-  color: #0e9ab5;
-}
-.file-upload-btn--galeria:hover { background: rgba(23, 196, 232, 0.14); }
-
-.hidden-input { display: none; }
-
-.url-input {
-  width: 100%;
-  border: 1.5px solid #d1d5db;
-  border-radius: 7px;
-  padding: 7px 10px;
-  font-size: 0.78rem;
-  font-family: inherit;
-  color: #374151;
-  outline: none;
-  transition: border-color 0.15s;
-}
-.url-input:focus { border-color: #17c4e8; }
-
-/* Galería admin */
-.galeria-admin-wrap {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+.pdf-upload-btn:hover {
+  background: #e2e8f0;
+  border-color: #64748b;
 }
 
-.galeria-admin-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-  gap: 10px;
-}
-
-.galeria-admin-item {
-  position: relative;
-  border-radius: 8px;
-  overflow: hidden;
-  aspect-ratio: 4/3;
-  border: 1.5px solid #e2e8f0;
-}
-
-.galeria-admin-thumb {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.galeria-admin-item-overlay {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: rgba(16, 35, 63, 0.55);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 3px;
-}
-
-.galeria-admin-orden {
-  font-size: 0.65rem;
-  font-weight: 800;
-  color: #ffffff;
-}
-
-.galeria-admin-remove {
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  border: none;
-  background: rgba(239, 68, 68, 0.85);
-  color: #ffffff;
-  font-size: 0.6rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.15s;
-}
-.galeria-admin-remove:hover { background: #ef4444; }
-
-.galeria-admin-empty {
+.pdf-link {
   font-size: 0.8rem;
-  color: #94a3b8;
-  text-align: center;
-  padding: 20px;
-  background: #f8fafc;
-  border-radius: 8px;
-  border: 1.5px dashed #d1d5db;
-  margin: 0;
+  color: #2563eb;
+  text-decoration: underline;
+  font-weight: 700;
 }
 
-.galeria-admin-hint {
-  font-size: 0.72rem;
-  color: #94a3b8;
-  margin: 0;
+.url-input-sm {
+  margin-top: 7px;
+  border: 1px solid #dbe3ef;
+  border-radius: 10px;
+  padding: 9px 12px;
+  font-size: 0.8rem;
+  color: #64748b;
+  width: 100%;
+  font-family: inherit;
+  outline: none;
+}
+
+.url-input-sm:focus {
+  border-color: #17c4e8;
 }
 </style>

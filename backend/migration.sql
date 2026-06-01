@@ -89,6 +89,16 @@ CREATE TABLE IF NOT EXISTS archivos (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- COLUMNAS ADICIONALES (ejecutar si la BD ya existe) --
+-- ALTER TABLE metricas_llamadas  ADD COLUMN casos_atendidos INT DEFAULT 0 AFTER total_llamadas;
+-- ALTER TABLE metricas_llamadas  ADD COLUMN usuarios_beneficiados INT DEFAULT 0 AFTER casos_atendidos;
+-- ALTER TABLE metricas_llamadas  ADD COLUMN video_url TEXT NULL AFTER periodo;
+-- ALTER TABLE metricas_funerario ADD COLUMN apoyos_otorgados INT DEFAULT 0 AFTER familias_beneficiadas;
+-- ALTER TABLE metricas_funerario ADD COLUMN cobertura VARCHAR(255) DEFAULT '' AFTER apoyos_otorgados;
+-- ALTER TABLE metricas_funerario ADD COLUMN video_url TEXT NULL AFTER periodo;
+-- ALTER TABLE metricas_funerario ADD COLUMN folleto_url TEXT NULL AFTER video_url;
+-- ALTER TABLE metricas_funerario ADD COLUMN formulario_url TEXT NULL AFTER folleto_url;
+
 -- DATOS DE PRUEBA--
 
 -- ATENCION---
