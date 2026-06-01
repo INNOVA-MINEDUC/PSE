@@ -25,25 +25,33 @@
           </p>
         </div>
 
-        <div class="news-featured-wrap">
-          <button class="news-arrow news-arrow-left" type="button" @click="prevNews">‹</button>
+        <div v-if="cargandoNoticias" class="news-empty">Cargando noticias…</div>
 
-          <article
-            class="news-featured"
-            :class="{ 'news-featured--clickable': featuredNews.id }"
-            @click="irADetalle(featuredNews)"
-          >
-            <img :src="featuredNews.img" :alt="featuredNews.titulo" class="news-featured-img" loading="lazy" decoding="async" />
-
-            <div class="news-featured-overlay">
-              <p class="news-category">{{ featuredNews.categoria }}</p>
-              <h3 class="news-title">{{ featuredNews.titulo }}</h3>
-              <p class="news-text">{{ featuredNews.desc }}</p>
-            </div>
-          </article>
-
-          <button class="news-arrow news-arrow-right" type="button" @click="nextNews">›</button>
+        <div v-else-if="noticias.length === 0" class="news-empty">
+          No hay noticias disponibles en este momento.
         </div>
+
+        <template v-else>
+          <div class="news-featured-wrap">
+            <button class="news-arrow news-arrow-left" type="button" @click="prevNews">‹</button>
+
+            <article
+              class="news-featured"
+              :class="{ 'news-featured--clickable': featuredNews.id }"
+              @click="irADetalle(featuredNews)"
+            >
+              <img :src="featuredNews.img" :alt="featuredNews.titulo" class="news-featured-img" loading="lazy" decoding="async" />
+
+              <div class="news-featured-overlay">
+                <p class="news-category">{{ featuredNews.categoria }}</p>
+                <h3 class="news-title">{{ featuredNews.titulo }}</h3>
+                <p class="news-text">{{ featuredNews.desc }}</p>
+              </div>
+            </article>
+
+            <button class="news-arrow news-arrow-right" type="button" @click="nextNews">›</button>
+          </div>
+        </template>
 
         <div class="news-grid">
           <article v-for="(item, i) in noticias" :key="i" class="news-card">
@@ -128,53 +136,25 @@ const router = useRouter()
 const bannerPromocion = '/Promocion/banner/banner-promocion.webp'
 const astronautaActividades = '/Promocion/actividades/astronauta-actividades.webp'
 
-const noticiasBase = [
-  {
-    img: '/Promocion/noticias/noticia-1.webp',
-    titulo: 'Jornada de vacunación en escuela rural',
-    desc: 'Acciones para promover la salud y prevenir enfermedades en los centros educativos.',
-    categoria: 'PROMOCIÓN Y PREVENCIÓN'
-  },
-  {
-    img: '/Promocion/noticias/noticia-2.webp',
-    titulo: 'Aplicación de barniz con flúor en estudiantes de primaria',
-    desc: 'Niñas y niños de primero a tercero primaria recibieron barniz con flúor y material educativo sobre cuidado dental.',
-    categoria: 'PROMOCIÓN Y PREVENCIÓN'
-  },
-  {
-    img: '/Promocion/noticias/noticia-3.webp',
-    titulo: 'Campaña de lavado de manos en escuelas urbanas',
-    desc: 'Acciones preventivas para fortalecer hábitos de higiene en los establecimientos educativos.',
-    categoria: 'PROMOCIÓN Y PREVENCIÓN'
-  },
-  {
-    img: '/Promocion/noticias/noticia-4.webp',
-    titulo: 'Prevención del dengue con acciones comunitarias',
-    desc: 'Se organizaron brigadas escolares y comunitarias para identificar y eliminar criaderos de zancudos.',
-    categoria: 'PROMOCIÓN Y PREVENCIÓN'
-  }
-]
-
 const noticiasApi = ref([])
+const cargandoNoticias = ref(true)
 
 const resolveImage = (url) => {
-  if (!url) return '/Promocion/noticias/noticia-1.png'
+  if (!url) return '/Promocion/banner/banner-promocion.webp'
   if (url.startsWith('http')) return url
   if (url.startsWith('/Promocion') || url.startsWith('/Home')) return url
   return `${API_URL}${url}`
 }
 
-const noticias = computed(() => {
-  const dinamicas = noticiasApi.value.map((n) => ({
+const noticias = computed(() =>
+  noticiasApi.value.map((n) => ({
     id: n.id,
     img: resolveImage(n.imagen_url),
     titulo: n.titulo,
     desc: n.descripcion_corta,
     categoria: 'PROMOCIÓN Y PREVENCIÓN'
   }))
-
-  return [...noticiasBase, ...dinamicas]
-})
+)
 
 const irADetalle = (item) => {
   if (item.id) router.push(`/noticias/${item.id}`)
@@ -203,9 +183,9 @@ const actividades = [
   }
 ]
 
-const currentNews = ref(1)
+const currentNews = ref(0)
 
-const featuredNews = computed(() => noticias.value[currentNews.value] || noticias.value[0])
+const featuredNews = computed(() => noticias.value[currentNews.value] ?? noticias.value[0] ?? null)
 
 const nextNews = () => {
   currentNews.value = (currentNews.value + 1) % noticias.value.length
@@ -216,6 +196,7 @@ const prevNews = () => {
 }
 
 const cargarNoticias = async () => {
+  cargandoNoticias.value = true
   try {
     const res = await fetch(`${API_URL}/api/noticias`)
     const data = await res.json()
@@ -223,11 +204,12 @@ const cargarNoticias = async () => {
     if (data.success) {
       noticiasApi.value = data.data
         .filter((n) => Number(n.activo) === 1 && n.modulo === 'promocion')
-        .filter((n) => n.titulo !== 'Jornada de salud escolar en zona rural')
         .sort((a, b) => Number(a.orden || 0) - Number(b.orden || 0))
     }
   } catch (error) {
     console.error('Error cargando noticias:', error)
+  } finally {
+    cargandoNoticias.value = false
   }
 }
 
@@ -247,6 +229,13 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
+.news-empty {
+  text-align: center;
+  padding: 48px 20px;
+  font-size: 15px;
+  color: #7b8ea5;
+}
+
 .news-featured--clickable {
   cursor: pointer;
 }

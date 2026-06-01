@@ -189,7 +189,7 @@ import { onMounted, ref } from 'vue'
 import AppFooter from '@/components/AppFooter.vue'
 
 const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000'
-const bannerCentros = '/Centro-1528/banner/llamadas-banner.jpg'
+const bannerCentros = '/Centro-1528/banner/llamadas-banner.webp'
 const logoFranja = '/Home/LOGOS/logo-franja.png'
 
 const metricas = ref({ total_llamadas: 0, periodo: '' })
@@ -209,8 +209,8 @@ onMounted(async () => {
   }
 })
 
-const imgCasos = '/Centro-1528/Tipos-casos.jpg'
-const imgFlujo = '/Centro-1528/llamadas-flujo.jpg'
+const imgCasos = '/Centro-1528/Tipos-casos.webp'
+const imgFlujo = '/Centro-1528/llamadas-flujo.webp'
 
 const pasos = [
   {
