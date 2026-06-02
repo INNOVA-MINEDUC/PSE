@@ -17,13 +17,9 @@
         </button>
 
         <p class="nav-section">Servicios</p>
-        <button class="nav-item" :class="{ active: activeModule === 'atencion' }" @click="go('atencion')">
-          <span class="nav-dot" :class="{ active: activeModule === 'atencion' }"></span>
-          Atenciones
-        </button>
-        <button class="nav-item" :class="{ active: activeModule === 'medicamentos' }" @click="go('medicamentos')">
-          <span class="nav-dot" :class="{ active: activeModule === 'medicamentos' }"></span>
-          Medicamentos
+        <button class="nav-item" :class="{ active: activeModule === 'noticias' }" @click="go('noticias')">
+          <span class="nav-dot" :class="{ active: activeModule === 'noticias' }"></span>
+          Noticias
         </button>
         <button class="nav-item" :class="{ active: activeModule === 'llamadas' }" @click="go('llamadas')">
           <span class="nav-dot" :class="{ active: activeModule === 'llamadas' }"></span>
@@ -33,9 +29,13 @@
           <span class="nav-dot" :class="{ active: activeModule === 'funerario' }"></span>
           Apoyo funerario
         </button>
-        <button class="nav-item" :class="{ active: activeModule === 'noticias' }" @click="go('noticias')">
-          <span class="nav-dot" :class="{ active: activeModule === 'noticias' }"></span>
-          Noticias
+        <button class="nav-item" :class="{ active: activeModule === 'atencion' }" @click="go('atencion')">
+          <span class="nav-dot" :class="{ active: activeModule === 'atencion' }"></span>
+          Atenciones
+        </button>
+        <button class="nav-item" :class="{ active: activeModule === 'medicamentos' }" @click="go('medicamentos')">
+          <span class="nav-dot" :class="{ active: activeModule === 'medicamentos' }"></span>
+          Medicamentos
         </button>
 
       </nav>
@@ -67,17 +67,20 @@
       <div class="content">
         <template v-if="activeModule === 'dashboard'">
 
-          <!-- GREETING -->
-          <div class="dh-greeting">
-            <div>
-              <h2 class="dh-title">Bienvenido, {{ user?.nombres || 'Administrador' }}</h2>
-              <p class="dh-sub">{{ currentDate }} · Portal de Salud Escolar</p>
-            </div>
-            <div class="dh-user">
-              <div class="avatar-sm2">{{ initials }}</div>
+          <!-- HERO BANNER -->
+          <div class="dh-hero">
+            <div class="dh-hero-inner">
               <div>
-                <p class="dh-uname">{{ fullName }}</p>
-                <p class="dh-urole">{{ roleText }}</p>
+                <h2 class="dh-title">Bienvenido, {{ user?.nombres || 'Administrador' }}</h2>
+                <p class="dh-sub">{{ currentDate }} · Portal de Salud Escolar</p>
+              </div>
+              <div class="dh-user">
+                <div class="avatar-sm2">{{ initials }}</div>
+                <div>
+                  <p class="dh-uname">{{ fullName }}</p>
+                  <p class="dh-urole">{{ roleText }}</p>
+                </div>
+                <button class="dh-logout-btn" @click="handleLogout">Cerrar sesión</button>
               </div>
             </div>
           </div>
@@ -98,6 +101,66 @@
                 {{ kpi.caption }}
               </p>
             </article>
+          </div>
+
+          <!-- CHARTS ROW -->
+          <div class="dh-charts-row">
+
+            <!-- Donut: distribución por sexo -->
+            <div class="dh-chart-card">
+              <p class="dh-chart-title">Atenciones por sexo</p>
+              <div class="dh-donut-wrap">
+                <svg class="dh-donut-svg" viewBox="0 0 120 120">
+                  <circle cx="60" cy="60" r="45" fill="none" stroke="#17c4e8" stroke-width="14"/>
+                  <circle
+                    cx="60" cy="60" r="45"
+                    fill="none"
+                    stroke="#2563eb"
+                    stroke-width="14"
+                    stroke-linecap="round"
+                    stroke-dasharray="282.74"
+                    :stroke-dashoffset="282.74 * (1 - (dashStats.atencion.porcentaje_hombres || 0) / 100)"
+                    transform="rotate(-90 60 60)"
+                  />
+                </svg>
+                <div class="dh-donut-center">
+                  <span class="dh-donut-pct">{{ dashStats.atencion.porcentaje_hombres || 0 }}%</span>
+                  <span class="dh-donut-lbl">Masc.</span>
+                </div>
+              </div>
+              <div class="dh-donut-legend">
+                <div class="dh-leg-item">
+                  <span class="dh-leg-dot" style="background:#2563eb"></span>
+                  Masculino &nbsp;<strong>{{ dashStats.atencion.porcentaje_hombres || 0 }}%</strong>
+                </div>
+                <div class="dh-leg-item">
+                  <span class="dh-leg-dot" style="background:#17c4e8"></span>
+                  Femenino &nbsp;<strong>{{ dashStats.atencion.porcentaje_mujeres || (100 - (dashStats.atencion.porcentaje_hombres || 0)) }}%</strong>
+                </div>
+              </div>
+            </div>
+
+            <!-- Barras: comparativa módulos -->
+            <div class="dh-chart-card dh-chart-bars-card">
+              <p class="dh-chart-title">Indicadores por módulo</p>
+              <div class="dh-bars">
+                <div
+                  v-for="kpi in kpiCards.filter(k => k.key !== 'noticias')"
+                  :key="kpi.key"
+                  class="dh-bar-row"
+                >
+                  <span class="dh-bar-mod">{{ kpi.label }}</span>
+                  <div class="dh-bar-track">
+                    <div
+                      class="dh-bar-fill"
+                      :style="{ width: barPct(kpi.value) + '%', background: kpi.color }"
+                    ></div>
+                  </div>
+                  <span class="dh-bar-val" :style="{ color: kpi.color }">{{ formatNum(kpi.value) }}</span>
+                </div>
+              </div>
+            </div>
+
           </div>
 
           <!-- TABLA RESUMEN -->
@@ -847,6 +910,11 @@ const resolveUrl = (url) => {
 };
 
 const formatNum = (n) => Number(n || 0).toLocaleString("es-GT");
+
+const barMax = computed(() =>
+  Math.max(rawKpis.value.atenciones, rawKpis.value.medicamentos, rawKpis.value.llamadas, rawKpis.value.funerario, 1)
+);
+const barPct = (val) => Math.round((Number(val) / barMax.value) * 90);
 
 const fmtDate = (date) => {
   if (!date) return "—";
@@ -2484,35 +2552,54 @@ onMounted(() => {
   color: #94a3b8;
 }
 
-/* ── DASHBOARD DARK ─────────────────────────────────── */
-.dh-greeting {
+/* ── DASHBOARD ───────────────────────────────────────── */
+
+/* HERO */
+.dh-hero {
+  border-radius: 18px;
+  overflow: hidden;
+  position: relative;
+  background-image: url('/login/login-fondo.png');
+  background-size: cover;
+  background-position: center top;
+}
+.dh-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, rgba(7,26,64,0.78) 0%, rgba(14,42,92,0.65) 100%);
+}
+.dh-hero-inner {
+  position: relative;
+  z-index: 1;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 28px 32px;
 }
 
 .dh-title {
   margin: 0 0 4px;
   font-size: 22px;
   font-weight: 900;
-  color: #0f172a;
+  color: #fff;
 }
 
 .dh-sub {
   margin: 0;
   font-size: 12px;
-  color: #94a3b8;
+  color: rgba(255,255,255,0.65);
 }
 
 .dh-user {
   display: flex;
   align-items: center;
   gap: 10px;
-  background: #fff;
-  border: 1px solid #e2e8f0;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.22);
   border-radius: 12px;
   padding: 10px 14px;
-  box-shadow: 0 2px 8px rgba(15,23,42,0.04);
+  backdrop-filter: blur(6px);
 }
 
 .avatar-sm2 {
@@ -2528,8 +2615,106 @@ onMounted(() => {
   flex-shrink: 0;
 }
 
-.dh-uname { margin: 0; font-size: 13px; font-weight: 700; color: #0f172a; }
-.dh-urole { margin: 1px 0 0; font-size: 11px; color: #94a3b8; }
+.dh-uname { margin: 0; font-size: 13px; font-weight: 700; color: #fff; }
+.dh-urole { margin: 1px 0 0; font-size: 11px; color: rgba(255,255,255,0.55); }
+
+.dh-logout-btn {
+  margin-left: 16px;
+  padding: 7px 16px;
+  border: 1px solid rgba(255,255,255,0.3);
+  background: rgba(255,255,255,0.14);
+  color: #fff;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+.dh-logout-btn:hover { background: rgba(220,38,38,0.35); border-color: #fca5a5; color: #fecaca; }
+
+/* ── CHARTS ROW ──────────────────────────────────────── */
+.dh-charts-row {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 16px;
+}
+
+.dh-chart-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 22px 22px 18px;
+  box-shadow: 0 2px 12px rgba(15,23,42,0.05);
+}
+
+.dh-chart-title {
+  margin: 0 0 18px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #94a3b8;
+}
+
+/* Donut */
+.dh-donut-wrap {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  margin: 0 auto 16px;
+}
+.dh-donut-svg { width: 120px; height: 120px; }
+.dh-donut-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+.dh-donut-pct { font-size: 22px; font-weight: 900; color: #071a40; line-height: 1; }
+.dh-donut-lbl { font-size: 10px; color: #94a3b8; font-weight: 600; text-transform: uppercase; }
+
+.dh-donut-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.dh-leg-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #475569;
+}
+.dh-leg-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* Bars */
+.dh-chart-bars-card { display: flex; flex-direction: column; }
+.dh-bars { display: flex; flex-direction: column; gap: 16px; justify-content: center; flex: 1; }
+.dh-bar-row { display: grid; grid-template-columns: 140px 1fr 80px; align-items: center; gap: 12px; }
+.dh-bar-mod { font-size: 12px; font-weight: 600; color: #334155; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dh-bar-track {
+  height: 10px;
+  background: #f1f5f9;
+  border-radius: 999px;
+  overflow: hidden;
+}
+.dh-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
+  min-width: 4px;
+}
+.dh-bar-val { font-size: 12px; font-weight: 700; text-align: right; }
 
 /* KPI ROW */
 .dh-kpis {
