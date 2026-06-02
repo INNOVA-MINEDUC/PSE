@@ -82,9 +82,10 @@
               Video institucional que explique el apoyo funerario del PSE.
             </p>
 
-            <div class="action-buttons">
+            <div class="action-buttons" v-if="datosFunerarios.folleto_url || datosFunerarios.formulario_url">
               <a
-                :href="datosFunerarios.folleto_url || '/docs/pse-apoyo-funerario-folleto.pdf'"
+                v-if="datosFunerarios.folleto_url"
+                :href="datosFunerarios.folleto_url"
                 target="_blank"
                 rel="noopener"
                 class="btn btn-outline"
@@ -93,7 +94,8 @@
               </a>
 
               <a
-                :href="datosFunerarios.formulario_url || '/docs/pse-apoyo-funerario-formulario.pdf'"
+                v-if="datosFunerarios.formulario_url"
+                :href="datosFunerarios.formulario_url"
                 target="_blank"
                 rel="noopener"
                 class="btn btn-primary"

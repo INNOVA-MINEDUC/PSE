@@ -322,7 +322,7 @@ const personal = [
 
 
 
-hero-banner-bg {
+.hero-banner-bg {
   min-height: 590px;
 }
 
