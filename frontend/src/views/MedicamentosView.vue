@@ -30,6 +30,8 @@
         :src="logoFranja"
         alt="Franja de logos institucionales"
         class="logo-franja-img"
+        loading="lazy"
+        decoding="async"
       />
     </section>
 
@@ -81,7 +83,7 @@
       <ul class="result-list">
         <li>
           Cobertura:
-          <strong>340 municipios</strong>
+          <strong>{{ resumen.cobertura }} municipios</strong>
         </li>
         <li>
           La red de servicios de salud públicos está presente en todo el país.
@@ -216,21 +218,42 @@
         </div>
       </div>
     </section>
+    <AppFooter />
   </main>
 </template>
 
 <script setup>
+import { onMounted, ref } from 'vue'
 import GuateMap from '@/components/GuateMap.vue'
+import AppFooter from '@/components/AppFooter.vue'
 
-const bannerSuministros = '/Suministros/banner/banner-suministros.jpg'
+const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000'
+const bannerSuministros = '/Suministros/banner/banner-suministros.webp'
 const logoFranja = '/Home/LOGOS/logo-franja.png'
 
-
-const resumen = {
+const resumen = ref({
   unidades: 800000,
   establecimientos: 1350,
+  cobertura: 340,
   periodo: 'enero – julio 2025'
-}
+})
+
+onMounted(async () => {
+  try {
+    const res  = await fetch(`${API_URL}/api/medicamentos/metricas`)
+    const data = await res.json()
+    if (data.success && data.data) {
+      resumen.value = {
+        unidades:         data.data.unidades_entregadas              ?? resumen.value.unidades,
+        establecimientos: data.data.establecimientos_con_suministro  ?? resumen.value.establecimientos,
+        cobertura:        data.data.cobertura_nacional               ?? resumen.value.cobertura,
+        periodo:          data.data.periodo                          || resumen.value.periodo
+      }
+    }
+  } catch (err) {
+    console.error('Error cargando métricas medicamentos:', err)
+  }
+})
 
 const medicamentosRecurrentes = [
   { nombre: 'Acetaminofen (paracetamol)', cantidad: 197562 },
@@ -292,7 +315,7 @@ const suministroPorServicio = [
 }
 
 .hero-title {
-  max-width: 900px;
+  max-width: 720px;
   width: 100%;
   font-size: 45px;
   line-height: 1.06;

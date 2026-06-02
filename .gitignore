@@ -81,3 +81,8 @@ coverage/
 # =========================
 .AppleDouble
 .LSOverride
+
+# =========================
+# Claude Code
+# =========================
+.claude/

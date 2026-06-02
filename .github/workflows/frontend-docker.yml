@@ -13,11 +13,35 @@ env:
   IMAGE_NAME: ${{ github.repository }}-frontend
 
 jobs:
+  analisis-estatico:
+    name: Análisis de Código (Semgrep)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+      
+      - name: Instalar y Ejecutar Semgrep
+        run: |
+          python3 -m pip install semgrep
+          semgrep scan --config="p/default" --sarif -o semgrep.sarif || true
+          
+      - name: Subir Reporte Semgrep a GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: semgrep.sarif
+          category: semgrep
+
   build-and-push:
+    needs: analisis-estatico
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
+      security-events: write
 
     steps:
       - name: Checkout repository
@@ -26,8 +50,10 @@ jobs:
       # Determina el ambiente según la rama que disparó el workflow
       - name: Set environment config
         id: config
+        env:
+          REF_NAME: ${{ github.ref_name }}
         run: |
-          if [ "${{ github.ref_name }}" = "main" ]; then
+          if [ "$REF_NAME" = "main" ]; then
             echo "ENV_NAME=production" >> $GITHUB_OUTPUT
             echo "API_URL=${{ secrets.VITE_API_URL_PROD }}" >> $GITHUB_OUTPUT
           else
@@ -71,7 +97,40 @@ jobs:
         run: |
           echo "VITE_API_URL=${{ steps.config.outputs.API_URL }}" > ./frontend/.env.production
 
-      - name: Build and push Docker image
+      - name: Construir imagen local para escaneo
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          load: true
+          tags: local-scan:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Ejecutar Trivy (Generar Reporte de Auditoría)
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'local-scan:latest'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'CRITICAL,HIGH'
+          # Aquí no ponemos exit-code para asegurar que genere el reporte completo
+
+      - name: Subir Reporte Trivy a GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: trivy-results.sarif
+          category: trivy
+
+      - name: Ejecutar Trivy (Control de Calidad - Bloqueo)
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'local-scan:latest'
+          format: 'table'
+          exit-code: '1'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Push Docker image
         uses: docker/build-push-action@v5
         with:
           context: ./frontend
@@ -79,7 +138,6 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
-          cache-to: type=gha,mode=max
 
       - name: Workflow Summary
         run: |

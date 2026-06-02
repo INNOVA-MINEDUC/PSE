@@ -264,6 +264,20 @@ body {
   }
 }
 
+/* ========= HERO BANNER OVERLAY (compartido entre módulos) ========= */
+/*
+  Clase usada en: AtencionView, MedicamentosView, CentroLlamadasView, FunerariosView.
+  Provee la capa oscura sobre la imagen de fondo para asegurar legibilidad del texto blanco.
+  El padre debe tener position: relative y min-height definido.
+*/
+.hero-banner-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.62) 0%, rgba(0, 0, 0, 0.22) 100%);
+  display: flex;
+  align-items: flex-start;
+}
+
 /* ========= FOOTER ========= */
 
 .site-footer {

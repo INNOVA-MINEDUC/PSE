@@ -29,11 +29,9 @@
         class="logo-franja-img"
         :src="logoFranja"
         alt="Franja de logos institucionales"
+        loading="lazy"
       />
     </section>
-
-
-
     
     <!-- CUERPO CLARO -->
     <section class="atencion-body">
@@ -75,6 +73,8 @@
                   <strong>{{ resumen.porcentajeMujeres }}%</strong>
                 </div>
               </div>
+
+              <p v-if="resumen.periodo" class="resumen-periodo">Período: {{ resumen.periodo }}</p>
             </article>
 
             <!-- BLOQUE MORBILIDADES -->
@@ -143,6 +143,7 @@
         </div>
 
         <!-- TABLAS INFERIORES -->
+        
         <div class="row row-bottom">
           <article class="card">
             <h2 class="block-title">Resumen de atenciones por departamento</h2>
@@ -190,21 +191,45 @@
         </div>
       </div>
     </section>
+    <AppFooter />
   </main>
 </template>
 
 <script setup>
+import { onMounted, ref } from 'vue'
 import GuateMap from '@/components/GuateMap.vue'
+import AppFooter from '@/components/AppFooter.vue'
 
-const bannerAtencion = '/Atencion/banner/banner-atencion.jpg'
+const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000'
+const heroImage = '/Home/RECURSOS/hero-min.webp'
+const bannerAtencion = '/Atencion/banner/banner-atencion.webp'
 const logoFranja = '/Home/LOGOS/logo-franja.png'
 
-const resumen = {
+const resumen = ref({
   consultas: 674656,
   estudiantes: 222704,
   porcentajeHombres: 52,
-  porcentajeMujeres: 48
-}
+  porcentajeMujeres: 48,
+  periodo: ''
+})
+
+onMounted(async () => {
+  try {
+    const res  = await fetch(`${API_URL}/api/atencion/metricas`)
+    const data = await res.json()
+    if (data.success && data.data) {
+      resumen.value = {
+        consultas:         data.data.consultas_atendidas   ?? resumen.value.consultas,
+        estudiantes:       data.data.estudiantes_atendidos ?? resumen.value.estudiantes,
+        porcentajeHombres: data.data.porcentaje_hombres    ?? resumen.value.porcentajeHombres,
+        porcentajeMujeres: data.data.porcentaje_mujeres    ?? resumen.value.porcentajeMujeres,
+        periodo:           data.data.periodo               || ''
+      }
+    }
+  } catch (err) {
+    console.error('Error cargando métricas atención:', err)
+  }
+})
 
 const morbilidades = [
   {
@@ -307,7 +332,7 @@ const tiposAtencion = [
 }
 
 .hero-title {
-  max-width: 900px;
+  max-width: 720px;
   width: 100%;
   font-size: 45px;
   line-height: 1.06;
@@ -364,9 +389,9 @@ const tiposAtencion = [
 }
 
 .atencion-inner {
-  max-width: 1400px;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 24px 48px 0;
+  padding: 24px 24px 0;
 }
 
 /* CARDS GENERALES */
@@ -397,7 +422,7 @@ const tiposAtencion = [
 
 .stats-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1.1fr);
+  grid-template-columns: 1fr 1fr;
   gap: 18px;
 }
 
@@ -530,7 +555,7 @@ const tiposAtencion = [
 
 /* MAPA + DX */
 .row-map {
-  grid-template-columns: minmax(0, 2fr) minmax(0, 1.1fr);
+  grid-template-columns: 1.5fr 1fr;
 }
 
 .map-wrapper {
@@ -553,7 +578,7 @@ const tiposAtencion = [
 
 /* TABLAS INFERIORES */
 .row-bottom {
-  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+  grid-template-columns: 1fr 1fr;
 }
 
 .simple-table {
@@ -607,16 +632,22 @@ const tiposAtencion = [
   color: #4b5563;
 }
 
+.resumen-periodo {
+  font-size: 0.72rem;
+  opacity: 0.72;
+  margin: 10px 0 0;
+  letter-spacing: 0.02em;
+}
+
 /* RESPONSIVE */
 @media (max-width: 1100px) {
   .atencion-inner {
-    padding-inline: 24px;
+    padding-inline: 12px;
   }
-
   .stats-grid,
   .row-map,
   .row-bottom {
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns: 1fr;
   }
 }
 

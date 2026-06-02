@@ -1,13 +1,26 @@
-import dotenv from "dotenv";
+import dotenv from "dotenv"; 
 import mysql from "mysql2/promise";
 import express from "express";
 import cors from "cors";
 import axios from "axios";
+import path from "path";
+import { fileURLToPath } from "url";
+
+import dashboardRoutes from "./routes/dashboard.routes.js";
+import noticiasRoutes from "./routes/noticias.routes.js";
+import atencionRoutes from "./routes/atencion.routes.js";
+import medicamentosRoutes from "./routes/medicamentos.routes.js";
+import llamadasRoutes from "./routes/llamadas.routes.js";
+import funerarioRoutes from "./routes/funerario.routes.js";
+import archivosRoutes from "./routes/archivos.routes.js";
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 app.use(
   cors({
@@ -25,7 +38,14 @@ app.use(
 
 app.use(express.json());
 
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
 let db;
+
+app.use((req, res, next) => {
+  req.db = db;
+  next();
+});
 
 // Health check
 app.get("/api/health", (req, res) => {
@@ -75,9 +95,7 @@ app.post("/api/auth/login", async (req, res) => {
 
     const response = await axios.post(
       process.env.API,
-      {
-        query: mutation,
-      },
+      { query: mutation },
       {
         headers: {
           "Content-Type": "application/json",
@@ -182,6 +200,42 @@ app.get("/api/auth/me", async (req, res) => {
   }
 });
 
+// Rutas del sistema
+app.use("/api/dashboard", dashboardRoutes);
+app.use("/api/noticias", noticiasRoutes);
+app.use("/api/atencion", atencionRoutes);
+app.use("/api/medicamentos", medicamentosRoutes);
+app.use("/api/llamadas", llamadasRoutes);
+app.use("/api/funerario", funerarioRoutes);
+app.use("/api/archivos", archivosRoutes);
+
+async function runMigrations(pool) {
+  const alteraciones = [
+    `ALTER TABLE metricas_llamadas ADD COLUMN casos_atendidos INT DEFAULT 0 AFTER total_llamadas`,
+    `ALTER TABLE metricas_llamadas ADD COLUMN usuarios_beneficiados INT DEFAULT 0 AFTER casos_atendidos`,
+    `ALTER TABLE metricas_llamadas ADD COLUMN video_url TEXT NULL AFTER periodo`,
+    `ALTER TABLE metricas_funerario ADD COLUMN apoyos_otorgados INT DEFAULT 0 AFTER familias_beneficiadas`,
+    `ALTER TABLE metricas_funerario ADD COLUMN cobertura VARCHAR(255) DEFAULT '' AFTER apoyos_otorgados`,
+    `ALTER TABLE metricas_funerario ADD COLUMN video_url TEXT NULL AFTER periodo`,
+    `ALTER TABLE metricas_funerario ADD COLUMN folleto_url TEXT NULL AFTER video_url`,
+    `ALTER TABLE metricas_funerario ADD COLUMN formulario_url TEXT NULL AFTER folleto_url`,
+    `ALTER TABLE noticias ADD COLUMN miniatura_url TEXT NULL AFTER imagen_url`,
+    `ALTER TABLE noticias ADD COLUMN hero_url TEXT NULL AFTER miniatura_url`,
+    `ALTER TABLE noticias ADD COLUMN autor VARCHAR(255) NULL AFTER hero_url`,
+  ];
+
+  for (const sql of alteraciones) {
+    try {
+      await pool.query(sql);
+    } catch (err) {
+      if (err.code !== "ER_DUP_FIELDNAME") {
+        console.warn("Migración omitida:", err.message);
+      }
+    }
+  }
+  console.log("Migraciones aplicadas.");
+}
+
 async function start() {
   db = await mysql.createPool({
     host: process.env.DB_HOST,
@@ -192,6 +246,8 @@ async function start() {
     waitForConnections: true,
     connectionLimit: 10,
   });
+
+  await runMigrations(db);
 
   app.listen(PORT, "0.0.0.0", () => {
     console.log(`Servidor corriendo en http://localhost:${PORT}`);

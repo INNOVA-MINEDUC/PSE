@@ -47,3 +47,4 @@ main().catch((err) => {
   console.error(" Error creando admin:", err);
   process.exit(1);
 });
+

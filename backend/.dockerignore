@@ -1,7 +1,9 @@
 node_modules
+npm-debug.log
 .env
 .env.*
 Dockerfile
 .dockerignore
 README.md
 npm-debug.log
+controllers copy

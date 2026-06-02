@@ -33,6 +33,12 @@ const router = createRouter({
     },
 
     {
+      path: '/noticias/:id',
+      name: 'noticia-detalle',
+      component: () => import('../views/NoticiaDetalleView.vue')
+    },
+
+    {
       path: '/login',
       name: 'login',
       component: () => import('../views/LoginView.vue')

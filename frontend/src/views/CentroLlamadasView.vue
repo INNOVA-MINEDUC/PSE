@@ -11,7 +11,10 @@
           <div class="hero-content">
             <p class="hero-kicker">MÓDULO 4</p>
 
-            <h1 class="hero-title">Centro de llamadas <span class="highlight">1528</span></h1>
+            <h1 class="hero-title">
+              Centro de llamadas<br />
+              <span class="highlight">1528</span>
+            </h1>
 
             <p class="hero-text">
               El 1528 es la línea gratuita de orientación médica para estudiantes del
@@ -30,6 +33,30 @@
         alt="Franja de logos institucionales"
         class="logo-franja-img"
       />
+    </section>
+
+    <!-- MÉTRICAS -->
+    <section class="llamadas-stats-bar">
+      <div class="llamadas-stats-inner">
+        <div class="lstat-item">
+          <span class="lstat-val">{{ (metricas.total_llamadas || 0).toLocaleString('es-GT') }}</span>
+          <span class="lstat-label">Total de llamadas</span>
+        </div>
+        <div class="lstat-sep"></div>
+        <div class="lstat-item">
+          <span class="lstat-val">{{ (metricas.casos_atendidos || 0).toLocaleString('es-GT') }}</span>
+          <span class="lstat-label">Casos atendidos</span>
+        </div>
+        <div class="lstat-sep"></div>
+        <div class="lstat-item">
+          <span class="lstat-val">{{ (metricas.usuarios_beneficiados || 0).toLocaleString('es-GT') }}</span>
+          <span class="lstat-label">Usuarios beneficiados</span>
+        </div>
+        <div v-if="metricas.periodo" class="lstat-sep"></div>
+        <div v-if="metricas.periodo" class="lstat-item">
+          <span class="lstat-label lstat-periodo">Período: <strong>{{ metricas.periodo }}</strong></span>
+        </div>
+      </div>
     </section>
 
     <!-- CONTENIDO -->
@@ -56,8 +83,20 @@
 
         <!-- VIDEO -->
         <section class="section-card video-section">
-          <div class="video-box">
-            <span class="play-button">▶</span>
+          <div :class="embedUrl ? 'video-embed-wrap' : 'video-box'">
+            <iframe
+              v-if="embedUrl"
+              :src="embedUrl"
+              class="video-iframe"
+              frameborder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen
+              title="Video institucional Centro de llamadas 1528"
+            ></iframe>
+            <div v-else class="video-play-wrap">
+              <span class="play-button">▶</span>
+              <p class="video-coming-label">Video institucional — próximamente</p>
+            </div>
           </div>
 
           <div class="section-head centered video-caption">
@@ -163,15 +202,53 @@
         </section>
       </div>
     </section>
+    <AppFooter />
   </main>
 </template>
 
 <script setup>
-const bannerCentros = '/Centro-1528/banner/llamadas-banner.jpg'
+import { computed, onMounted, ref } from 'vue'
+import AppFooter from '@/components/AppFooter.vue'
+
+const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000'
+
+const bannerCentros = '/Centro-1528/banner/llamadas-banner.webp'
 const logoFranja = '/Home/LOGOS/logo-franja.png'
 
-const imgCasos = '/Centro-1528/Tipos-casos.jpg'
-const imgFlujo = '/Centro-1528/llamadas-flujo.jpg'
+const metricas = ref({ total_llamadas: 0, casos_atendidos: 0, usuarios_beneficiados: 0, periodo: '', video_url: '' })
+
+const toEmbedUrl = (url) => {
+  if (!url) return ''
+  if (url.includes('youtube.com/embed/')) return url
+  const shortMatch = url.match(/youtu\.be\/([^?&]+)/)
+  if (shortMatch) return `https://www.youtube.com/embed/${shortMatch[1]}`
+  const watchMatch = url.match(/[?&]v=([^?&]+)/)
+  if (watchMatch) return `https://www.youtube.com/embed/${watchMatch[1]}`
+  return url
+}
+
+const embedUrl = computed(() => toEmbedUrl(metricas.value.video_url))
+
+onMounted(async () => {
+  try {
+    const res  = await fetch(`${API_URL}/api/llamadas/metricas`)
+    const data = await res.json()
+    if (data.success && data.data) {
+      metricas.value = {
+        total_llamadas:       data.data.total_llamadas       || 0,
+        casos_atendidos:      data.data.casos_atendidos      || 0,
+        usuarios_beneficiados: data.data.usuarios_beneficiados || 0,
+        periodo:              data.data.periodo              || '',
+        video_url:            data.data.video_url            || '',
+      }
+    }
+  } catch (err) {
+    console.error('Error cargando métricas llamadas:', err)
+  }
+})
+
+const imgCasos = '/Centro-1528/Tipos-casos.webp'
+const imgFlujo = '/Centro-1528/llamadas-flujo.webp'
 
 const pasos = [
   {
@@ -245,15 +322,17 @@ const personal = [
 
 
 
+.hero-banner-bg {
+  min-height: 590px;
+}
+
+
+
 .hero-inner {
   max-width: 1440px;
   margin: 0 auto;
+  padding: 160px 44px 40px;
   width: 100%;
-  padding: 90px 44px 40px;
-}
-
-.hero-content {
-  max-width: 650px;
 }
 
 .hero-kicker {
@@ -266,22 +345,13 @@ const personal = [
 }
 
 .hero-title {
-  max-width: 900px;
+  max-width: 720px;
   width: 100%;
   font-size: 45px;
   line-height: 1.06;
   font-weight: 900;
   color: #ffffff;
   margin: 0 0 14px;
-}
-
-.hero-text {
-  max-width: 700px;
-  font-size: 15px;
-  line-height: 1.5;
-  color: rgba(255, 255, 255, 0.94);
-  margin: 0;
-  text-align: justify;
 }
 
 .highlight {
@@ -302,6 +372,15 @@ const personal = [
   background: linear-gradient(90deg, #15c9e8, #0bb6d6);
   z-index: -1;
   border-radius: 8px;
+}
+
+.hero-text {
+  max-width: 700px;
+  font-size: 15px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.94);
+  margin: 0;
+  text-align: justify;
 }
 
 /* FRANJA */
@@ -428,26 +507,61 @@ const personal = [
   overflow: hidden;
 }
 
+.video-embed-wrap {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+}
+
+.video-iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}
+
 .video-box {
   width: 100%;
-  min-height: 520px;
-  background: #003e68;
+  height: 260px;
+  background: linear-gradient(135deg, #003e68 0%, #0b5d96 100%);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
+.video-play-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
 .play-button {
-  width: 140px;
-  height: 140px;
+  width: 68px;
+  height: 68px;
   border-radius: 999px;
-  background: #ffffff;
-  color: #003e68;
+  background: rgba(255, 255, 255, 0.15);
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 3.2rem;
+  font-size: 1.5rem;
   font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.play-button:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.video-coming-label {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
 }
 
 .video-caption {
@@ -608,6 +722,51 @@ const personal = [
 .flow-list {
   padding-left: 18px;
   margin-top: 8px;
+}
+
+/* STATS BAR */
+.llamadas-stats-bar {
+  background: #f0f4f8;
+  border-bottom: 1px solid #dde3ea;
+  padding: 14px 32px;
+}
+
+.llamadas-stats-inner {
+  max-width: 1320px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.lstat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.lstat-val {
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: #0b4168;
+  line-height: 1;
+}
+
+.lstat-label {
+  font-size: 0.76rem;
+  color: #5b6470;
+  font-weight: 600;
+}
+
+.lstat-sep {
+  width: 1px;
+  height: 36px;
+  background: #c8d4de;
+}
+
+.lstat-periodo {
+  font-size: 0.82rem;
 }
 
 /* RESPONSIVE */

@@ -1,19 +1,24 @@
 <template>
   <main class="login-page">
-    <section class="login-wrapper">
+    <div class="login-overlay"></div>
 
-      <!-- LOGO -->
-      <div class="login-brand">
-        <img
-          :src="logoMinisterio"
-          alt="Ministerio de Educación"
-          class="brand-logo"
-        />
-      </div>
+    <section class="login-wrapper">
 
       <!-- CARD -->
       <div class="login-card">
-        <h1 class="login-title">Iniciar sesión</h1>
+        <!-- LOGO dentro de la card -->
+        <div class="login-brand">
+          <img src="/Home/LOGOS/logo-tras.webp" alt="Ministerio de Educación / MSPAS" class="brand-logo" />
+        </div>
+
+        <div class="card-header">
+          <h1 class="login-title">Iniciar sesión</h1>
+          <p class="login-subtitle">Portal de Salud Escolar</p>
+        </div>
+
+        <div v-if="sessionExpired" class="login-expired">
+          Tu sesión ha expirado. Por favor inicia sesión nuevamente.
+        </div>
 
         <div v-if="error" class="login-error">
           {{ error }}
@@ -25,7 +30,12 @@
           <div class="input-group">
             <label for="email">Correo electrónico</label>
             <div class="input-wrap">
-              <span class="input-icon">✉</span>
+              <span class="input-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="2" y="4" width="20" height="16" rx="2"/>
+                  <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+                </svg>
+              </span>
               <input
                 id="email"
                 v-model="email"
@@ -41,7 +51,12 @@
           <div class="input-group">
             <label for="password">Contraseña</label>
             <div class="input-wrap">
-              <span class="input-icon">🔒</span>
+              <span class="input-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+              </span>
               <input
                 id="password"
                 v-model="password"
@@ -50,12 +65,16 @@
                 autocomplete="current-password"
                 required
               />
-              <button
-                type="button"
-                class="toggle-password"
-                @click="showPassword = !showPassword"
-              >
-                {{ showPassword ? "✕" : "👁" }}
+              <button type="button" class="toggle-password" @click="showPassword = !showPassword" :aria-label="showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'">
+                <svg v-if="!showPassword" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+                <svg v-else width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+                  <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+                  <line x1="1" y1="1" x2="23" y2="23"/>
+                </svg>
               </button>
             </div>
           </div>
@@ -83,11 +102,10 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { useRouter, useRoute } from "vue-router";
-import logoMinisterio from "@/assets/logo-ministerio.png";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
 
 const router = useRouter();
 const route  = useRoute();
@@ -97,6 +115,7 @@ const password     = ref("");
 const error        = ref("");
 const loading      = ref(false);
 const showPassword = ref(false);
+const sessionExpired = computed(() => !!route.query.expired);
 
 const handleSubmit = async () => {
   error.value   = "";
@@ -132,63 +151,104 @@ const handleSubmit = async () => {
 </script>
 
 <style scoped>
+/* ── PAGE ────────────────────────────────────────────── */
 .login-page {
   min-height: 100vh;
-  background: #ffffff;
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 24px;
   font-family: "Montserrat", sans-serif;
+  background-image: url('/login/login-fondo.png');
+  background-size: cover;
+  background-position: center;
 }
 
+.login-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(7, 26, 64, 0.22);
+}
+
+/* ── WRAPPER ─────────────────────────────────────────── */
 .login-wrapper {
+  position: relative;
+  z-index: 1;
   width: 100%;
-  max-width: 560px;
+  max-width: 480px;
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 0;
 }
 
-/* LOGO */
-.login-brand { margin-bottom: 26px; }
-
-.brand-logo {
-  width: 260px;
-  max-width: 100%;
-}
-
-/* CARD */
+/* ── CARD ────────────────────────────────────────────── */
 .login-card {
   width: 100%;
   background: #ffffff;
-  border: 1px solid #d9dee8;
-  border-radius: 14px;
-  box-shadow: 0 8px 25px rgba(15, 23, 42, 0.08);
-  padding: 34px 36px 28px;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(7, 26, 64, 0.3);
+  padding: 32px 36px 28px;
+}
+
+/* ── LOGO (dentro de la card) ────────────────────────── */
+.login-brand {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 22px;
+}
+
+.brand-logo {
+  width: auto;
+  max-width: 320px;
+  max-height: 60px;
+  object-fit: contain;
+}
+
+.card-header {
+  text-align: center;
+  margin-bottom: 24px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid #e8ecf4;
 }
 
 .login-title {
-  text-align: center;
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: #1f2937;
-  margin-bottom: 22px;
-  padding-bottom: 14px;
-  border-bottom: 1px solid #e5e7eb;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #071a40;
+  margin: 0 0 4px;
 }
 
-/* ERROR */
-.login-error {
-  background: #fee2e2;
-  color: #b91c1c;
+.login-subtitle {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #17c4e8;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* ── ALERTS ──────────────────────────────────────────── */
+.login-expired {
+  background: #fef3c7;
+  color: #92400e;
   border-radius: 10px;
-  padding: 10px;
+  padding: 10px 14px;
   font-size: 0.84rem;
   margin-bottom: 14px;
 }
 
-/* FORM */
+.login-error {
+  background: #fee2e2;
+  color: #b91c1c;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 0.84rem;
+  margin-bottom: 14px;
+}
+
+/* ── FORM ────────────────────────────────────────────── */
 .login-form {
   display: flex;
   flex-direction: column;
@@ -202,32 +262,35 @@ const handleSubmit = async () => {
 }
 
 .input-group label {
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   font-weight: 600;
-  color: #6b7280;
+  color: #4b5675;
+  letter-spacing: 0.02em;
 }
 
 .input-wrap {
   display: flex;
   align-items: center;
-  border: 1px solid #d7dce5;
+  border: 1.5px solid #d7dce5;
   border-radius: 10px;
-  background: #eef3fb;
+  background: #f4f7fd;
   height: 50px;
   overflow: hidden;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .input-wrap:focus-within {
-  border-color: #4b82ea;
-  box-shadow: 0 0 0 2px rgba(75, 130, 234, 0.15);
+  border-color: #17c4e8;
+  box-shadow: 0 0 0 3px rgba(23, 196, 232, 0.15);
+  background: #fff;
 }
 
 .input-icon {
-  width: 46px;
-  text-align: center;
-  color: #7b8794;
-  font-size: 1rem;
+  width: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8;
   flex-shrink: 0;
 }
 
@@ -236,85 +299,84 @@ const handleSubmit = async () => {
   border: none;
   background: transparent;
   outline: none;
-  font-size: 0.95rem;
+  font-size: 0.92rem;
   font-family: "Montserrat", sans-serif;
-  color: #1f2937;
-  padding-right: 10px;
+  color: #0f172a;
+  padding-right: 8px;
 }
 
-.input-wrap input::placeholder { color: #9ca3af; }
+.input-wrap input::placeholder { color: #b0b8c8; }
 
-/* PASSWORD TOGGLE */
+/* ── TOGGLE ──────────────────────────────────────────── */
 .toggle-password {
-  width: 48px;
+  width: 46px;
   height: 100%;
   border: none;
-  border-left: 1px solid #d7dce5;
+  border-left: 1.5px solid #e2e8f0;
   background: #fff;
   cursor: pointer;
-  font-size: 1rem;
+  color: #94a3b8;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  transition: background 0.15s;
+  transition: background 0.15s, color 0.15s;
 }
-.toggle-password:hover { background: #f3f6fb; }
+.toggle-password:hover { background: #f0f9ff; color: #17c4e8; }
 
-/* SUBMIT */
+/* ── SUBMIT ──────────────────────────────────────────── */
 .btn-login {
-  margin-top: 10px;
-  height: 46px;
+  margin-top: 8px;
+  height: 48px;
   border: none;
   border-radius: 10px;
-  background: #4b82ea;
+  background: linear-gradient(135deg, #071a40 0%, #0e2a5c 100%);
   color: white;
   font-family: "Montserrat", sans-serif;
   font-weight: 700;
   font-size: 0.95rem;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: opacity 0.2s, transform 0.1s;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
+  letter-spacing: 0.03em;
+  box-shadow: 0 4px 16px rgba(7, 26, 64, 0.3);
 }
-.btn-login:hover    { background: #3d73da; }
-.btn-login:disabled { opacity: 0.7; cursor: not-allowed; }
+.btn-login:hover:not(:disabled) { opacity: 0.9; transform: translateY(-1px); }
+.btn-login:disabled { opacity: 0.65; cursor: not-allowed; }
 
-/* FORGOT */
+/* ── FORGOT ──────────────────────────────────────────── */
 .forgot-link {
-  margin: 6px auto 0;
+  margin: 4px auto 0;
   border: 1px solid #e5e7eb;
   background: white;
-  color: #4b82ea;
+  color: #0e2a5c;
   border-radius: 10px;
-  padding: 8px 16px;
-  font-size: 0.84rem;
+  padding: 8px 18px;
+  font-size: 0.82rem;
   font-family: "Montserrat", sans-serif;
+  font-weight: 600;
   cursor: pointer;
-  box-shadow: 0 3px 8px rgba(15, 23, 42, 0.06);
-  transition: background 0.15s, box-shadow 0.15s;
+  transition: background 0.15s, color 0.15s;
 }
-.forgot-link:hover {
-  background: #f0f6ff;
-  box-shadow: 0 4px 12px rgba(75,130,234,0.12);
-}
+.forgot-link:hover { background: #f0f9ff; color: #17c4e8; border-color: #17c4e8; }
 
-/* FOOTER */
+/* ── FOOTER ──────────────────────────────────────────── */
 .login-footer {
   text-align: center;
-  margin-top: 28px;
-  font-size: 0.8rem;
-  color: #6b7280;
+  margin-top: 24px;
+  font-size: 0.75rem;
+  color: #94a3b8;
 }
 
-/* SPINNER */
+/* ── SPINNER ─────────────────────────────────────────── */
 @keyframes spin { to { transform: rotate(360deg); } }
 .spinner {
   width: 16px;
   height: 16px;
-  border: 2px solid rgba(255,255,255,0.4);
+  border: 2px solid rgba(255,255,255,0.35);
   border-top-color: white;
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
