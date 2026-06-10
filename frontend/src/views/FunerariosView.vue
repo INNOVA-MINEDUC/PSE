@@ -230,7 +230,7 @@
 import { computed, onMounted, ref } from 'vue'
 import AppFooter from '@/components/AppFooter.vue'
 
-const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000'
+const API_URL = import.meta.env.VITE_API_URL
 const bannerFunerario = '/Funerario/banner/funerario-banner.webp'
 const logoFranja = '/Home/LOGOS/logo-franja.png'
 
