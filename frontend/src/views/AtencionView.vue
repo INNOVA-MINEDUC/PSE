@@ -200,7 +200,7 @@ import { onMounted, ref } from 'vue'
 import GuateMap from '@/components/GuateMap.vue'
 import AppFooter from '@/components/AppFooter.vue'
 
-const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000'
+const API_URL = import.meta.env.VITE_API_URL
 const heroImage = '/Home/RECURSOS/hero-min.webp'
 const bannerAtencion = '/Atencion/banner/banner-atencion.webp'
 const logoFranja = '/Home/LOGOS/logo-franja.png'

@@ -199,7 +199,7 @@ import { RouterLink } from 'vue-router'
 import AppFooter from '@/components/AppFooter.vue'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 
-const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000'
+const API_URL = import.meta.env.VITE_API_URL
 
 
 const logoFranja = '/Home/LOGOS/logo-franja.png'
