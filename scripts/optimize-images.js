@@ -8,12 +8,21 @@
  */
 
 import { readdir, stat } from 'fs/promises'
-import { join, extname } from 'path'
+import { join, extname, resolve, sep } from 'path'
 import { fileURLToPath } from 'url'
 import sharp from 'sharp'
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url))
-const PUBLIC_DIR = join(__dirname, '..', 'frontend', 'public')
+const PUBLIC_DIR = resolve(join(__dirname, '..', 'frontend', 'public'))
+
+function safeJoin(base, target) {
+  const resolved = resolve(base, target)
+  const normalizedBase = resolve(base)
+  if (!resolved.startsWith(normalizedBase + sep) && resolved !== normalizedBase) {
+    return null
+  }
+  return resolved
+}
 
 const QUALITY = 80       // calidad WebP (0-100)
 const MIN_SIZE_KB = 100  // solo procesar archivos mayores a este tamaño
@@ -21,7 +30,8 @@ const MIN_SIZE_KB = 100  // solo procesar archivos mayores a este tamaño
 async function* walk(dir) {
   const entries = await readdir(dir, { withFileTypes: true })
   for (const entry of entries) {
-    const full = join(dir, entry.name)
+    const full = safeJoin(dir, entry.name)
+    if (full === null) continue
     if (entry.isDirectory()) {
       yield* walk(full)
     } else {
