@@ -5,14 +5,15 @@ import {
   updateMetricasLlamadas,
 } from "../controllers/llamadas.controller.js";
 import { requireToken } from "../middleware/auth.middleware.js";
+import { publicLimiter, protectedLimiter } from "../middleware/rateLimiter.middleware.js";
 
 const router = express.Router();
 
 // Público
-router.get("/", getLlamadas);
-router.get("/metricas", getMetricasLlamadas);
+router.get("/", publicLimiter, getLlamadas);
+router.get("/metricas", publicLimiter, getMetricasLlamadas);
 
 // Protegido
-router.put("/metricas", requireToken, updateMetricasLlamadas);
+router.put("/metricas", protectedLimiter, requireToken, updateMetricasLlamadas);
 
 export default router;
