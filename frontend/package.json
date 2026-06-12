@@ -24,6 +24,6 @@
     "playwright": "^1.60.0",
     "sharp": "^0.34.5",
     "vite": "^7.1.11",
-    "vite-plugin-vue-devtools": "^8.0.3"
+    "vite-plugin-vue-devtools": "^8.1.2"
   }
 }
