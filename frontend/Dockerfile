@@ -12,6 +12,10 @@ RUN npm run build
 # ETAPA 2: Producción (Security-Hardened Nginx)
 FROM nginxinc/nginx-unprivileged:stable-alpine
 
+# Parchear CVE-2026-45447: OpenSSL heap use-after-free en PKCS7_verify
+USER root
+RUN apk upgrade --no-cache libcrypto3 libssl3
+
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=build-stage /app/dist /usr/share/nginx/html
 
