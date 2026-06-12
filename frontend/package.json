@@ -15,7 +15,7 @@
     "@amcharts/amcharts5": "^5.14.4",
     "@fontsource/roboto": "^5.2.8",
     "vue": "^3.5.22",
-    "vue-router": "^4.6.3",
+    "vue-router": "^5.1.0",
     "vuetify": "^3.10.9"
   },
   "devDependencies": {
