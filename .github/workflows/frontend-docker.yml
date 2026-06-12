@@ -98,7 +98,7 @@ jobs:
           echo "VITE_API_URL=${{ steps.config.outputs.API_URL }}" > ./frontend/.env.production
 
       - name: Construir imagen local para escaneo
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         with:
           context: ./frontend
           load: true
@@ -131,7 +131,7 @@ jobs:
           severity: 'CRITICAL,HIGH'
 
       - name: Push Docker image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         with:
           context: ./frontend
           push: true

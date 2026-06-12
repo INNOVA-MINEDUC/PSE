@@ -92,7 +92,7 @@ jobs:
             type=sha,format=short
 
       - name: Construir imagen local para escaneo
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         with:
           context: ./backend
           load: true
@@ -125,7 +125,7 @@ jobs:
           severity: 'CRITICAL,HIGH'
 
       - name: Push Docker image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         with:
           context: ./backend
           push: true
