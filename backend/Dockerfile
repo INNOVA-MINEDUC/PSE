@@ -21,6 +21,9 @@ FROM node:22-alpine AS runner
 ENV NODE_ENV=production
 WORKDIR /app
 
+# Parchear CVE-2026-45447: OpenSSL heap use-after-free en PKCS7_verify
+RUN apk upgrade --no-cache libcrypto3 libssl3
+
 # Remover npm de la imagen de producción por seguridad (trae vulnerabilidades como picomatch)
 RUN rm -rf /usr/local/lib/node_modules/npm /usr/local/bin/npm /usr/local/bin/npx
 
