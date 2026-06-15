@@ -12,7 +12,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@amcharts/amcharts5": "^5.14.4",
+    "@amcharts/amcharts5": "^5.19.0",
     "@fontsource/roboto": "^5.2.8",
     "vue": "^3.5.22",
     "vue-router": "^4.6.3",
