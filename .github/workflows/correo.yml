@@ -1,6 +1,8 @@
 name: Notificar Commits por Correo
 on: [push]
 
+permissions: {}
+
 jobs:
   enviar_correo:
     runs-on: ubuntu-latest
