@@ -1,0 +1,21 @@
+name: Notificar Commits por Correo
+on: [push]
+
+permissions: {}
+
+jobs:
+  enviar_correo:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Enviar alerta de cambios
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          secure: true
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: "Nuevo commit en el repositorio"
+          to: ${{ secrets.DESTINATION_MAIL }}
+          from: GitHub Actions
+          body: "El usuario ${{ github.actor }} ha subido un nuevo cambio.\n\nMensaje del commit: ${{ github.event.head_commit.message }}\n\nRevisa los cambios exactos aquí: ${{ github.event.head_commit.url }}"
