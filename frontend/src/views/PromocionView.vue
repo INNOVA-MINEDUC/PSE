@@ -124,8 +124,6 @@
         </div>
 
         <div class="actions-cards-wrap">
-          <button class="actions-arrow actions-arrow-left" type="button">‹</button>
-
           <div class="actions-grid">
             <article
               v-for="(actividad, index) in actividades"

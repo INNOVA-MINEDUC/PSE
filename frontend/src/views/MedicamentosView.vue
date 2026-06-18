@@ -40,8 +40,6 @@
       <div class="med-inner">
         <!-- RESULTADOS -->
         <section class="results-slider">
-  <button class="results-arrow results-arrow-left" type="button">‹</button>
-
   <div class="results-track">
     <div class="result-card">
       <p class="result-tag">RESULTADOS</p>
@@ -92,7 +90,6 @@
     </div>
   </div>
 
-  <button class="results-arrow results-arrow-right" type="button">›</button>
 </section>
         <!-- ¿DÓNDE SE ENTREGAN? -->
         <div class="row row-info">
