@@ -2,6 +2,8 @@
   <main class="login-page">
     <div class="login-overlay"></div>
 
+    <ToastNotification />
+
     <section class="login-wrapper">
 
       <!-- CARD -->
@@ -14,14 +16,6 @@
         <div class="card-header">
           <h1 class="login-title">Iniciar sesión</h1>
           <p class="login-subtitle">Portal de Salud Escolar</p>
-        </div>
-
-        <div v-if="sessionExpired" class="login-expired">
-          Tu sesión ha expirado. Por favor inicia sesión nuevamente.
-        </div>
-
-        <div v-if="error" class="login-error">
-          {{ error }}
         </div>
 
         <form class="login-form" @submit.prevent="handleSubmit">
@@ -82,7 +76,7 @@
           <!-- SUBMIT -->
           <button type="submit" class="btn-login" :disabled="loading">
             <span v-if="loading" class="spinner"></span>
-            {{ loading ? "Ingresando..." : "Ingresar" }}
+            {{ loading ? "Validando..." : "Ingresar" }}
           </button>
 
           <!-- FORGOT -->
@@ -102,23 +96,29 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { ref, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
+import { useToast } from "@/composables/useToast";
+import ToastNotification from "@/components/ToastNotification.vue";
 
 const API_URL = import.meta.env.VITE_API_URL
 
 const router = useRouter();
 const route  = useRoute();
+const toast  = useToast();
 
 const email        = ref("");
 const password     = ref("");
-const error        = ref("");
 const loading      = ref(false);
 const showPassword = ref(false);
-const sessionExpired = computed(() => !!route.query.expired);
+
+onMounted(() => {
+  if (route.query.expired) {
+    toast.show("Su sesión ha expirado. Inicie sesión nuevamente.", "warning");
+  }
+});
 
 const handleSubmit = async () => {
-  error.value   = "";
   loading.value = true;
 
   try {
@@ -134,16 +134,18 @@ const handleSubmit = async () => {
     const data = await res.json();
 
     if (!res.ok) {
-      error.value = data.error || "Correo o contraseña incorrectos.";
+      toast.show(data.error || "Usuario o contraseña incorrectos.", "error");
       return;
     }
 
     localStorage.setItem("token", data.token);
+    toast.show("Bienvenido al sistema.", "success", 2000);
+
     const redirect = route.query.redirect || "/admin";
-    router.push(redirect);
+    setTimeout(() => router.push(redirect), 1500);
 
   } catch {
-    error.value = "No se pudo conectar con el servidor.";
+    toast.show("No se pudo conectar con el servidor.", "error");
   } finally {
     loading.value = false;
   }
@@ -227,25 +229,6 @@ const handleSubmit = async () => {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-}
-
-/* ── ALERTS ──────────────────────────────────────────── */
-.login-expired {
-  background: #fef3c7;
-  color: #92400e;
-  border-radius: 10px;
-  padding: 10px 14px;
-  font-size: 0.84rem;
-  margin-bottom: 14px;
-}
-
-.login-error {
-  background: #fee2e2;
-  color: #b91c1c;
-  border-radius: 10px;
-  padding: 10px 14px;
-  font-size: 0.84rem;
-  margin-bottom: 14px;
 }
 
 /* ── FORM ────────────────────────────────────────────── */
