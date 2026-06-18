@@ -29,12 +29,17 @@ migraciones son un paso **separado** del ciclo de vida, como manda la práctica 
 backend/
 ├── migrate.js                          # runner (config Umzug + CLI)
 └── migrations/
+    ├── _helpers.js                     # utilidades compartidas (NO es migración)
     ├── 0001-baseline-schema.js         # esquema completo inicial
-    └── 0002-incremental-columns.js     # columnas añadidas después
+    ├── 0002-incremental-columns.js     # columnas añadidas después
+    └── 0003-reconcile-baseline.js      # reconcilia drift de prod con el baseline
 ```
 
 - El **orden** lo define el prefijo numérico del nombre (`0001`, `0002`, ...).
   Umzug los ordena alfabéticamente.
+- El runner solo toma como migración los archivos que **empiezan con dígito**
+  (glob `migrations/[0-9]*.js`). Por eso `_helpers.js` (prefijo `_`) se ignora y
+  sirve para código compartido entre migraciones.
 - `migrate.js` conecta usando las variables de entorno `DB_HOST`, `DB_PORT`,
   `DB_USER`, `DB_PASSWORD`, `DB_NAME`.
 
@@ -168,6 +173,22 @@ soporta `ADD COLUMN IF NOT EXISTS`.
 hace nada (todas existen). **En una BD vieja** (creada antes de estos cambios):
 `0001` no toca las tablas existentes y `0002` agrega las columnas faltantes.
 
+### `0003-reconcile-baseline.js`
+Migración de **reconciliación de drift**. Las BD de producción se crearon desde un
+esquema viejo al que le faltaban columnas que `0002` no cubrió (ej.
+`noticias.contenido`, que rompía `createNoticia` con
+`Unknown column 'contenido'`). Recorre **todas** las columnas del baseline y añade
+solo las que falten (`addColumnIfMissing`, verificando `information_schema`). Solo
+columnas nullable o con `DEFAULT` (seguras en tablas con datos); no toca PK ni
+columnas `NOT NULL` sin default. En una BD sana es un no-op.
+
+Usa los helpers `addColumnIfMissing` / `dropColumnIfExists` de `_helpers.js`, los
+mismos que usa `0002`.
+
+> **Nota:** `0003.down()` es intencionalmente vacío. Es una reconciliación: las
+> columnas pueden haber existido antes, así que revertir borrándolas sería
+> incorrecto.
+
 ---
 
 ## 7. Resolución de problemas
@@ -178,3 +199,4 @@ hace nada (todas existen). **En una BD vieja** (creada antes de estos cambios):
 | El deploy se detiene en el paso de migrar | Una migración falló (fail-fast). Revisa el log SSH del workflow; corrige y re-deploya. |
 | "service pse-backend not found"           | El nombre del servicio en el `docker-compose.yml` del server no es `pse-backend`. Ajusta el comando en el workflow. |
 | Una migración no se aplica                | Ya figura en `SequelizeMeta`. Si necesitas re-correrla, es señal de que debes crear una migración nueva. |
+| `Unknown column '...'` en runtime         | Drift: la BD no tiene una columna del esquema esperado. Crea una migración de reconciliación con `addColumnIfMissing` (ver `0003`). |
