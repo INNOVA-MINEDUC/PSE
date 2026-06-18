@@ -36,7 +36,7 @@ export const sequelize = new Sequelize(
 
 export const umzug = new Umzug({
   migrations: {
-    glob: ["migrations/*.js", { cwd: __dirname }],
+    glob: ["migrations/[0-9]*.js", { cwd: __dirname }],
   },
   context: sequelize.getQueryInterface(),
   storage: new SequelizeStorage({ sequelize, tableName: "SequelizeMeta" }),

@@ -7,28 +7,7 @@
 // En BD nueva el baseline (0001) ya las creó → todas se omiten.
 // ============================================================
 
-async function addColumnIfMissing(sequelize, table, column, definition, after) {
-  const [rows] = await sequelize.query(
-    `SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS
-     WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?`,
-    { replacements: [table, column] }
-  );
-  if (rows.length > 0) return;
-  const afterClause = after ? ` AFTER \`${after}\`` : "";
-  await sequelize.query(
-    `ALTER TABLE \`${table}\` ADD COLUMN \`${column}\` ${definition}${afterClause}`
-  );
-}
-
-async function dropColumnIfExists(sequelize, table, column) {
-  const [rows] = await sequelize.query(
-    `SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS
-     WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?`,
-    { replacements: [table, column] }
-  );
-  if (rows.length === 0) return;
-  await sequelize.query(`ALTER TABLE \`${table}\` DROP COLUMN \`${column}\``);
-}
+import { addColumnIfMissing, dropColumnIfExists } from "./_helpers.js";
 
 const COLUMNS = [
   ["noticias", "miniatura_url", "TEXT NULL", "imagen_url"],

@@ -19,6 +19,10 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// App corre detrás de un reverse proxy (nginx). Confiar en el primer
+// hop para que express-rate-limit lea bien X-Forwarded-For.
+app.set("trust proxy", 1);
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
