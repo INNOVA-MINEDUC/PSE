@@ -850,8 +850,12 @@ const onImageChange = async (e, targetField = "miniatura_url") => {
   }
 };
 
-/* ── GALERÍA LOCAL (mockup — Fase 0) ─────────────────────────────── */
-const galeriaLocal = ref([]);
+/* ── GALERÍA ──────────────────────────────────────────────────────── */
+// Cada item: { tempId, preview, file, id }
+//   id=null  → nueva imagen pendiente de subir
+//   id=N     → imagen ya existente en BD
+const galeriaLocal   = ref([]);
+const galeriaDeleted = ref([]); // IDs de items existentes eliminados por el usuario
 
 const onGaleriaFilesChange = (e) => {
   const files = Array.from(e.target.files);
@@ -862,15 +866,17 @@ const onGaleriaFilesChange = (e) => {
         tempId: `${Date.now()}_${Math.random()}`,
         preview: ev.target.result,
         file,
+        id: null,
       });
     };
     reader.readAsDataURL(file);
   });
-  // limpiar input para poder volver a seleccionar los mismos archivos
   e.target.value = "";
 };
 
 const removeGaleriaLocal = (index) => {
+  const item = galeriaLocal.value[index];
+  if (item.id) galeriaDeleted.value.push(item.id);
   galeriaLocal.value.splice(index, 1);
 };
 import { useRouter } from "vue-router";
@@ -1306,8 +1312,10 @@ const fetchNoticias = async () => {
   }
 };
 
-const openModal = (noticia) => {
+const openModal = async (noticia) => {
   galeriaLocal.value = [];
+  galeriaDeleted.value = [];
+
   modal.value = {
     open: true,
     error: "",
@@ -1317,26 +1325,44 @@ const openModal = (noticia) => {
           fecha_publicacion: noticia.fecha_publicacion
             ? String(noticia.fecha_publicacion).slice(0, 10)
             : new Date().toISOString().slice(0, 10),
-          activo:       Number(noticia.activo ?? 1),
-          orden:        Number(noticia.orden  ?? 0),
+          activo:        Number(noticia.activo ?? 1),
+          orden:         Number(noticia.orden  ?? 0),
           miniatura_url: noticia.miniatura_url || noticia.imagen_url || "",
           hero_url:      noticia.hero_url      || noticia.imagen_url || "",
           autor:         noticia.autor         || "",
         }
       : {
-          titulo:           "",
+          titulo:            "",
           descripcion_corta: "",
-          contenido:        "",
-          imagen_url:       "",
-          miniatura_url:    "",
-          hero_url:         "",
-          autor:            "",
+          contenido:         "",
+          imagen_url:        "",
+          miniatura_url:     "",
+          hero_url:          "",
+          autor:             "",
           fecha_publicacion: new Date().toISOString().slice(0, 10),
           modulo:  "promocion",
           activo:  1,
           orden:   0,
         },
   };
+
+  // Cargar galería existente al editar
+  if (noticia?.id) {
+    try {
+      const res  = await fetch(`${API_URL}/api/noticias/${noticia.id}`);
+      const data = await res.json();
+      if (data.success && Array.isArray(data.data.galeria)) {
+        galeriaLocal.value = data.data.galeria.map((img) => ({
+          tempId:  `existing_${img.id}`,
+          preview: resolveUrl(img.imagen_url),
+          file:    null,
+          id:      img.id,
+        }));
+      }
+    } catch (err) {
+      console.error("Error cargando galería:", err);
+    }
+  }
 };
 
 const saveNoticia = async () => {
@@ -1352,10 +1378,7 @@ const saveNoticia = async () => {
 
   try {
     const isEdit = Boolean(noticia.id);
-    const url = isEdit
-      ? `${API_URL}/api/noticias/${noticia.id}`
-      : `${API_URL}/api/noticias`;
-
+    const url    = isEdit ? `${API_URL}/api/noticias/${noticia.id}` : `${API_URL}/api/noticias`;
     const method = isEdit ? "PUT" : "POST";
 
     const res = await fetch(url, {
@@ -1364,15 +1387,48 @@ const saveNoticia = async () => {
       body: JSON.stringify(noticia),
     });
 
-    if (res.status === 401) {
-      handleExpiredSession();
-      return;
-    }
+    if (res.status === 401) { handleExpiredSession(); return; }
 
     const data = await res.json();
 
     if (!data.success) {
       modal.value.error = data.error || "Error al guardar la noticia.";
+      return;
+    }
+
+    const noticiaId = isEdit ? noticia.id : data.id;
+
+    // Eliminar imágenes de galería removidas por el usuario
+    for (const imgId of galeriaDeleted.value) {
+      await fetch(`${API_URL}/api/noticias/${noticiaId}/galeria/${imgId}`, {
+        method: "DELETE",
+        headers: { Authorization: token ? `Bearer ${token}` : "" },
+      });
+    }
+
+    // Subir imágenes nuevas de la galería
+    const galeriaErrors = [];
+    for (const item of galeriaLocal.value) {
+      if (!item.file) continue; // ya existe en BD, skip
+      const fd = new FormData();
+      fd.append("imagen", item.file);
+      try {
+        const r = await fetch(`${API_URL}/api/noticias/${noticiaId}/galeria`, {
+          method: "POST",
+          body: fd,
+          headers: { Authorization: token ? `Bearer ${token}` : "" },
+        });
+        const rData = await r.json();
+        if (!rData.success) galeriaErrors.push(rData.error || "Error al subir imagen");
+      } catch {
+        galeriaErrors.push("Error de red al subir imagen de galería");
+      }
+    }
+
+    if (galeriaErrors.length) {
+      modal.value.error = `Noticia guardada, pero fallaron ${galeriaErrors.length} imagen(es) de galería: ${galeriaErrors[0]}`;
+      savingNoticia.value = false;
+      await fetchNoticias();
       return;
     }
 

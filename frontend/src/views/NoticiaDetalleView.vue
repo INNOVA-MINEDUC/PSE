@@ -170,9 +170,12 @@ onMounted(async () => {
     if (data.success) {
       noticia.value = {
         ...data.data,
-        hero_url:     resolveImage(data.data.imagen_url),
-        galeria:      [],
-        autor:        data.data.autor || 'Programa de Salud Escolar — MINEDUC',
+        hero_url: resolveImage(data.data.hero_url || data.data.imagen_url),
+        galeria:  (data.data.galeria || []).map((img) => ({
+          ...img,
+          imagen_url: resolveImage(img.imagen_url),
+        })),
+        autor: data.data.autor || 'Programa de Salud Escolar — MINEDUC',
       }
     } else {
       errorMsg.value = 'Noticia no encontrada.'

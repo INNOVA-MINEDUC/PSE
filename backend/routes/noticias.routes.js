@@ -5,6 +5,8 @@ import {
   createNoticia,
   updateNoticia,
   deleteNoticia,
+  addGaleriaImage,
+  deleteGaleriaImage,
 } from "../controllers/noticias.controller.js";
 
 import { uploadNoticias } from "../meddleware/upload.middleware.js";
@@ -22,20 +24,16 @@ router.post("/", protectedLimiter, requireToken, createNoticia);
 router.put("/:id", protectedLimiter, requireToken, updateNoticia);
 router.delete("/:id", protectedLimiter, requireToken, deleteNoticia);
 
+// Upload imagen miniatura/hero
 router.post("/upload", uploadLimiter, requireToken, uploadNoticias.single("imagen"), (req, res) => {
   if (!req.file) {
-    return res.status(400).json({
-      success: false,
-      error: "No se subió ninguna imagen",
-    });
+    return res.status(400).json({ success: false, error: "No se subió ninguna imagen" });
   }
-
-  const url = `/uploads/noticias/${req.file.filename}`;
-
-  res.json({
-    success: true,
-    url,
-  });
+  res.json({ success: true, url: `/uploads/noticias/${req.file.filename}` });
 });
+
+// Galería de imágenes adicionales
+router.post("/:id/galeria", uploadLimiter, requireToken, uploadNoticias.single("imagen"), addGaleriaImage);
+router.delete("/:id/galeria/:imgId", protectedLimiter, requireToken, deleteGaleriaImage);
 
 export default router;

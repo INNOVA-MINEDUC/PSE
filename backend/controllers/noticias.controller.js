@@ -17,23 +17,26 @@ export const getNoticiaById = async (req, res) => {
     const { id } = req.params;
 
     const [[noticia]] = await req.db.query(
-      `
-      SELECT *
-      FROM noticias
-      WHERE id = ?
-      LIMIT 1
-      `,
+      `SELECT * FROM noticias WHERE id = ? LIMIT 1`,
       [id]
     );
 
     if (!noticia) {
-      return res.status(404).json({
-        success: false,
-        error: "Noticia no encontrada",
-      });
+      return res.status(404).json({ success: false, error: "Noticia no encontrada" });
     }
 
-    res.json({ success: true, data: noticia });
+    let galeria = [];
+    try {
+      const [rows] = await req.db.query(
+        `SELECT id, imagen_url, orden FROM noticia_galeria WHERE noticia_id = ? ORDER BY orden ASC, id ASC`,
+        [id]
+      );
+      galeria = rows;
+    } catch (_) {
+      // tabla aún no existe (migración pendiente) → galería vacía
+    }
+
+    res.json({ success: true, data: { ...noticia, galeria } });
   } catch (error) {
     console.error("ERROR getNoticiaById:", error);
     res.status(500).json({ success: false, error: error.message });
@@ -47,6 +50,9 @@ export const createNoticia = async (req, res) => {
       descripcion_corta = "",
       contenido = "",
       imagen_url = "",
+      miniatura_url = "",
+      hero_url = "",
+      autor = "",
       fecha_publicacion = null,
       modulo = "general",
       activo = 1,
@@ -54,23 +60,21 @@ export const createNoticia = async (req, res) => {
     } = req.body;
 
     if (!titulo) {
-      return res.status(400).json({
-        success: false,
-        error: "El título es requerido",
-      });
+      return res.status(400).json({ success: false, error: "El título es requerido" });
     }
 
-    await req.db.query(
-      `
-      INSERT INTO noticias
-      (titulo, descripcion_corta, contenido, imagen_url, fecha_publicacion, modulo, activo, orden)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-      `,
+    const [result] = await req.db.query(
+      `INSERT INTO noticias
+       (titulo, descripcion_corta, contenido, imagen_url, miniatura_url, hero_url, autor, fecha_publicacion, modulo, activo, orden)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         titulo,
         descripcion_corta,
         contenido,
         imagen_url,
+        miniatura_url,
+        hero_url,
+        autor,
         fecha_publicacion,
         modulo,
         activo ? 1 : 0,
@@ -78,7 +82,7 @@ export const createNoticia = async (req, res) => {
       ]
     );
 
-    res.json({ success: true, message: "Noticia creada correctamente" });
+    res.json({ success: true, id: result.insertId, message: "Noticia creada correctamente" });
   } catch (error) {
     console.error("ERROR createNoticia:", error);
     res.status(500).json({ success: false, error: error.message });
@@ -94,6 +98,9 @@ export const updateNoticia = async (req, res) => {
       descripcion_corta = "",
       contenido = "",
       imagen_url = "",
+      miniatura_url = "",
+      hero_url = "",
+      autor = "",
       fecha_publicacion = null,
       modulo = "general",
       activo = 1,
@@ -101,30 +108,31 @@ export const updateNoticia = async (req, res) => {
     } = req.body;
 
     if (!titulo) {
-      return res.status(400).json({
-        success: false,
-        error: "El título es requerido",
-      });
+      return res.status(400).json({ success: false, error: "El título es requerido" });
     }
 
     await req.db.query(
-      `
-      UPDATE noticias
-      SET titulo = ?,
-          descripcion_corta = ?,
-          contenido = ?,
-          imagen_url = ?,
-          fecha_publicacion = ?,
-          modulo = ?,
-          activo = ?,
-          orden = ?
-      WHERE id = ?
-      `,
+      `UPDATE noticias
+       SET titulo = ?,
+           descripcion_corta = ?,
+           contenido = ?,
+           imagen_url = ?,
+           miniatura_url = ?,
+           hero_url = ?,
+           autor = ?,
+           fecha_publicacion = ?,
+           modulo = ?,
+           activo = ?,
+           orden = ?
+       WHERE id = ?`,
       [
         titulo,
         descripcion_corta,
         contenido,
         imagen_url,
+        miniatura_url,
+        hero_url,
+        autor,
         fecha_publicacion,
         modulo,
         activo ? 1 : 0,
@@ -149,6 +157,56 @@ export const deleteNoticia = async (req, res) => {
     res.json({ success: true, message: "Noticia eliminada correctamente" });
   } catch (error) {
     console.error("ERROR deleteNoticia:", error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+// ── GALERÍA ───────────────────────────────────────────────────────────
+
+export const addGaleriaImage = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!req.file) {
+      return res.status(400).json({ success: false, error: "No se subió ninguna imagen" });
+    }
+
+    const [[noticia]] = await req.db.query(
+      "SELECT id FROM noticias WHERE id = ? LIMIT 1",
+      [id]
+    );
+    if (!noticia) {
+      return res.status(404).json({ success: false, error: "Noticia no encontrada" });
+    }
+
+    const [[{ maxOrden }]] = await req.db.query(
+      "SELECT COALESCE(MAX(orden), -1) AS maxOrden FROM noticia_galeria WHERE noticia_id = ?",
+      [id]
+    );
+
+    const url = `/uploads/noticias/${req.file.filename}`;
+
+    const [result] = await req.db.query(
+      "INSERT INTO noticia_galeria (noticia_id, imagen_url, orden) VALUES (?, ?, ?)",
+      [id, url, maxOrden + 1]
+    );
+
+    res.json({ success: true, id: result.insertId, url });
+  } catch (error) {
+    console.error("ERROR addGaleriaImage:", error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+export const deleteGaleriaImage = async (req, res) => {
+  try {
+    const { imgId } = req.params;
+
+    await req.db.query("DELETE FROM noticia_galeria WHERE id = ?", [imgId]);
+
+    res.json({ success: true, message: "Imagen eliminada de la galería" });
+  } catch (error) {
+    console.error("ERROR deleteGaleriaImage:", error);
     res.status(500).json({ success: false, error: error.message });
   }
 };
