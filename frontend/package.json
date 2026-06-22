@@ -22,7 +22,7 @@
     "@playwright/test": "^1.60.0",
     "@vitejs/plugin-vue": "^6.0.1",
     "playwright": "^1.60.0",
-    "sharp": "^0.34.5",
+    "sharp": "^0.35.2",
     "vite": "^7.1.11",
     "vite-plugin-vue-devtools": "^8.0.3"
   }
