@@ -21,7 +21,7 @@ jobs:
       security-events: write
     steps:
       - name: Checkout del código
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       
       - name: Instalar y Ejecutar Semgrep
         run: |
@@ -45,7 +45,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       # Determina el ambiente según la rama que disparó el workflow
       - name: Set environment config
