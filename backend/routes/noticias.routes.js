@@ -19,7 +19,7 @@ const router = express.Router();
 router.get("/", publicLimiter, getNoticias);
 router.get("/:id", publicLimiter, getNoticiaById);
 
-// Escritura protegida — requiere token ASISTO válido
+// Escritura protegida — requiere token válido (rol admin o user)
 router.post("/", protectedLimiter, requireToken, createNoticia);
 router.put("/:id", protectedLimiter, requireToken, updateNoticia);
 router.delete("/:id", protectedLimiter, requireToken, deleteNoticia);

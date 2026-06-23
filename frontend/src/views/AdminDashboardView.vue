@@ -38,6 +38,14 @@
           Medicamentos
         </button>
 
+        <template v-if="user?.rol === 'admin'">
+          <p class="nav-section">Administración</p>
+          <button class="nav-item" :class="{ active: activeModule === 'usuarios' }" @click="go('usuarios')">
+            <span class="nav-dot" :class="{ active: activeModule === 'usuarios' }"></span>
+            Usuarios
+          </button>
+        </template>
+
       </nav>
 
       <div class="sidebar-footer">
@@ -71,7 +79,7 @@
           <div class="dh-hero">
             <div class="dh-hero-inner">
               <div>
-                <h2 class="dh-title">Bienvenido, {{ user?.nombres || 'Administrador' }}</h2>
+                <h2 class="dh-title">Bienvenido, {{ user?.nombre || 'Administrador' }}</h2>
                 <p class="dh-sub">{{ currentDate }} · Portal de Salud Escolar</p>
               </div>
               <div class="dh-user">
@@ -811,6 +819,177 @@
             </template>
           </section>
         </template>
+
+        <!-- ── MÓDULO USUARIOS ──────────────────────────────── -->
+        <template v-if="activeModule === 'usuarios'">
+          <section class="dashboard-card">
+            <div class="mod-header">
+              <div class="mod-header-left">
+                <span class="mod-icon-bg" style="background:#ede9fe;color:#7c3aed;">👤</span>
+                <div>
+                  <p class="section-title">Gestión de usuarios</p>
+                  <p class="section-sub">Administra los usuarios con acceso al panel.</p>
+                </div>
+              </div>
+              <button class="add-btn" @click="openUsuarioModal(null)">+ Nuevo usuario</button>
+            </div>
+
+            <div v-if="loadingUsuarios" class="loading-state">Cargando usuarios…</div>
+
+            <div class="table-wrap" v-else>
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Nombre</th>
+                    <th>Usuario</th>
+                    <th>Correo</th>
+                    <th>Rol</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="u in listaUsuarios" :key="u.id">
+                    <td class="td-title">{{ u.nombre }}</td>
+                    <td class="td-muted"><code style="font-size:0.8rem;">{{ u.usuario }}</code></td>
+                    <td class="td-muted">{{ u.correo }}</td>
+                    <td>
+                      <span class="badge" :class="u.rol === 'admin' ? 'blue' : 'green'">
+                        {{ u.rol === 'admin' ? 'Administrador' : 'Usuario' }}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="badge" :class="u.activo ? 'green' : 'gray'">
+                        {{ u.activo ? 'Activo' : 'Inactivo' }}
+                      </span>
+                    </td>
+                    <td>
+                      <div class="td-actions">
+                        <button class="act-btn" @click="openUsuarioModal(u)">Editar</button>
+                        <button
+                          class="act-btn"
+                          :class="u.activo ? 'danger' : ''"
+                          @click="toggleUsuario(u)"
+                          :disabled="u.id === user?.id"
+                          :title="u.id === user?.id ? 'No puedes modificar tu propia sesión' : ''"
+                        >
+                          {{ u.activo ? 'Desactivar' : 'Activar' }}
+                        </button>
+                        <button class="act-btn" @click="openResetModal(u)">Contraseña</button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr v-if="!listaUsuarios.length">
+                    <td colspan="6" class="empty-row">No hay usuarios registrados.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <!-- Modal crear / editar usuario -->
+          <div class="modal-overlay" v-if="usuarioModal.open" @click.self="usuarioModal.open = false">
+            <div class="modal-card">
+              <div class="modal-header">
+                <h3>{{ usuarioModal.isEdit ? 'Editar usuario' : 'Nuevo usuario' }}</h3>
+                <button class="modal-close-btn" type="button" @click="usuarioModal.open = false">✕</button>
+              </div>
+
+              <div class="field">
+                <label>Nombre completo <span class="req">*</span></label>
+                <input v-model="usuarioModal.data.nombre" type="text" placeholder="Ej: María García López" />
+              </div>
+              <div class="field-row">
+                <div class="field">
+                  <label>Correo electrónico <span class="req">*</span></label>
+                  <input v-model="usuarioModal.data.correo" type="email" placeholder="correo@ejemplo.com" />
+                </div>
+                <div class="field">
+                  <label>Usuario (login) <span class="req">*</span></label>
+                  <input v-model="usuarioModal.data.usuario" type="text" placeholder="nombre.apellido" />
+                </div>
+              </div>
+              <div class="field-row">
+                <div class="field" v-if="!usuarioModal.isEdit">
+                  <label>Contraseña <span class="req">*</span></label>
+                  <div class="pw-wrap">
+                    <input
+                      v-model="usuarioModal.data.password"
+                      :type="showUsuarioPassword ? 'text' : 'password'"
+                      placeholder="Mínimo 8 caracteres"
+                    />
+                    <button type="button" class="pw-toggle" @click="showUsuarioPassword = !showUsuarioPassword" :aria-label="showUsuarioPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'">
+                      <svg v-if="!showUsuarioPassword" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+                      </svg>
+                      <svg v-else width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+                <div class="field">
+                  <label>Rol <span class="req">*</span></label>
+                  <select v-model="usuarioModal.data.rol">
+                    <option value="admin">Administrador</option>
+                    <option value="user">Usuario</option>
+                  </select>
+                </div>
+              </div>
+
+              <p v-if="usuarioModal.error" class="form-error">{{ usuarioModal.error }}</p>
+
+              <div class="modal-actions">
+                <button class="act-btn" @click="usuarioModal.open = false">Cancelar</button>
+                <button class="save-btn" :disabled="savingUsuario" @click="saveUsuario">
+                  {{ savingUsuario ? 'Guardando…' : 'Guardar' }}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Modal restablecer contraseña -->
+          <div class="modal-overlay" v-if="resetModal.open" @click.self="resetModal.open = false">
+            <div class="modal-card">
+              <div class="modal-header">
+                <h3>Restablecer contraseña</h3>
+                <button class="modal-close-btn" type="button" @click="resetModal.open = false">✕</button>
+              </div>
+
+              <p style="font-size:0.9rem;color:#64748b;margin:0;">
+                Usuario: <strong>{{ resetModal.usuario?.nombre }}</strong> ({{ resetModal.usuario?.usuario }})
+              </p>
+              <div class="field">
+                <label>Nueva contraseña <span class="req">*</span></label>
+                <div class="pw-wrap">
+                  <input
+                    v-model="resetModal.password"
+                    :type="showResetPassword ? 'text' : 'password'"
+                    placeholder="Mínimo 8 caracteres"
+                  />
+                  <button type="button" class="pw-toggle" @click="showResetPassword = !showResetPassword" :aria-label="showResetPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'">
+                    <svg v-if="!showResetPassword" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+                    </svg>
+                    <svg v-else width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <p v-if="resetModal.error" class="form-error">{{ resetModal.error }}</p>
+
+              <div class="modal-actions">
+                <button class="act-btn" @click="resetModal.open = false">Cancelar</button>
+                <button class="save-btn" :disabled="resetModal.saving" @click="doResetPassword">
+                  {{ resetModal.saving ? 'Guardando…' : 'Restablecer' }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </template>
+
       </div>
     </div>
   </main>
@@ -890,12 +1069,13 @@ const activeModule = ref("dashboard");
 
 
 const pageTitles = {
-  dashboard: "Panel de administración PSE",
-  noticias: "Noticias y promoción",
-  atencion: "Atención a enfermedades",
-  medicamentos: "Suministro de medicamentos",
-  llamadas: "Centro de llamadas 1528",
-  funerario: "Apoyo funerario",
+  dashboard:   "Panel de administración PSE",
+  noticias:    "Noticias y promoción",
+  atencion:    "Atención a enfermedades",
+  medicamentos:"Suministro de medicamentos",
+  llamadas:    "Centro de llamadas 1528",
+  funerario:   "Apoyo funerario",
+  usuarios:    "Gestión de usuarios",
 };
 
 const currentTitle = computed(() => pageTitles[activeModule.value] || "Panel PSE");
@@ -944,24 +1124,21 @@ const getModuloLabel = (modulo) => {
 };
 
 const fullName = computed(() => {
-  const nombres = user.value?.nombres || "Administrador";
-  const apellidos = user.value?.apellidos || "PSE";
-  return `${nombres} ${apellidos}`.trim();
+  return user.value?.nombre || "Administrador PSE";
 });
 
 const initials = computed(() => {
-  const nombres = user.value?.nombres || "A";
-  const apellidos = user.value?.apellidos || "P";
-  return `${nombres.charAt(0)}${apellidos.charAt(0)}`.toUpperCase();
+  const nombre = (user.value?.nombre || "Admin PSE").trim();
+  const partes  = nombre.split(/\s+/);
+  if (partes.length >= 2) {
+    return (partes[0][0] + partes[partes.length - 1][0]).toUpperCase();
+  }
+  return (partes[0][0] || "A").toUpperCase();
 });
 
 const roleText = computed(() => {
-  if (!user.value?.roles?.length) return "Administrador";
-  return user.value.roles
-    .map((role) => role.nombre.replace(/\bASISTO\b/gi, "").trim())
-    .join(", ")
-    .replace(/\s+/g, " ")
-    .trim() || "Administrador";
+  if (!user.value) return "Administrador";
+  return user.value.rol === "admin" ? "Administrador" : "Usuario";
 });
 
 const currentDate = computed(() =>
@@ -1018,6 +1195,115 @@ const dashStats = ref({
   funerario:    { monto_total: 0, apoyos_otorgados: 0 },
 });
 
+// ── GESTIÓN DE USUARIOS ───────────────────────────────────────
+const listaUsuarios       = ref([]);
+const loadingUsuarios     = ref(false);
+const savingUsuario       = ref(false);
+const showUsuarioPassword = ref(false);
+const showResetPassword   = ref(false);
+
+const usuarioModal = ref({
+  open: false, isEdit: false,
+  data: { nombre: "", correo: "", usuario: "", password: "", rol: "user" },
+  error: "",
+});
+
+const resetModal = ref({
+  open: false, usuario: null, password: "", saving: false, error: "",
+});
+
+const fetchUsuarios = async () => {
+  loadingUsuarios.value = true;
+  try {
+    const res  = await fetch(`${API_URL}/api/usuarios`, { headers: authHeaders.value });
+    if (res.status === 401) { handleExpiredSession(); return; }
+    const data = await res.json();
+    if (data.success) listaUsuarios.value = data.usuarios;
+  } catch (err) {
+    console.error("Error cargando usuarios:", err);
+  } finally {
+    loadingUsuarios.value = false;
+  }
+};
+
+const openUsuarioModal = (u = null) => {
+  showUsuarioPassword.value = false;
+  usuarioModal.value = {
+    open: true,
+    isEdit: !!u,
+    data: u
+      ? { id: u.id, nombre: u.nombre, correo: u.correo, usuario: u.usuario, rol: u.rol }
+      : { nombre: "", correo: "", usuario: "", password: "", rol: "user" },
+    error: "",
+  };
+};
+
+const saveUsuario = async () => {
+  const d = usuarioModal.value.data;
+  if (!d.nombre || !d.correo || !d.usuario || !d.rol) {
+    usuarioModal.value.error = "Todos los campos marcados con * son obligatorios.";
+    return;
+  }
+  if (!usuarioModal.value.isEdit && !d.password) {
+    usuarioModal.value.error = "La contraseña es obligatoria.";
+    return;
+  }
+  savingUsuario.value = true;
+  try {
+    const url    = usuarioModal.value.isEdit ? `${API_URL}/api/usuarios/${d.id}` : `${API_URL}/api/usuarios`;
+    const method = usuarioModal.value.isEdit ? "PUT" : "POST";
+    const res    = await fetch(url, { method, headers: authHeaders.value, body: JSON.stringify(d) });
+    if (res.status === 401) { handleExpiredSession(); return; }
+    const data = await res.json();
+    if (data.success) {
+      usuarioModal.value.open = false;
+      await fetchUsuarios();
+    } else {
+      usuarioModal.value.error = data.error || "Error al guardar usuario.";
+    }
+  } catch { usuarioModal.value.error = "Error de red."; }
+  finally { savingUsuario.value = false; }
+};
+
+const toggleUsuario = async (u) => {
+  try {
+    const res  = await fetch(`${API_URL}/api/usuarios/${u.id}/toggle-activo`, { method: "PATCH", headers: authHeaders.value });
+    if (res.status === 401) { handleExpiredSession(); return; }
+    const data = await res.json();
+    if (data.success) await fetchUsuarios();
+  } catch (err) { console.error("Error toggling usuario:", err); }
+};
+
+const openResetModal = (u) => {
+  showResetPassword.value = false;
+  resetModal.value = { open: true, usuario: u, password: "", saving: false, error: "" };
+};
+
+const doResetPassword = async () => {
+  if (!resetModal.value.password || resetModal.value.password.length < 8) {
+    resetModal.value.error = "La contraseña debe tener al menos 8 caracteres.";
+    return;
+  }
+  resetModal.value.saving = true;
+  try {
+    const res  = await fetch(`${API_URL}/api/usuarios/${resetModal.value.usuario.id}/reset-password`, {
+      method: "PATCH", headers: authHeaders.value,
+      body: JSON.stringify({ password: resetModal.value.password }),
+    });
+    if (res.status === 401) { handleExpiredSession(); return; }
+    const data = await res.json();
+    if (data.success) { resetModal.value.open = false; }
+    else { resetModal.value.error = data.error || "Error al restablecer contraseña."; }
+  } catch { resetModal.value.error = "Error de red."; }
+  finally { resetModal.value.saving = false; }
+};
+
+watch(
+  () => activeModule.value,
+  (mod) => { if (mod === "usuarios") fetchUsuarios(); }
+);
+
+// ─────────────────────────────────────────────────────────────
 const fetchDashStats = async () => {
   try {
     const [ra, rm, rl, rf] = await Promise.all([
@@ -3315,5 +3601,39 @@ onMounted(() => {
 
 .url-input-sm:focus {
   border-color: #17c4e8;
+}
+
+/* ── PASSWORD TOGGLE ─────────────────────────────────────── */
+.pw-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.pw-wrap input {
+  flex: 1;
+  padding-right: 46px;
+}
+
+.pw-toggle {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 46px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0 14px 14px 0;
+  transition: color 0.15s, background 0.15s;
+}
+
+.pw-toggle:hover {
+  color: #17c4e8;
+  background: rgba(23, 196, 232, 0.06);
 }
 </style>

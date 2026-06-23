@@ -20,21 +20,21 @@
 
         <form class="login-form" @submit.prevent="handleSubmit">
 
-          <!-- EMAIL -->
+          <!-- USUARIO -->
           <div class="input-group">
-            <label for="email">Correo electrónico</label>
+            <label for="usuario">Usuario o correo</label>
             <div class="input-wrap">
               <span class="input-icon">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <rect x="2" y="4" width="20" height="16" rx="2"/>
-                  <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+                  <circle cx="12" cy="8" r="4"/>
+                  <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
                 </svg>
               </span>
               <input
-                id="email"
-                v-model="email"
-                type="email"
-                placeholder="usuario@mineduc.edu.gt"
+                id="usuario"
+                v-model="usuario"
+                type="text"
+                placeholder="nombre.apellido o correo@ejemplo.com"
                 autocomplete="username"
                 required
               />
@@ -107,7 +107,7 @@ const router = useRouter();
 const route  = useRoute();
 const toast  = useToast();
 
-const email        = ref("");
+const usuario      = ref("");
 const password     = ref("");
 const loading      = ref(false);
 const showPassword = ref(false);
@@ -126,8 +126,8 @@ const handleSubmit = async () => {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        correoElectronico: email.value.trim(),
-        clave: password.value.trim(),
+        usuario:  usuario.value.trim(),
+        password: password.value.trim(),
       }),
     });
 
