@@ -15,6 +15,7 @@ import llamadasRoutes from "./routes/llamadas.routes.js";
 import funerarioRoutes from "./routes/funerario.routes.js";
 import archivosRoutes from "./routes/archivos.routes.js";
 import usuariosRoutes from "./routes/usuarios.routes.js";
+import { uploadLimiter, protectedLimiter } from "./middleware/rateLimiter.middleware.js";
 
 dotenv.config();
 
@@ -72,7 +73,7 @@ app.get("/api/db-check", async (req, res) => {
 });
 
 // ── Login local (reemplaza ASISTO) ───────────────────────────
-app.post("/api/auth/login", async (req, res) => {
+app.post("/api/auth/login", uploadLimiter, async (req, res) => {
   try {
     const usuario  = String(req.body.usuario  || "").trim();
     const password = String(req.body.password || "").trim();
@@ -134,7 +135,7 @@ app.post("/api/auth/login", async (req, res) => {
 });
 
 // ── Usuario actual ────────────────────────────────────────────
-app.get("/api/auth/me", async (req, res) => {
+app.get("/api/auth/me", protectedLimiter, async (req, res) => {
   try {
     const authHeader = req.headers.authorization;
 
