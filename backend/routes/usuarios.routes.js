@@ -11,13 +11,10 @@ import { protectedLimiter } from "../middleware/rateLimiter.middleware.js";
 
 const router = express.Router();
 
-// Todas las rutas requieren token válido + rol admin
-const adminOnly = [protectedLimiter, requireToken, requireRole("admin")];
-
-router.get("/",                      adminOnly, listUsuarios);
-router.post("/",                     adminOnly, createUsuario);
-router.put("/:id",                   adminOnly, updateUsuario);
-router.patch("/:id/toggle-activo",   adminOnly, toggleActivo);
-router.patch("/:id/reset-password",  adminOnly, resetPassword);
+router.get("/",                     protectedLimiter, requireToken, requireRole("admin"), listUsuarios);
+router.post("/",                    protectedLimiter, requireToken, requireRole("admin"), createUsuario);
+router.put("/:id",                  protectedLimiter, requireToken, requireRole("admin"), updateUsuario);
+router.patch("/:id/toggle-activo",  protectedLimiter, requireToken, requireRole("admin"), toggleActivo);
+router.patch("/:id/reset-password", protectedLimiter, requireToken, requireRole("admin"), resetPassword);
 
 export default router;
