@@ -6,12 +6,14 @@
 //   activo         TINYINT(1)          — estado del usuario
 //   actualizado_en DATETIME            — timestamp de última edición
 //
-// Inserta el usuario administrador inicial cuya contraseña
-// se lee desde la variable de entorno ADMIN_INITIAL_PASSWORD.
-// La migración falla intencionalmente si esa variable no está
-// definida para evitar instalar el sistema sin credenciales.
+// Seed de administrador inicial:
+//   - Si ya existe un usuario con role='admin' → no hace nada.
+//   - Si no existe admin y ADMIN_INITIAL_PASSWORD está definida
+//     → crea el usuario administrador con esa contraseña.
+//   - Si no existe admin y ADMIN_INITIAL_PASSWORD NO está definida
+//     → muestra un warning y continúa sin fallar.
 //
-// Idempotente: addColumnIfMissing + INSERT IGNORE.
+// Idempotente: addColumnIfMissing + verificación previa de admin.
 // No modifica migraciones anteriores (0001–0004).
 // ============================================================
 
@@ -21,16 +23,6 @@ import { addColumnIfMissing } from "./_helpers.js";
 /** @param {{ context: import('sequelize').QueryInterface }} ctx */
 export async function up({ context: queryInterface }) {
   const { sequelize } = queryInterface;
-
-  const adminPassword = process.env.ADMIN_INITIAL_PASSWORD;
-  if (!adminPassword) {
-    throw new Error(
-      "[0005] Variable de entorno ADMIN_INITIAL_PASSWORD no definida.\n" +
-        "Define la contraseña del administrador inicial en tu archivo .env\n" +
-        "antes de ejecutar esta migración.\n" +
-        "Ejemplo: ADMIN_INITIAL_PASSWORD=TuContraseñaSegura2025@"
-    );
-  }
 
   // ── Columnas nuevas ────────────────────────────────────────
   await addColumnIfMissing(
@@ -76,7 +68,30 @@ export async function up({ context: queryInterface }) {
     `ALTER TABLE users MODIFY COLUMN role VARCHAR(50) NOT NULL DEFAULT 'user'`
   );
 
+  console.log("[0005] Tabla users ampliada correctamente.");
+
   // ── Seed: usuario administrador inicial ───────────────────
+  const [adminRows] = await sequelize.query(
+    `SELECT 1 FROM users WHERE role = 'admin' LIMIT 1`
+  );
+
+  if (adminRows.length) {
+    console.log("[0005] Ya existe un usuario con role='admin'. Se omite la creación del admin inicial.");
+    return;
+  }
+
+  const adminPassword = process.env.ADMIN_INITIAL_PASSWORD;
+
+  if (!adminPassword) {
+    console.warn(
+      "[0005] WARNING: No se encontró un administrador ni la variable ADMIN_INITIAL_PASSWORD.\n" +
+      "         No se creó el usuario administrador inicial.\n" +
+      "         Define ADMIN_INITIAL_PASSWORD en tu archivo .env y vuelve a ejecutar\n" +
+      "         el script de seed: node scripts/seedAdmin.js"
+    );
+    return;
+  }
+
   const passwordHash = await bcrypt.hash(adminPassword, 10);
 
   await sequelize.query(
@@ -93,14 +108,14 @@ export async function up({ context: queryInterface }) {
     }
   );
 
-  console.log("[0005] Tabla users ampliada. Admin inicial: admin@pse.mineduc.edu.gt / usuario: admin");
+  console.log("[0005] Admin inicial creado: admin@pse.mineduc.edu.gt / usuario: admin");
 }
 
 /** @param {{ context: import('sequelize').QueryInterface }} ctx */
 export async function down({ context: queryInterface }) {
   const { sequelize } = queryInterface;
 
-  // Revertir solo lo que esta migración agregó
+  // Revertir solo lo que esta migración pudo haber insertado
   await sequelize.query(
     `DELETE FROM users WHERE email = 'admin@pse.mineduc.edu.gt' AND usuario = 'admin'`
   );
