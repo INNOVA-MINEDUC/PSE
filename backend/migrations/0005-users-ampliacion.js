@@ -72,7 +72,13 @@ export async function up({ context: queryInterface }) {
 
   // ── Seed: usuario administrador inicial ───────────────────
   const [adminRows] = await sequelize.query(
-    `SELECT 1 FROM users WHERE role = 'admin' LIMIT 1`
+    `SELECT 1
+     FROM users
+     WHERE usuario  = 'admin'
+       AND email    = 'admin@pse.mineduc.edu.gt'
+       AND role     = 'admin' COLLATE utf8mb4_bin
+       AND activo   = 1
+     LIMIT 1`
   );
 
   if (adminRows.length) {
