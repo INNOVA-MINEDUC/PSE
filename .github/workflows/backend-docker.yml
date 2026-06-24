@@ -166,6 +166,7 @@ jobs:
             # Migraciones: one-off container con la imagen recién bajada.
             # Fail-fast: si fallan, set -e aborta y NO se actualiza la app.
             docker compose run --rm pse-backend node migrate.js up
+            docker compose run --rm -e NODE_ENV=development pse-backend node scripts/ensureAdmin.js
             docker compose up -d
             docker image prune -a -f
 
