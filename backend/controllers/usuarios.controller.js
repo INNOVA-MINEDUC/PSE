@@ -1,4 +1,5 @@
 import bcrypt from "bcrypt";
+import { logAudit } from "../utils/logAudit.js";
 
 const ROLES_VALIDOS = ["admin", "user"];
 
@@ -62,6 +63,14 @@ export const createUsuario = async (req, res) => {
       ]
     );
 
+    await logAudit(req, {
+      accion: "USUARIO_CREADO",
+      modulo: "usuarios",
+      entidad_id: result.insertId,
+      descripcion: `Usuario creado: ${usuario.trim()} (${rol})`,
+      valores_nuevo: { nombre, correo, usuario, rol },
+    });
+
     return res.status(201).json({ success: true, id: result.insertId });
   } catch (err) {
     if (err.code === "ER_DUP_ENTRY") {
@@ -100,6 +109,14 @@ export const updateUsuario = async (req, res) => {
       return res.status(404).json({ success: false, error: "Usuario no encontrado." });
     }
 
+    await logAudit(req, {
+      accion: "USUARIO_ACTUALIZADO",
+      modulo: "usuarios",
+      entidad_id: Number(id),
+      descripcion: `Usuario ${id} actualizado`,
+      valores_nuevo: { nombre, correo, usuario, rol },
+    });
+
     return res.json({ success: true });
   } catch (err) {
     if (err.code === "ER_DUP_ENTRY") {
@@ -136,6 +153,13 @@ export const toggleActivo = async (req, res) => {
     const nuevoEstado = rows[0].activo ? 0 : 1;
     await req.db.query("UPDATE users SET activo = ? WHERE id = ?", [nuevoEstado, id]);
 
+    await logAudit(req, {
+      accion: nuevoEstado ? "USUARIO_ACTIVADO" : "USUARIO_DESACTIVADO",
+      modulo: "usuarios",
+      entidad_id: Number(id),
+      descripcion: `Usuario ${id} ${nuevoEstado ? "activado" : "desactivado"}`,
+    });
+
     return res.json({ success: true, activo: Boolean(nuevoEstado) });
   } catch (err) {
     console.error("toggleActivo:", err.message);
@@ -165,6 +189,13 @@ export const resetPassword = async (req, res) => {
     if (result.affectedRows === 0) {
       return res.status(404).json({ success: false, error: "Usuario no encontrado." });
     }
+
+    await logAudit(req, {
+      accion: "PASSWORD_RESETEADA",
+      modulo: "usuarios",
+      entidad_id: Number(id),
+      descripcion: `Contraseña reseteada para usuario ${id}`,
+    });
 
     return res.json({ success: true });
   } catch (err) {

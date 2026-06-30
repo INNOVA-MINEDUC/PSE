@@ -1,3 +1,5 @@
+import { logAudit } from "../utils/logAudit.js";
+
 export const getFunerario = async (req, res) => {
   res.json({ success: true, message: "Ruta Apoyo funerario activa", data: [] });
 };
@@ -35,6 +37,13 @@ export const updateMetricasFunerario = async (req, res) => {
       formulario_url = "",
     } = req.body;
 
+    const [[anterior]] = await req.db.query(
+      `SELECT familias_beneficiadas, apoyos_otorgados, cobertura,
+              monto_total, monto_por_estudiante,
+              casos_masculinos, casos_femeninos, periodo
+       FROM metricas_funerario ORDER BY id DESC LIMIT 1`
+    );
+
     await req.db.query(
       `UPDATE metricas_funerario
        SET familias_beneficiadas = ?,
@@ -52,6 +61,18 @@ export const updateMetricasFunerario = async (req, res) => {
       [familias_beneficiadas, apoyos_otorgados, cobertura, monto_total, monto_por_estudiante,
        casos_masculinos, casos_femeninos, periodo, video_url, folleto_url, formulario_url]
     );
+
+    await logAudit(req, {
+      accion:       "METRICAS_FUNERARIO_ACTUALIZADAS",
+      modulo:       "funerario",
+      descripcion:  `Métricas de apoyo funerario actualizadas (período: ${periodo || "sin período"})`,
+      valores_ant:  anterior ?? null,
+      valores_nuevo: {
+        familias_beneficiadas, apoyos_otorgados, cobertura,
+        monto_total, monto_por_estudiante,
+        casos_masculinos, casos_femeninos, periodo,
+      },
+    });
 
     res.json({ success: true, message: "Métricas de apoyo funerario actualizadas" });
   } catch (err) {

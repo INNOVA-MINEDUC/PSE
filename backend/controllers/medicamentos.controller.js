@@ -1,3 +1,5 @@
+import { logAudit } from "../utils/logAudit.js";
+
 export const getMedicamentos = async (req, res) => {
   res.json({ success: true, message: "Ruta Suministro de medicamentos activa", data: [] });
 };
@@ -26,6 +28,12 @@ export const updateMetricasMedicamentos = async (req, res) => {
       periodo = "",
     } = req.body;
 
+    const [[anterior]] = await req.db.query(
+      `SELECT unidades_entregadas, establecimientos_con_suministro,
+              cobertura_nacional, periodo
+       FROM metricas_medicamentos ORDER BY id DESC LIMIT 1`
+    );
+
     await req.db.query(
       `UPDATE metricas_medicamentos
        SET unidades_entregadas = ?,
@@ -35,6 +43,14 @@ export const updateMetricasMedicamentos = async (req, res) => {
        ORDER BY id DESC LIMIT 1`,
       [unidades_entregadas, establecimientos_con_suministro, cobertura_nacional, periodo]
     );
+
+    await logAudit(req, {
+      accion:       "METRICAS_MEDICAMENTOS_ACTUALIZADAS",
+      modulo:       "medicamentos",
+      descripcion:  `Métricas de medicamentos actualizadas (período: ${periodo || "sin período"})`,
+      valores_ant:  anterior ?? null,
+      valores_nuevo: { unidades_entregadas, establecimientos_con_suministro, cobertura_nacional, periodo },
+    });
 
     res.json({ success: true, message: "Métricas de medicamentos actualizadas" });
   } catch (err) {

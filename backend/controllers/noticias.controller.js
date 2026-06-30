@@ -1,3 +1,5 @@
+import { logAudit } from "../utils/logAudit.js";
+
 export const getNoticias = async (req, res) => {
   try {
     const [rows] = await req.db.query(`
@@ -82,6 +84,14 @@ export const createNoticia = async (req, res) => {
       ]
     );
 
+    await logAudit(req, {
+      accion:      "NOTICIA_CREADA",
+      modulo:      "noticias",
+      entidad_id:  result.insertId,
+      descripcion: `Noticia creada: "${titulo}" (módulo: ${modulo})`,
+      valores_nuevo: { titulo, modulo, activo: activo ? 1 : 0, orden: Number(orden) || 0, autor },
+    });
+
     res.json({ success: true, id: result.insertId, message: "Noticia creada correctamente" });
   } catch (error) {
     console.error("ERROR createNoticia:", error);
@@ -110,6 +120,11 @@ export const updateNoticia = async (req, res) => {
     if (!titulo) {
       return res.status(400).json({ success: false, error: "El título es requerido" });
     }
+
+    const [[anterior]] = await req.db.query(
+      `SELECT titulo, modulo, activo, orden, autor, fecha_publicacion FROM noticias WHERE id = ? LIMIT 1`,
+      [id]
+    );
 
     await req.db.query(
       `UPDATE noticias
@@ -141,6 +156,15 @@ export const updateNoticia = async (req, res) => {
       ]
     );
 
+    await logAudit(req, {
+      accion:      "NOTICIA_ACTUALIZADA",
+      modulo:      "noticias",
+      entidad_id:  Number(id),
+      descripcion: `Noticia ${id} actualizada: "${titulo}"`,
+      valores_ant:  anterior ?? null,
+      valores_nuevo: { titulo, modulo, activo: activo ? 1 : 0, orden: Number(orden) || 0, autor, fecha_publicacion },
+    });
+
     res.json({ success: true, message: "Noticia actualizada correctamente" });
   } catch (error) {
     console.error("ERROR updateNoticia:", error);
@@ -152,7 +176,22 @@ export const deleteNoticia = async (req, res) => {
   try {
     const { id } = req.params;
 
+    const [[previa]] = await req.db.query(
+      `SELECT titulo, modulo, activo FROM noticias WHERE id = ? LIMIT 1`,
+      [id]
+    );
+
     await req.db.query("DELETE FROM noticias WHERE id = ?", [id]);
+
+    await logAudit(req, {
+      accion:      "NOTICIA_ELIMINADA",
+      modulo:      "noticias",
+      entidad_id:  Number(id),
+      descripcion: previa
+        ? `Noticia eliminada: "${previa.titulo}" (módulo: ${previa.modulo})`
+        : `Noticia ${id} eliminada`,
+      valores_ant: previa ?? null,
+    });
 
     res.json({ success: true, message: "Noticia eliminada correctamente" });
   } catch (error) {
@@ -191,6 +230,13 @@ export const addGaleriaImage = async (req, res) => {
       [id, url, maxOrden + 1]
     );
 
+    await logAudit(req, {
+      accion:      "IMAGEN_NOTICIA_SUBIDA",
+      modulo:      "noticias",
+      entidad_id:  Number(id),
+      descripcion: `Imagen agregada a galería de noticia ${id}: ${url}`,
+    });
+
     res.json({ success: true, id: result.insertId, url });
   } catch (error) {
     console.error("ERROR addGaleriaImage:", error);
@@ -200,9 +246,16 @@ export const addGaleriaImage = async (req, res) => {
 
 export const deleteGaleriaImage = async (req, res) => {
   try {
-    const { imgId } = req.params;
+    const { id, imgId } = req.params;
 
     await req.db.query("DELETE FROM noticia_galeria WHERE id = ?", [imgId]);
+
+    await logAudit(req, {
+      accion:      "IMAGEN_NOTICIA_ELIMINADA",
+      modulo:      "noticias",
+      entidad_id:  Number(imgId),
+      descripcion: `Imagen ${imgId} eliminada de galería de noticia ${id}`,
+    });
 
     res.json({ success: true, message: "Imagen eliminada de la galería" });
   } catch (error) {

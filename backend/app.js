@@ -15,7 +15,9 @@ import llamadasRoutes from "./routes/llamadas.routes.js";
 import funerarioRoutes from "./routes/funerario.routes.js";
 import archivosRoutes from "./routes/archivos.routes.js";
 import usuariosRoutes from "./routes/usuarios.routes.js";
+import auditoriaRoutes from "./routes/auditoria.routes.js";
 import { uploadLimiter, protectedLimiter } from "./middleware/rateLimiter.middleware.js";
+import { logAudit } from "./utils/logAudit.js";
 
 dotenv.config();
 
@@ -95,6 +97,12 @@ app.post("/api/auth/login", uploadLimiter, async (req, res) => {
     );
 
     if (!rows.length) {
+      await logAudit(req, {
+        accion: "LOGIN_FALLIDO",
+        modulo: "auth",
+        descripcion: `Intento fallido para usuario/correo: ${usuario}`,
+        usuario_override: { id: null, nombre: null, correo: null },
+      });
       return res.status(401).json({
         success: false,
         error: "Credenciales incorrectas.",
@@ -105,6 +113,12 @@ app.post("/api/auth/login", uploadLimiter, async (req, res) => {
     const match = await bcrypt.compare(password, u.password_hash);
 
     if (!match) {
+      await logAudit(req, {
+        accion: "LOGIN_FALLIDO",
+        modulo: "auth",
+        descripcion: `Contraseña incorrecta para usuario: ${u.usuario}`,
+        usuario_override: { id: u.id, nombre: u.full_name, correo: u.email },
+      });
       return res.status(401).json({
         success: false,
         error: "Credenciales incorrectas.",
@@ -116,6 +130,13 @@ app.post("/api/auth/login", uploadLimiter, async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: "8h" }
     );
+
+    await logAudit(req, {
+      accion: "LOGIN_EXITOSO",
+      modulo: "auth",
+      descripcion: `Sesión iniciada por ${u.usuario} (${u.role})`,
+      usuario_override: { id: u.id, nombre: u.full_name, correo: u.email },
+    });
 
     return res.json({
       success: true,
@@ -181,6 +202,7 @@ app.use("/api/llamadas",     llamadasRoutes);
 app.use("/api/funerario",    funerarioRoutes);
 app.use("/api/archivos",     archivosRoutes);
 app.use("/api/usuarios",     usuariosRoutes);
+app.use("/api/auditoria",   auditoriaRoutes);
 
 // Las migraciones NO corren en el arranque de la app.
 // Se ejecutan como paso aparte del pipeline (one-off container)
