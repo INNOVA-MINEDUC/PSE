@@ -1,4 +1,5 @@
 import { logAudit } from "../utils/logAudit.js";
+import { deleteFile, isBucketKey } from "../utils/storageService.js";
 
 export const getNoticias = async (req, res) => {
   try {
@@ -177,11 +178,31 @@ export const deleteNoticia = async (req, res) => {
     const { id } = req.params;
 
     const [[previa]] = await req.db.query(
-      `SELECT titulo, modulo, activo FROM noticias WHERE id = ? LIMIT 1`,
+      `SELECT titulo, modulo, activo, imagen_url, miniatura_url, hero_url FROM noticias WHERE id = ? LIMIT 1`,
+      [id]
+    );
+
+    const [galeria] = await req.db.query(
+      "SELECT imagen_url FROM noticia_galeria WHERE noticia_id = ?",
       [id]
     );
 
     await req.db.query("DELETE FROM noticias WHERE id = ?", [id]);
+
+    const keysAEliminar = [
+      previa?.imagen_url,
+      previa?.miniatura_url,
+      previa?.hero_url,
+      ...galeria.map((g) => g.imagen_url),
+    ].filter(isBucketKey);
+
+    for (const key of keysAEliminar) {
+      try {
+        await deleteFile(key);
+      } catch (err) {
+        console.error("ERROR eliminando archivo en storage:", err.message);
+      }
+    }
 
     await logAudit(req, {
       accion:      "NOTICIA_ELIMINADA",
@@ -206,7 +227,7 @@ export const addGaleriaImage = async (req, res) => {
   try {
     const { id } = req.params;
 
-    if (!req.file) {
+    if (!req.file || !req.storageFile) {
       return res.status(400).json({ success: false, error: "No se subió ninguna imagen" });
     }
 
@@ -223,7 +244,7 @@ export const addGaleriaImage = async (req, res) => {
       [id]
     );
 
-    const url = `/uploads/noticias/${req.file.filename}`;
+    const url = req.storageFile.key;
 
     const [result] = await req.db.query(
       "INSERT INTO noticia_galeria (noticia_id, imagen_url, orden) VALUES (?, ?, ?)",
@@ -244,11 +265,72 @@ export const addGaleriaImage = async (req, res) => {
   }
 };
 
+export const addGaleriaImagesBatch = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!req.storageResults) {
+      return res.status(400).json({ success: false, error: "No se subió ninguna imagen" });
+    }
+
+    const [[noticia]] = await req.db.query(
+      "SELECT id FROM noticias WHERE id = ? LIMIT 1",
+      [id]
+    );
+    if (!noticia) {
+      return res.status(404).json({ success: false, error: "Noticia no encontrada" });
+    }
+
+    const { uploaded, failed } = req.storageResults;
+
+    const [[{ maxOrden }]] = await req.db.query(
+      "SELECT COALESCE(MAX(orden), -1) AS maxOrden FROM noticia_galeria WHERE noticia_id = ?",
+      [id]
+    );
+
+    const insertados = [];
+    let orden = maxOrden + 1;
+    for (const archivo of uploaded) {
+      const [result] = await req.db.query(
+        "INSERT INTO noticia_galeria (noticia_id, imagen_url, orden) VALUES (?, ?, ?)",
+        [id, archivo.key, orden]
+      );
+      insertados.push({ id: result.insertId, url: archivo.key });
+      orden += 1;
+    }
+
+    await logAudit(req, {
+      accion:      "IMAGEN_NOTICIA_SUBIDA",
+      modulo:      "noticias",
+      entidad_id:  Number(id),
+      descripcion: `${insertados.length} imagen(es) agregadas a galería de noticia ${id}`,
+    });
+
+    res.json({ success: true, uploaded: insertados, failed: failed || [] });
+  } catch (error) {
+    console.error("ERROR addGaleriaImagesBatch:", error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+
 export const deleteGaleriaImage = async (req, res) => {
   try {
     const { id, imgId } = req.params;
 
+    const [[imagen]] = await req.db.query(
+      "SELECT imagen_url FROM noticia_galeria WHERE id = ? LIMIT 1",
+      [imgId]
+    );
+
     await req.db.query("DELETE FROM noticia_galeria WHERE id = ?", [imgId]);
+
+    if (imagen && isBucketKey(imagen.imagen_url)) {
+      try {
+        await deleteFile(imagen.imagen_url);
+      } catch (err) {
+        console.error("ERROR eliminando imagen en storage:", err.message);
+      }
+    }
 
     await logAudit(req, {
       accion:      "IMAGEN_NOTICIA_ELIMINADA",

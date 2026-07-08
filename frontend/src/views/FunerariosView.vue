@@ -85,7 +85,7 @@
             <div class="action-buttons" v-if="datosFunerarios.folleto_url || datosFunerarios.formulario_url">
               <a
                 v-if="datosFunerarios.folleto_url"
-                :href="datosFunerarios.folleto_url"
+                :href="resolveFileUrl(datosFunerarios.folleto_url, API_URL)"
                 target="_blank"
                 rel="noopener"
                 class="btn btn-outline"
@@ -95,7 +95,7 @@
 
               <a
                 v-if="datosFunerarios.formulario_url"
-                :href="datosFunerarios.formulario_url"
+                :href="resolveFileUrl(datosFunerarios.formulario_url, API_URL)"
                 target="_blank"
                 rel="noopener"
                 class="btn btn-primary"
@@ -229,6 +229,7 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
 import AppFooter from '@/components/AppFooter.vue'
+import { resolveFileUrl } from '@/helpers/fileUrl.js'
 
 const API_URL = import.meta.env.VITE_API_URL
 const bannerFunerario = '/Funerario/banner/funerario-banner.webp'

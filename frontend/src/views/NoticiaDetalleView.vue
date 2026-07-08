@@ -148,6 +148,7 @@
 import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import AppFooter from '@/components/AppFooter.vue'
+import { resolveFileUrl } from '@/helpers/fileUrl.js'
 
 const API_URL = import.meta.env.VITE_API_URL
 const route   = useRoute()
@@ -156,12 +157,7 @@ const noticia  = ref(null)
 const loading  = ref(true)
 const errorMsg = ref('')
 
-const resolveImage = (url) => {
-  if (!url) return ''
-  if (url.startsWith('http')) return url
-  if (url.startsWith('/uploads')) return `${API_URL}${url}`
-  return url
-}
+const resolveImage = (url) => resolveFileUrl(url, API_URL)
 
 onMounted(async () => {
   try {

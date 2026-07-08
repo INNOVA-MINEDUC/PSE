@@ -1212,6 +1212,7 @@
 
 <script setup>
 import { computed, onMounted, ref, watch } from "vue";
+import { resolveFileUrl } from "@/helpers/fileUrl.js";
 // Subida de imagen para noticias
 const onImageChange = async (e, targetField = "miniatura_url") => {
   const file = e.target.files[0];
@@ -1306,11 +1307,7 @@ const authHeaders = computed(() => ({
   Authorization: token ? `Bearer ${token}` : "",
 }));
 
-const resolveUrl = (url) => {
-  if (!url) return "";
-  if (url.startsWith("http")) return url;
-  return `${API_URL}${url}`;
-};
+const resolveUrl = (url) => resolveFileUrl(url, API_URL);
 
 const formatNum = (n) => Number(n || 0).toLocaleString("es-GT");
 
@@ -1926,30 +1923,36 @@ const saveNoticia = async () => {
       });
     }
 
-    // Subir imágenes nuevas de la galería
-    const galeriaErrors = [];
-    for (const item of galeriaLocal.value) {
-      if (!item.file) continue; // ya existe en BD, skip
+    // Subir imágenes nuevas de la galería en una sola petición (batch)
+    const nuevasImagenes = galeriaLocal.value.filter((item) => item.file);
+    if (nuevasImagenes.length) {
       const fd = new FormData();
-      fd.append("imagen", item.file);
+      nuevasImagenes.forEach((item) => fd.append("imagenes", item.file));
       try {
-        const r = await fetch(`${API_URL}/api/noticias/${noticiaId}/galeria`, {
+        const r = await fetch(`${API_URL}/api/noticias/${noticiaId}/galeria/batch`, {
           method: "POST",
           body: fd,
           headers: { Authorization: token ? `Bearer ${token}` : "" },
         });
         const rData = await r.json();
-        if (!rData.success) galeriaErrors.push(rData.error || "Error al subir imagen");
+        if (!rData.success) {
+          modal.value.error = rData.error || "Error al subir imágenes de galería.";
+          savingNoticia.value = false;
+          await fetchNoticias();
+          return;
+        }
+        if (rData.failed?.length) {
+          modal.value.error = `Noticia guardada, pero fallaron ${rData.failed.length} imagen(es) de galería.`;
+          savingNoticia.value = false;
+          await fetchNoticias();
+          return;
+        }
       } catch {
-        galeriaErrors.push("Error de red al subir imagen de galería");
+        modal.value.error = "Noticia guardada, pero hubo un error de red al subir imágenes de galería.";
+        savingNoticia.value = false;
+        await fetchNoticias();
+        return;
       }
-    }
-
-    if (galeriaErrors.length) {
-      modal.value.error = `Noticia guardada, pero fallaron ${galeriaErrors.length} imagen(es) de galería: ${galeriaErrors[0]}`;
-      savingNoticia.value = false;
-      await fetchNoticias();
-      return;
     }
 
     modal.value.open = false;

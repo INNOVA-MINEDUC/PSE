@@ -18,10 +18,10 @@ router.get("/metricas", publicLimiter, getMetricasFunerario);
 router.put("/metricas", protectedLimiter, requireToken, updateMetricasFunerario);
 
 router.post("/upload-pdf", uploadLimiter, requireToken, uploadPdf.single("archivo"), (req, res) => {
-  if (!req.file) {
+  if (!req.file || !req.storageFile) {
     return res.status(400).json({ success: false, error: "No se subió ningún archivo PDF" });
   }
-  res.json({ success: true, url: `/uploads/docs/${req.file.filename}` });
+  res.json({ success: true, url: req.storageFile.key });
 });
 
 export default router;
