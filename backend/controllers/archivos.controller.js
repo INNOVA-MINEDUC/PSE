@@ -1,4 +1,4 @@
-import { getFileStream, StorageServiceError } from "../utils/storageService.js";
+import { getFileStream, isValidBucketKey, StorageServiceError } from "../utils/storageService.js";
 
 // Proxy de visualización: el frontend nunca construye URLs hacia
 // bucketService directamente, siempre pide /api/archivos/:key/view
@@ -7,7 +7,10 @@ export const viewArchivo = async (req, res) => {
   try {
     const { key } = req.params;
 
-    if (!key || key.includes("..") || key.includes("/")) {
+    // Allowlist estricta (UUID + extensión, la forma exacta que devuelve
+    // bucketService): rechaza cualquier valor antes de que llegue a
+    // storageService, sin importar los caracteres que traiga.
+    if (!isValidBucketKey(key)) {
       return res.status(400).json({ success: false, error: "Key de archivo inválida" });
     }
 

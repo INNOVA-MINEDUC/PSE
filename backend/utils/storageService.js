@@ -73,6 +73,23 @@ export function isBucketKey(value) {
   return !value.startsWith("http") && !value.startsWith("/uploads") && !value.startsWith("uploads/");
 }
 
+// Forma exacta que bucketService devuelve como key: UUID + extensión
+// (ej. "a7c0ab65-9839-4529-b0f4-74927488dd20.webp"). Es una allowlist, no una
+// blacklist: cualquier cosa que no calce con este patrón se rechaza antes de
+// interpolarla en la URL hacia bucketService, sin importar qué caracteres
+// traiga (evita SSRF / path traversal / cambio de host o protocolo).
+const BUCKET_KEY_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.[a-z0-9]{1,10}$/i;
+
+export function isValidBucketKey(value) {
+  return typeof value === "string" && BUCKET_KEY_PATTERN.test(value);
+}
+
+function assertValidKey(key) {
+  if (!isValidBucketKey(key)) {
+    throw new StorageServiceError("Key de archivo inválida.", 400);
+  }
+}
+
 export async function checkHealth() {
   try {
     const { data } = await getClient().get("/health");
@@ -134,6 +151,7 @@ export async function uploadFiles(files) {
  * @returns {Promise<{ stream: import('stream').Readable, contentType: string }>}
  */
 export async function getFileStream(key) {
+  assertValidKey(key);
   try {
     const response = await getClient().get(`/${key}/view`, {
       headers: { ...getApiKeyHeader() },
@@ -149,6 +167,7 @@ export async function getFileStream(key) {
 }
 
 export async function deleteFile(key) {
+  assertValidKey(key);
   try {
     const { data } = await getClient().delete(`/${key}`, {
       headers: { ...getApiKeyHeader() },
