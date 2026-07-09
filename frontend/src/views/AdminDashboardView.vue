@@ -38,17 +38,81 @@
           Medicamentos
         </button>
 
+        <template v-if="user?.rol === 'admin'">
+          <p class="nav-section">Administración</p>
+          <button class="nav-item" :class="{ active: activeModule === 'usuarios' }" @click="go('usuarios')">
+            <span class="nav-dot" :class="{ active: activeModule === 'usuarios' }"></span>
+            Usuarios
+          </button>
+          <button class="nav-item" :class="{ active: activeModule === 'bitacora' }" @click="go('bitacora')">
+            <span class="nav-dot" :class="{ active: activeModule === 'bitacora' }"></span>
+            Bitácora
+          </button>
+        </template>
+
       </nav>
 
       <div class="sidebar-footer">
-        <div class="sf-avatar">{{ initials }}</div>
-        <div class="sf-info">
-          <p class="sf-name">{{ fullName }}</p>
-          <p class="sf-role">{{ roleText }}</p>
+        <div class="sf-user-area" @click="perfilOpen = true" title="Ver perfil">
+          <div class="sf-avatar">{{ initials }}</div>
+          <div class="sf-info">
+            <p class="sf-name">{{ fullName }}</p>
+            <p class="sf-role">{{ roleText }}</p>
+          </div>
         </div>
         <button class="sf-logout" @click="handleLogout" title="Cerrar sesión">⏻</button>
       </div>
     </aside>
+
+    <!-- ── PERFIL DRAWER ──────────────────────────────────────── -->
+    <transition name="perfil">
+      <div class="perfil-overlay" v-if="perfilOpen" @click.self="perfilOpen = false">
+        <div class="perfil-drawer">
+
+          <button class="perfil-close" @click="perfilOpen = false">✕</button>
+
+          <div class="perfil-hd">
+            <div class="perfil-big-av">{{ initials }}</div>
+            <h3 class="perfil-hd-name">{{ fullName }}</h3>
+            <p class="perfil-hd-email">{{ user?.correo }}</p>
+            <span class="badge" :class="user?.rol === 'admin' ? 'blue' : 'gray'" style="margin-top:6px;">
+              {{ roleText }}
+            </span>
+          </div>
+
+          <div class="perfil-body">
+            <div class="perfil-row">
+              <span class="perfil-lbl">Usuario (login)</span>
+              <span class="perfil-val">{{ user?.usuario }}</span>
+            </div>
+            <div class="perfil-row">
+              <span class="perfil-lbl">Correo</span>
+              <span class="perfil-val">{{ user?.correo }}</span>
+            </div>
+            <div class="perfil-row">
+              <span class="perfil-lbl">Rol en el sistema</span>
+              <span class="perfil-val">{{ roleText }}</span>
+            </div>
+          </div>
+
+          <div class="perfil-foot">
+            <button class="perfil-pw-btn" @click="() => { perfilOpen = false; openResetModal(user); }">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+              </svg>
+              Cambiar contraseña
+            </button>
+            <button class="perfil-logout-btn" @click="handleLogout">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+              </svg>
+              Cerrar sesión
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </transition>
 
     <div class="main">
       <header class="topbar" v-if="activeModule !== 'dashboard'">
@@ -71,7 +135,7 @@
           <div class="dh-hero">
             <div class="dh-hero-inner">
               <div>
-                <h2 class="dh-title">Bienvenido, {{ user?.nombres || 'Administrador' }}</h2>
+                <h2 class="dh-title">Bienvenido, {{ user?.nombre || 'Administrador' }}</h2>
                 <p class="dh-sub">{{ currentDate }} · Portal de Salud Escolar</p>
               </div>
               <div class="dh-user">
@@ -811,6 +875,336 @@
             </template>
           </section>
         </template>
+
+        <!-- ── MÓDULO USUARIOS ──────────────────────────────── -->
+        <template v-if="activeModule === 'usuarios'">
+          <section class="dashboard-card">
+            <div class="mod-header">
+              <div class="mod-header-left">
+                <div>
+                  <p class="section-title">Gestión de Usuarios</p>
+                  <p class="section-sub">Administra los privilegios y el estado de los miembros.</p>
+                </div>
+              </div>
+              <button class="add-btn-coral" @click="openUsuarioModal(null)">Nuevo Usuario</button>
+            </div>
+
+            <div v-if="loadingUsuarios" class="loading-state">Cargando usuarios…</div>
+
+            <div v-else>
+              <div class="usr-bar">
+                <div class="usr-search">
+                  <svg class="usr-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+                  </svg>
+                  <input class="usr-search-input" type="text" placeholder="Buscar por nombre o email" v-model="busquedaUsuario" />
+                </div>
+                <div class="usr-rol-filter">
+                  <label class="bit-filtro-label">Filtrar por rol</label>
+                  <select class="bit-filtro-sel" v-model="filtroRolUsuario">
+                    <option value="">Todos</option>
+                    <option value="admin">Administrador</option>
+                    <option value="user">Usuario</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="table-wrap">
+                <table class="data-table usr-table">
+                  <thead>
+                    <tr>
+                      <th style="width:52px;"></th>
+                      <th>Usuario</th>
+                      <th style="width:130px;">Rol</th>
+                      <th style="width:110px;">Estado</th>
+                      <th style="width:100px;text-align:right;">Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="u in usuariosFiltrados" :key="u.id">
+                      <td class="u-avatar-cell">
+                        <div class="u-avatar">{{ u.nombre ? u.nombre.charAt(0).toUpperCase() : '?' }}</div>
+                      </td>
+                      <td>
+                        <p class="u-nombre">{{ u.nombre }}</p>
+                        <p class="u-email">{{ u.correo }}</p>
+                      </td>
+                      <td>
+                        <span class="badge" :class="u.rol === 'admin' ? 'blue' : 'gray'">
+                          {{ u.rol === 'admin' ? 'Administrador' : 'Usuario' }}
+                        </span>
+                      </td>
+                      <td>
+                        <span class="u-estado">
+                          <span class="u-dot" :class="u.activo ? 'u-dot-on' : 'u-dot-off'"></span>
+                          {{ u.activo ? 'Activo' : 'Inactivo' }}
+                        </span>
+                      </td>
+                      <td class="u-actions-cell">
+                        <button class="u-icon-btn" @click="openUsuarioModal(u)" title="Editar">
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                          </svg>
+                        </button>
+                        <button
+                          class="u-icon-btn"
+                          :disabled="u.id === user?.id"
+                          @click="toggleUsuario(u)"
+                          :title="u.activo ? 'Desactivar' : 'Activar'"
+                        >
+                          <svg v-if="u.activo" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                          </svg>
+                          <svg v-else width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/>
+                          </svg>
+                        </button>
+                        <button class="u-icon-btn" @click="openResetModal(u)" title="Contraseña">
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
+                          </svg>
+                        </button>
+                      </td>
+                    </tr>
+                    <tr v-if="!usuariosFiltrados.length">
+                      <td colspan="5" class="empty-row">
+                        {{ listaUsuarios.length ? 'No hay usuarios que coincidan.' : 'No hay usuarios registrados.' }}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <!-- Modal crear / editar usuario -->
+          <div class="modal-overlay" v-if="usuarioModal.open" @click.self="usuarioModal.open = false">
+            <div class="modal-card">
+              <div class="modal-header">
+                <h3>{{ usuarioModal.isEdit ? 'Editar usuario' : 'Nuevo usuario' }}</h3>
+                <button class="modal-close-btn" type="button" @click="usuarioModal.open = false">✕</button>
+              </div>
+
+              <div class="field">
+                <label>Nombre completo <span class="req">*</span></label>
+                <input v-model="usuarioModal.data.nombre" type="text" placeholder="Ej: María García López" />
+              </div>
+              <div class="field-row">
+                <div class="field">
+                  <label>Correo electrónico <span class="req">*</span></label>
+                  <input v-model="usuarioModal.data.correo" type="email" placeholder="correo@ejemplo.com" />
+                </div>
+                <div class="field">
+                  <label>Usuario (login) <span class="req">*</span></label>
+                  <input v-model="usuarioModal.data.usuario" type="text" placeholder="nombre.apellido" />
+                </div>
+              </div>
+              <div class="field-row">
+                <div class="field" v-if="!usuarioModal.isEdit">
+                  <label>Contraseña <span class="req">*</span></label>
+                  <div class="pw-wrap">
+                    <input
+                      v-model="usuarioModal.data.password"
+                      :type="showUsuarioPassword ? 'text' : 'password'"
+                      placeholder="Mínimo 8 caracteres"
+                    />
+                    <button type="button" class="pw-toggle" @click="showUsuarioPassword = !showUsuarioPassword" :aria-label="showUsuarioPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'">
+                      <svg v-if="!showUsuarioPassword" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+                      </svg>
+                      <svg v-else width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+                <div class="field">
+                  <label>Rol <span class="req">*</span></label>
+                  <select v-model="usuarioModal.data.rol">
+                    <option value="admin">Administrador</option>
+                    <option value="user">Usuario</option>
+                  </select>
+                </div>
+              </div>
+
+              <p v-if="usuarioModal.error" class="form-error">{{ usuarioModal.error }}</p>
+
+              <div class="modal-actions">
+                <button class="act-btn" @click="usuarioModal.open = false">Cancelar</button>
+                <button class="save-btn" :disabled="savingUsuario" @click="saveUsuario">
+                  {{ savingUsuario ? 'Guardando…' : 'Guardar' }}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Modal restablecer contraseña -->
+          <div class="modal-overlay" v-if="resetModal.open" @click.self="resetModal.open = false">
+            <div class="modal-card">
+              <div class="modal-header">
+                <h3>Restablecer contraseña</h3>
+                <button class="modal-close-btn" type="button" @click="resetModal.open = false">✕</button>
+              </div>
+
+              <p style="font-size:0.9rem;color:#64748b;margin:0;">
+                Usuario: <strong>{{ resetModal.usuario?.nombre }}</strong> ({{ resetModal.usuario?.usuario }})
+              </p>
+              <div class="field">
+                <label>Nueva contraseña <span class="req">*</span></label>
+                <div class="pw-wrap">
+                  <input
+                    v-model="resetModal.password"
+                    :type="showResetPassword ? 'text' : 'password'"
+                    placeholder="Mínimo 8 caracteres"
+                  />
+                  <button type="button" class="pw-toggle" @click="showResetPassword = !showResetPassword" :aria-label="showResetPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'">
+                    <svg v-if="!showResetPassword" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+                    </svg>
+                    <svg v-else width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <p v-if="resetModal.error" class="form-error">{{ resetModal.error }}</p>
+
+              <div class="modal-actions">
+                <button class="act-btn" @click="resetModal.open = false">Cancelar</button>
+                <button class="save-btn" :disabled="resetModal.saving" @click="doResetPassword">
+                  {{ resetModal.saving ? 'Guardando…' : 'Restablecer' }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </template>
+
+        <!-- ── MÓDULO BITÁCORA ──────────────────────────────── -->
+        <template v-if="activeModule === 'bitacora'">
+          <section class="dashboard-card">
+            <div class="mod-header">
+              <div class="mod-header-left">
+                <div>
+                  <p class="section-title">Bitácora de Auditoría</p>
+                  <p class="section-sub">Consulta quién realizó cada acción dentro del sistema.</p>
+                </div>
+              </div>
+              <div class="bit-exp-btns">
+                <button class="exp-btn" :disabled="exportando !== null" @click="exportarBitacora('excel')">
+                  {{ exportando === 'excel' ? 'Generando…' : '📊 Excel' }}
+                </button>
+                <button class="exp-btn exp-btn-pdf" :disabled="exportando !== null" @click="exportarBitacora('pdf')">
+                  {{ exportando === 'pdf' ? 'Generando…' : '📄 PDF' }}
+                </button>
+                <button class="exp-btn exp-btn-csv" :disabled="exportando !== null" @click="exportarBitacora('csv')">
+                  {{ exportando === 'csv' ? '…' : 'CSV' }}
+                </button>
+              </div>
+            </div>
+
+            <!-- Filtros -->
+            <div class="bit-filtros">
+              <div class="bit-filtro">
+                <label class="bit-filtro-label">Módulo</label>
+                <select class="bit-filtro-sel" v-model="filtroModulo" @change="fetchBitacora(1)">
+                  <option value="">Todos</option>
+                  <option value="auth">Autenticación</option>
+                  <option value="noticias">Noticias</option>
+                  <option value="usuarios">Usuarios</option>
+                  <option value="atencion">Atención</option>
+                  <option value="medicamentos">Medicamentos</option>
+                  <option value="llamadas">Llamadas 1528</option>
+                  <option value="funerario">Apoyo funerario</option>
+                </select>
+              </div>
+              <div class="bit-filtro">
+                <label class="bit-filtro-label">Acción</label>
+                <select class="bit-filtro-sel" v-model="filtroAccion" @change="fetchBitacora(1)">
+                  <option value="">Todas</option>
+                  <optgroup label="Autenticación">
+                    <option value="LOGIN_EXITOSO">LOGIN_EXITOSO</option>
+                    <option value="LOGIN_FALLIDO">LOGIN_FALLIDO</option>
+                  </optgroup>
+                  <optgroup label="Usuarios">
+                    <option value="USUARIO_CREADO">USUARIO_CREADO</option>
+                    <option value="USUARIO_ACTUALIZADO">USUARIO_ACTUALIZADO</option>
+                    <option value="USUARIO_ACTIVADO">USUARIO_ACTIVADO</option>
+                    <option value="USUARIO_DESACTIVADO">USUARIO_DESACTIVADO</option>
+                    <option value="PASSWORD_RESETEADA">PASSWORD_RESETEADA</option>
+                  </optgroup>
+                  <optgroup label="Noticias">
+                    <option value="NOTICIA_CREADA">NOTICIA_CREADA</option>
+                    <option value="NOTICIA_ACTUALIZADA">NOTICIA_ACTUALIZADA</option>
+                    <option value="NOTICIA_ELIMINADA">NOTICIA_ELIMINADA</option>
+                    <option value="IMAGEN_NOTICIA_SUBIDA">IMAGEN_NOTICIA_SUBIDA</option>
+                    <option value="IMAGEN_NOTICIA_ELIMINADA">IMAGEN_NOTICIA_ELIMINADA</option>
+                  </optgroup>
+                  <optgroup label="Métricas">
+                    <option value="METRICAS_ATENCION_ACTUALIZADAS">METRICAS_ATENCION_ACTUALIZADAS</option>
+                    <option value="METRICAS_MEDICAMENTOS_ACTUALIZADAS">METRICAS_MEDICAMENTOS_ACTUALIZADAS</option>
+                    <option value="METRICAS_LLAMADAS_ACTUALIZADAS">METRICAS_LLAMADAS_ACTUALIZADAS</option>
+                    <option value="METRICAS_FUNERARIO_ACTUALIZADAS">METRICAS_FUNERARIO_ACTUALIZADAS</option>
+                  </optgroup>
+                </select>
+              </div>
+              <div class="bit-filtro">
+                <label class="bit-filtro-label">Desde</label>
+                <input type="date" class="bit-filtro-date" v-model="filtroDesde" @change="fetchBitacora(1)" />
+              </div>
+              <div class="bit-filtro">
+                <label class="bit-filtro-label">Hasta</label>
+                <input type="date" class="bit-filtro-date" v-model="filtroHasta" @change="fetchBitacora(1)" />
+              </div>
+              <button v-if="hayFiltros" class="btn-limpiar-fit" @click="limpiarFiltros">✕ Limpiar</button>
+            </div>
+
+            <div v-if="loadingBitacora" class="loading-state">Cargando bitácora…</div>
+
+            <div class="table-wrap" v-else>
+              <table class="data-table bit-table">
+                <thead>
+                  <tr>
+                    <th style="width:100px;">Fecha</th>
+                    <th>Usuario</th>
+                    <th style="width:90px;">Módulo</th>
+                    <th style="width:220px;">Acción</th>
+                    <th>Descripción</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="r in bitacora" :key="r.id">
+                    <td class="bit-fecha-cell">
+                      <span class="bit-fecha-date">{{ fmtDateOnly(r.created_at) }}</span>
+                      <span class="bit-fecha-time">{{ fmtTimeOnly(r.created_at) }}</span>
+                    </td>
+                    <td>
+                      <p class="bit-user-name">{{ r.usuario_nombre || '—' }}</p>
+                      <p class="bit-user-email">{{ r.usuario_email || '' }}</p>
+                    </td>
+                    <td><span class="badge gray">{{ r.modulo }}</span></td>
+                    <td><span class="badge" :class="accionClass(r.accion)">{{ r.accion }}</span></td>
+                    <td class="td-muted" style="font-size:0.85rem;">{{ r.descripcion || '—' }}</td>
+                  </tr>
+                  <tr v-if="!bitacora.length">
+                    <td colspan="5" class="empty-row">No hay registros en la bitácora.</td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <div class="paginacion" v-if="bitacoraPaginas > 1">
+                <button class="pag-btn" :disabled="bitacoraPagina <= 1" @click="fetchBitacora(bitacoraPagina - 1)">
+                  ← Anterior
+                </button>
+                <span class="pag-info">Página {{ bitacoraPagina }} de {{ bitacoraPaginas }}</span>
+                <button class="pag-btn" :disabled="bitacoraPagina >= bitacoraPaginas" @click="fetchBitacora(bitacoraPagina + 1)">
+                  Siguiente →
+                </button>
+              </div>
+            </div>
+          </section>
+        </template>
+
       </div>
     </div>
   </main>
@@ -818,6 +1212,7 @@
 
 <script setup>
 import { computed, onMounted, ref, watch } from "vue";
+import { resolveFileUrl } from "@/helpers/fileUrl.js";
 // Subida de imagen para noticias
 const onImageChange = async (e, targetField = "miniatura_url") => {
   const file = e.target.files[0];
@@ -850,8 +1245,12 @@ const onImageChange = async (e, targetField = "miniatura_url") => {
   }
 };
 
-/* ── GALERÍA LOCAL (mockup — Fase 0) ─────────────────────────────── */
-const galeriaLocal = ref([]);
+/* ── GALERÍA ──────────────────────────────────────────────────────── */
+// Cada item: { tempId, preview, file, id }
+//   id=null  → nueva imagen pendiente de subir
+//   id=N     → imagen ya existente en BD
+const galeriaLocal   = ref([]);
+const galeriaDeleted = ref([]); // IDs de items existentes eliminados por el usuario
 
 const onGaleriaFilesChange = (e) => {
   const files = Array.from(e.target.files);
@@ -862,15 +1261,17 @@ const onGaleriaFilesChange = (e) => {
         tempId: `${Date.now()}_${Math.random()}`,
         preview: ev.target.result,
         file,
+        id: null,
       });
     };
     reader.readAsDataURL(file);
   });
-  // limpiar input para poder volver a seleccionar los mismos archivos
   e.target.value = "";
 };
 
 const removeGaleriaLocal = (index) => {
+  const item = galeriaLocal.value[index];
+  if (item.id) galeriaDeleted.value.push(item.id);
   galeriaLocal.value.splice(index, 1);
 };
 import { useRouter } from "vue-router";
@@ -881,15 +1282,18 @@ const router = useRouter();
 const token = localStorage.getItem("token");
 const user = ref(JSON.parse(localStorage.getItem("user") || "null"));
 const activeModule = ref("dashboard");
+const perfilOpen   = ref(false);
 
 
 const pageTitles = {
-  dashboard: "Panel de administración PSE",
-  noticias: "Noticias y promoción",
-  atencion: "Atención a enfermedades",
-  medicamentos: "Suministro de medicamentos",
-  llamadas: "Centro de llamadas 1528",
-  funerario: "Apoyo funerario",
+  dashboard:   "Panel de administración PSE",
+  noticias:    "Noticias y promoción",
+  atencion:    "Atención a enfermedades",
+  medicamentos:"Suministro de medicamentos",
+  llamadas:    "Centro de llamadas 1528",
+  funerario:   "Apoyo funerario",
+  usuarios:    "Gestión de usuarios",
+  bitacora:    "Bitácora del sistema",
 };
 
 const currentTitle = computed(() => pageTitles[activeModule.value] || "Panel PSE");
@@ -903,11 +1307,7 @@ const authHeaders = computed(() => ({
   Authorization: token ? `Bearer ${token}` : "",
 }));
 
-const resolveUrl = (url) => {
-  if (!url) return "";
-  if (url.startsWith("http")) return url;
-  return `${API_URL}${url}`;
-};
+const resolveUrl = (url) => resolveFileUrl(url, API_URL);
 
 const formatNum = (n) => Number(n || 0).toLocaleString("es-GT");
 
@@ -938,24 +1338,21 @@ const getModuloLabel = (modulo) => {
 };
 
 const fullName = computed(() => {
-  const nombres = user.value?.nombres || "Administrador";
-  const apellidos = user.value?.apellidos || "PSE";
-  return `${nombres} ${apellidos}`.trim();
+  return user.value?.nombre || "Administrador PSE";
 });
 
 const initials = computed(() => {
-  const nombres = user.value?.nombres || "A";
-  const apellidos = user.value?.apellidos || "P";
-  return `${nombres.charAt(0)}${apellidos.charAt(0)}`.toUpperCase();
+  const nombre = (user.value?.nombre || "Admin PSE").trim();
+  const partes  = nombre.split(/\s+/);
+  if (partes.length >= 2) {
+    return (partes[0][0] + partes[partes.length - 1][0]).toUpperCase();
+  }
+  return (partes[0][0] || "A").toUpperCase();
 });
 
 const roleText = computed(() => {
-  if (!user.value?.roles?.length) return "Administrador";
-  return user.value.roles
-    .map((role) => role.nombre.replace(/\bASISTO\b/gi, "").trim())
-    .join(", ")
-    .replace(/\s+/g, " ")
-    .trim() || "Administrador";
+  if (!user.value) return "Administrador";
+  return user.value.rol === "admin" ? "Administrador" : "Usuario";
 });
 
 const currentDate = computed(() =>
@@ -1012,6 +1409,132 @@ const dashStats = ref({
   funerario:    { monto_total: 0, apoyos_otorgados: 0 },
 });
 
+// ── GESTIÓN DE USUARIOS ───────────────────────────────────────
+const listaUsuarios       = ref([]);
+const loadingUsuarios     = ref(false);
+const savingUsuario       = ref(false);
+const showUsuarioPassword = ref(false);
+const showResetPassword   = ref(false);
+const busquedaUsuario     = ref("");
+const filtroRolUsuario    = ref("");
+
+const usuariosFiltrados = computed(() => {
+  let list = listaUsuarios.value;
+  if (busquedaUsuario.value) {
+    const q = busquedaUsuario.value.toLowerCase();
+    list = list.filter(u =>
+      (u.nombre || "").toLowerCase().includes(q) ||
+      (u.correo || "").toLowerCase().includes(q)
+    );
+  }
+  if (filtroRolUsuario.value) {
+    list = list.filter(u => u.rol === filtroRolUsuario.value);
+  }
+  return list;
+});
+
+const usuarioModal = ref({
+  open: false, isEdit: false,
+  data: { nombre: "", correo: "", usuario: "", password: "", rol: "user" },
+  error: "",
+});
+
+const resetModal = ref({
+  open: false, usuario: null, password: "", saving: false, error: "",
+});
+
+const fetchUsuarios = async () => {
+  loadingUsuarios.value = true;
+  try {
+    const res  = await fetch(`${API_URL}/api/usuarios`, { headers: authHeaders.value });
+    if (res.status === 401) { handleExpiredSession(); return; }
+    const data = await res.json();
+    if (data.success) listaUsuarios.value = data.usuarios;
+  } catch (err) {
+    console.error("Error cargando usuarios:", err);
+  } finally {
+    loadingUsuarios.value = false;
+  }
+};
+
+const openUsuarioModal = (u = null) => {
+  showUsuarioPassword.value = false;
+  usuarioModal.value = {
+    open: true,
+    isEdit: !!u,
+    data: u
+      ? { id: u.id, nombre: u.nombre, correo: u.correo, usuario: u.usuario, rol: u.rol }
+      : { nombre: "", correo: "", usuario: "", password: "", rol: "user" },
+    error: "",
+  };
+};
+
+const saveUsuario = async () => {
+  const d = usuarioModal.value.data;
+  if (!d.nombre || !d.correo || !d.usuario || !d.rol) {
+    usuarioModal.value.error = "Todos los campos marcados con * son obligatorios.";
+    return;
+  }
+  if (!usuarioModal.value.isEdit && !d.password) {
+    usuarioModal.value.error = "La contraseña es obligatoria.";
+    return;
+  }
+  savingUsuario.value = true;
+  try {
+    const url    = usuarioModal.value.isEdit ? `${API_URL}/api/usuarios/${d.id}` : `${API_URL}/api/usuarios`;
+    const method = usuarioModal.value.isEdit ? "PUT" : "POST";
+    const res    = await fetch(url, { method, headers: authHeaders.value, body: JSON.stringify(d) });
+    if (res.status === 401) { handleExpiredSession(); return; }
+    const data = await res.json();
+    if (data.success) {
+      usuarioModal.value.open = false;
+      await fetchUsuarios();
+    } else {
+      usuarioModal.value.error = data.error || "Error al guardar usuario.";
+    }
+  } catch { usuarioModal.value.error = "Error de red."; }
+  finally { savingUsuario.value = false; }
+};
+
+const toggleUsuario = async (u) => {
+  try {
+    const res  = await fetch(`${API_URL}/api/usuarios/${u.id}/toggle-activo`, { method: "PATCH", headers: authHeaders.value });
+    if (res.status === 401) { handleExpiredSession(); return; }
+    const data = await res.json();
+    if (data.success) await fetchUsuarios();
+  } catch (err) { console.error("Error toggling usuario:", err); }
+};
+
+const openResetModal = (u) => {
+  showResetPassword.value = false;
+  resetModal.value = { open: true, usuario: u, password: "", saving: false, error: "" };
+};
+
+const doResetPassword = async () => {
+  if (!resetModal.value.password || resetModal.value.password.length < 8) {
+    resetModal.value.error = "La contraseña debe tener al menos 8 caracteres.";
+    return;
+  }
+  resetModal.value.saving = true;
+  try {
+    const res  = await fetch(`${API_URL}/api/usuarios/${resetModal.value.usuario.id}/reset-password`, {
+      method: "PATCH", headers: authHeaders.value,
+      body: JSON.stringify({ password: resetModal.value.password }),
+    });
+    if (res.status === 401) { handleExpiredSession(); return; }
+    const data = await res.json();
+    if (data.success) { resetModal.value.open = false; }
+    else { resetModal.value.error = data.error || "Error al restablecer contraseña."; }
+  } catch { resetModal.value.error = "Error de red."; }
+  finally { resetModal.value.saving = false; }
+};
+
+watch(
+  () => activeModule.value,
+  (mod) => { if (mod === "usuarios") fetchUsuarios(); }
+);
+
+// ─────────────────────────────────────────────────────────────
 const fetchDashStats = async () => {
   try {
     const [ra, rm, rl, rf] = await Promise.all([
@@ -1306,8 +1829,10 @@ const fetchNoticias = async () => {
   }
 };
 
-const openModal = (noticia) => {
+const openModal = async (noticia) => {
   galeriaLocal.value = [];
+  galeriaDeleted.value = [];
+
   modal.value = {
     open: true,
     error: "",
@@ -1317,26 +1842,44 @@ const openModal = (noticia) => {
           fecha_publicacion: noticia.fecha_publicacion
             ? String(noticia.fecha_publicacion).slice(0, 10)
             : new Date().toISOString().slice(0, 10),
-          activo:       Number(noticia.activo ?? 1),
-          orden:        Number(noticia.orden  ?? 0),
+          activo:        Number(noticia.activo ?? 1),
+          orden:         Number(noticia.orden  ?? 0),
           miniatura_url: noticia.miniatura_url || noticia.imagen_url || "",
           hero_url:      noticia.hero_url      || noticia.imagen_url || "",
           autor:         noticia.autor         || "",
         }
       : {
-          titulo:           "",
+          titulo:            "",
           descripcion_corta: "",
-          contenido:        "",
-          imagen_url:       "",
-          miniatura_url:    "",
-          hero_url:         "",
-          autor:            "",
+          contenido:         "",
+          imagen_url:        "",
+          miniatura_url:     "",
+          hero_url:          "",
+          autor:             "",
           fecha_publicacion: new Date().toISOString().slice(0, 10),
           modulo:  "promocion",
           activo:  1,
           orden:   0,
         },
   };
+
+  // Cargar galería existente al editar
+  if (noticia?.id) {
+    try {
+      const res  = await fetch(`${API_URL}/api/noticias/${noticia.id}`);
+      const data = await res.json();
+      if (data.success && Array.isArray(data.data.galeria)) {
+        galeriaLocal.value = data.data.galeria.map((img) => ({
+          tempId:  `existing_${img.id}`,
+          preview: resolveUrl(img.imagen_url),
+          file:    null,
+          id:      img.id,
+        }));
+      }
+    } catch (err) {
+      console.error("Error cargando galería:", err);
+    }
+  }
 };
 
 const saveNoticia = async () => {
@@ -1352,10 +1895,7 @@ const saveNoticia = async () => {
 
   try {
     const isEdit = Boolean(noticia.id);
-    const url = isEdit
-      ? `${API_URL}/api/noticias/${noticia.id}`
-      : `${API_URL}/api/noticias`;
-
+    const url    = isEdit ? `${API_URL}/api/noticias/${noticia.id}` : `${API_URL}/api/noticias`;
     const method = isEdit ? "PUT" : "POST";
 
     const res = await fetch(url, {
@@ -1364,16 +1904,55 @@ const saveNoticia = async () => {
       body: JSON.stringify(noticia),
     });
 
-    if (res.status === 401) {
-      handleExpiredSession();
-      return;
-    }
+    if (res.status === 401) { handleExpiredSession(); return; }
 
     const data = await res.json();
 
     if (!data.success) {
       modal.value.error = data.error || "Error al guardar la noticia.";
       return;
+    }
+
+    const noticiaId = isEdit ? noticia.id : data.id;
+
+    // Eliminar imágenes de galería removidas por el usuario
+    for (const imgId of galeriaDeleted.value) {
+      await fetch(`${API_URL}/api/noticias/${noticiaId}/galeria/${imgId}`, {
+        method: "DELETE",
+        headers: { Authorization: token ? `Bearer ${token}` : "" },
+      });
+    }
+
+    // Subir imágenes nuevas de la galería en una sola petición (batch)
+    const nuevasImagenes = galeriaLocal.value.filter((item) => item.file);
+    if (nuevasImagenes.length) {
+      const fd = new FormData();
+      nuevasImagenes.forEach((item) => fd.append("imagenes", item.file));
+      try {
+        const r = await fetch(`${API_URL}/api/noticias/${noticiaId}/galeria/batch`, {
+          method: "POST",
+          body: fd,
+          headers: { Authorization: token ? `Bearer ${token}` : "" },
+        });
+        const rData = await r.json();
+        if (!rData.success) {
+          modal.value.error = rData.error || "Error al subir imágenes de galería.";
+          savingNoticia.value = false;
+          await fetchNoticias();
+          return;
+        }
+        if (rData.failed?.length) {
+          modal.value.error = `Noticia guardada, pero fallaron ${rData.failed.length} imagen(es) de galería.`;
+          savingNoticia.value = false;
+          await fetchNoticias();
+          return;
+        }
+      } catch {
+        modal.value.error = "Noticia guardada, pero hubo un error de red al subir imágenes de galería.";
+        savingNoticia.value = false;
+        await fetchNoticias();
+        return;
+      }
     }
 
     modal.value.open = false;
@@ -1412,12 +1991,116 @@ const deleteNoticia = async (id) => {
   }
 };
 
+// ── BITÁCORA ───────────────────────────────────────────
+const bitacora        = ref([]);
+const bitacoraPagina  = ref(1);
+const bitacoraTotal   = ref(0);
+const bitacoraPaginas = ref(1);
+const loadingBitacora = ref(false);
+const filtroModulo    = ref("");
+const filtroAccion    = ref("");
+const filtroDesde     = ref("");
+const filtroHasta     = ref("");
+const exportando      = ref(null);
+
+const hayFiltros = computed(() =>
+  !!(filtroModulo.value || filtroAccion.value || filtroDesde.value || filtroHasta.value)
+);
+
+const fmtDateOnly = (date) => {
+  if (!date) return "—";
+  const d = new Date(date);
+  const p = (n) => String(n).padStart(2, "0");
+  return `${p(d.getDate())}/${p(d.getMonth() + 1)}/${String(d.getFullYear()).slice(-2)}`;
+};
+
+const fmtTimeOnly = (date) => {
+  if (!date) return "";
+  return new Date(date).toLocaleTimeString("es-GT", { hour: "2-digit", minute: "2-digit" });
+};
+
+const accionClass = (accion) => {
+  if (!accion) return "gray";
+  if (accion.includes("FALLIDO") || accion.includes("DESACTIVADO")) return "gray";
+  if (accion.includes("CREADO") || accion.includes("EXITOSO") || accion.includes("ACTIVADO")) return "green";
+  return "blue";
+};
+
+const fetchBitacora = async (pagina = 1) => {
+  bitacoraPagina.value = pagina;
+  loadingBitacora.value = true;
+  try {
+    const qs = new URLSearchParams({ page: String(pagina) });
+    if (filtroModulo.value) qs.set("modulo", filtroModulo.value);
+    if (filtroAccion.value) qs.set("accion", filtroAccion.value);
+    if (filtroDesde.value)  qs.set("desde",  filtroDesde.value);
+    if (filtroHasta.value)  qs.set("hasta",  filtroHasta.value);
+
+    const res = await fetch(`${API_URL}/api/auditoria?${qs.toString()}`, {
+      headers: authHeaders.value,
+    });
+    if (res.status === 401) { handleExpiredSession(); return; }
+    const data = await res.json();
+    if (data.success) {
+      bitacora.value        = data.registros;
+      bitacoraTotal.value   = data.total;
+      bitacoraPaginas.value = data.pages;
+    }
+  } catch (err) {
+    console.error("Error cargando bitácora:", err);
+  } finally {
+    loadingBitacora.value = false;
+  }
+};
+
+const limpiarFiltros = () => {
+  filtroModulo.value = "";
+  filtroAccion.value = "";
+  filtroDesde.value  = "";
+  filtroHasta.value  = "";
+  fetchBitacora(1);
+};
+
+const exportarBitacora = async (formato) => {
+  exportando.value = formato;
+  try {
+    const qs = new URLSearchParams();
+    if (filtroModulo.value) qs.set("modulo", filtroModulo.value);
+    if (filtroAccion.value) qs.set("accion", filtroAccion.value);
+    if (filtroDesde.value)  qs.set("desde",  filtroDesde.value);
+    if (filtroHasta.value)  qs.set("hasta",  filtroHasta.value);
+    const qstr = qs.toString();
+
+    const res = await fetch(
+      `${API_URL}/api/auditoria/export/${formato}${qstr ? "?" + qstr : ""}`,
+      { headers: authHeaders.value }
+    );
+    if (res.status === 401) { handleExpiredSession(); return; }
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+    const blob = await res.blob();
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement("a");
+    a.href     = url;
+    a.download = `PSE_Bitacora_${new Date().toISOString().slice(0, 10)}.${formato === "excel" ? "xlsx" : formato}`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  } catch (err) {
+    console.error("Error exportando:", err);
+  } finally {
+    exportando.value = null;
+  }
+};
+
 watch(activeModule, (module) => {
   if (module === "noticias")     fetchNoticias();
   if (module === "atencion")     fetchMetricaAtencion();
   if (module === "medicamentos") fetchMetricaMedicamentos();
   if (module === "llamadas")     fetchMetricaLlamadas();
   if (module === "funerario")    fetchMetricaFunerario();
+  if (module === "bitacora")     fetchBitacora(1);
 });
 
 onMounted(() => {
@@ -1610,6 +2293,20 @@ onMounted(() => {
 }
 
 .sf-logout:hover { background: rgba(220,38,38,0.2); color: #fca5a5; }
+
+.sf-user-area {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+  cursor: pointer;
+  border-radius: 8px;
+  padding: 5px 6px;
+  margin: -5px -6px;
+  transition: background 0.15s;
+}
+.sf-user-area:hover { background: rgba(255,255,255,0.1); }
 
 /* ── MAIN ────────────────────────────────────────────── */
 .main {
@@ -3260,4 +3957,469 @@ onMounted(() => {
 .url-input-sm:focus {
   border-color: #17c4e8;
 }
+
+/* ── PASSWORD TOGGLE ─────────────────────────────────────── */
+.pw-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.pw-wrap input {
+  flex: 1;
+  padding-right: 46px;
+}
+
+.pw-toggle {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 46px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0 14px 14px 0;
+  transition: color 0.15s, background 0.15s;
+}
+
+.pw-toggle:hover {
+  color: #17c4e8;
+  background: rgba(23, 196, 232, 0.06);
+}
+
+/* ── PAGINACIÓN BITÁCORA ─────────────────────────────────── */
+.paginacion {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 18px 24px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.pag-btn {
+  background: #fff;
+  border: 1px solid #dfe8f3;
+  border-radius: 8px;
+  padding: 8px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #0f172a;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.pag-btn:hover:not(:disabled) {
+  background: #f0f9ff;
+  border-color: #17c4e8;
+}
+
+.pag-btn:disabled {
+  opacity: 0.38;
+  cursor: default;
+}
+
+.pag-info {
+  font-size: 13px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+/* ── BITÁCORA: EXPORT BUTTONS ────────────────────────────────── */
+.bit-exp-btns {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.exp-btn {
+  background: #fff;
+  border: 1px solid #dfe8f3;
+  border-radius: 8px;
+  padding: 7px 15px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #0f172a;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.exp-btn:hover:not(:disabled) {
+  background: #f0f9ff;
+  border-color: #17c4e8;
+  color: #0369a1;
+}
+.exp-btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+/* ── BITÁCORA: FILTER BAR ────────────────────────────────────── */
+.bit-filtros {
+  display: flex;
+  align-items: flex-end;
+  gap: 14px;
+  flex-wrap: wrap;
+  background: #f8fafc;
+  border: 1px solid #e8edf5;
+  border-radius: 10px;
+  padding: 14px 20px;
+  margin-bottom: 16px;
+}
+
+.bit-filtro {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.bit-filtro-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.bit-filtro-sel,
+.bit-filtro-date {
+  background: #fff;
+  border: 1px solid #dfe8f3;
+  border-radius: 8px;
+  padding: 7px 10px;
+  font-size: 13px;
+  font-family: inherit;
+  color: #0f172a;
+  min-width: 132px;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.bit-filtro-sel:focus,
+.bit-filtro-date:focus {
+  outline: none;
+  border-color: #17c4e8;
+  box-shadow: 0 0 0 3px rgba(23,196,232,.12);
+}
+
+.btn-limpiar-fit {
+  background: none;
+  border: 1px solid #fca5a5;
+  border-radius: 8px;
+  padding: 7px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #dc2626;
+  cursor: pointer;
+  font-family: inherit;
+  align-self: flex-end;
+  transition: background 0.15s;
+}
+.btn-limpiar-fit:hover {
+  background: #fef2f2;
+}
+
+/* ── BITÁCORA: tabla limpia ──────────────────────────────── */
+.bit-fecha-cell { white-space: nowrap; }
+.bit-fecha-date { display: block; font-size: 13px; color: #334155; }
+.bit-fecha-time { display: block; font-size: 11px; color: #94a3b8; margin-top: 2px; }
+
+.bit-user-name  { font-weight: 700; font-size: 13px; color: #0f172a; margin: 0; }
+.bit-user-email { font-size: 11px; color: #94a3b8; margin: 0; }
+
+.exp-btn-pdf {
+  border-color: #fecaca;
+  color: #dc2626;
+}
+.exp-btn-pdf:hover:not(:disabled) {
+  background: #fef2f2;
+  border-color: #f87171;
+  color: #dc2626;
+}
+.exp-btn-csv {
+  border-color: #e2e8f0;
+  color: #64748b;
+  font-size: 11px;
+  padding: 7px 10px;
+}
+
+/* ── USUARIOS: botón principal ───────────────────────────── */
+.add-btn-coral {
+  border: none;
+  background: linear-gradient(135deg, #f87171 0%, #fb923c 100%);
+  color: #fff;
+  border-radius: 999px;
+  padding: 11px 22px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  transition: opacity 0.15s, transform 0.15s;
+  box-shadow: 0 6px 16px rgba(248, 113, 113, 0.28);
+}
+.add-btn-coral:hover { opacity: 0.88; transform: translateY(-1px); }
+
+/* ── USUARIOS: barra búsqueda/filtro ─────────────────────── */
+.usr-bar {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 18px 24px 16px;
+}
+.usr-search {
+  position: relative;
+  flex: 1;
+  min-width: 200px;
+}
+.usr-search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  pointer-events: none;
+}
+.usr-search-input {
+  width: 100%;
+  padding: 9px 12px 9px 36px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 13px;
+  font-family: inherit;
+  color: #0f172a;
+  background: #fff;
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+}
+.usr-search-input:focus {
+  outline: none;
+  border-color: #17c4e8;
+  box-shadow: 0 0 0 3px rgba(23,196,232,.1);
+}
+.usr-rol-filter {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+/* ── USUARIOS: filas de tabla ────────────────────────────── */
+.u-avatar-cell { padding-right: 0 !important; width: 52px; }
+.u-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #fce7e7;
+  color: #e55a5a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 15px;
+}
+.u-nombre { font-weight: 700; font-size: 14px; color: #0f172a; margin: 0; }
+.u-email  { font-size: 12px; color: #64748b; margin: 0; }
+
+.u-estado {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  color: #0f172a;
+}
+.u-dot         { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.u-dot-on      { background: #22c55e; }
+.u-dot-off     { background: #94a3b8; }
+
+.u-actions-cell { text-align: right; white-space: nowrap; }
+.u-icon-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #f87171;
+  padding: 5px 6px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  transition: background 0.12s, color 0.12s;
+}
+.u-icon-btn:hover:not(:disabled) {
+  background: #fff1f1;
+  color: #dc2626;
+}
+.u-icon-btn:disabled {
+  opacity: 0.28;
+  cursor: default;
+}
+
+/* ── PERFIL DRAWER ───────────────────────────────────────────── */
+.perfil-enter-active,
+.perfil-leave-active { transition: background 0.22s ease; }
+.perfil-enter-from,
+.perfil-leave-to    { background: rgba(7,26,64,0) !important; }
+
+.perfil-enter-active .perfil-drawer,
+.perfil-leave-active .perfil-drawer {
+  transition: transform 0.26s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.perfil-enter-from .perfil-drawer,
+.perfil-leave-to   .perfil-drawer { transform: translateX(-100%); }
+
+.perfil-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  background: rgba(7,26,64,0.45);
+  backdrop-filter: blur(3px);
+}
+
+.perfil-drawer {
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 320px;
+  background: #fff;
+  box-shadow: 6px 0 32px rgba(0,0,0,0.18);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.perfil-close {
+  position: absolute;
+  top: 14px; right: 14px;
+  background: rgba(255,255,255,0.12);
+  border: none;
+  color: rgba(255,255,255,0.7);
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  font-size: 14px;
+  cursor: pointer;
+  display: grid; place-items: center;
+  transition: background 0.15s;
+  z-index: 1;
+}
+.perfil-close:hover { background: rgba(255,255,255,0.22); color: #fff; }
+
+.perfil-hd {
+  background: linear-gradient(160deg, #071a40 0%, #0f2d6b 100%);
+  padding: 40px 24px 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.perfil-big-av {
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #17c4e8, #2563eb);
+  color: #fff;
+  font-size: 26px;
+  font-weight: 900;
+  display: grid; place-items: center;
+  box-shadow: 0 6px 20px rgba(23,196,232,0.4);
+  margin-bottom: 14px;
+}
+
+.perfil-hd-name {
+  margin: 0 0 4px;
+  font-size: 17px;
+  font-weight: 800;
+  color: #fff;
+}
+
+.perfil-hd-email {
+  margin: 0 0 10px;
+  font-size: 12px;
+  color: rgba(255,255,255,0.5);
+}
+
+.perfil-body {
+  flex: 1;
+  padding: 22px 24px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.perfil-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 13px 0;
+  border-bottom: 1px solid #f1f5f9;
+  gap: 12px;
+}
+
+.perfil-lbl {
+  font-size: 12px;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+}
+
+.perfil-val {
+  font-size: 13px;
+  color: #0f172a;
+  font-weight: 500;
+  text-align: right;
+  word-break: break-all;
+}
+
+.perfil-foot {
+  padding: 20px 24px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.perfil-pw-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #0f172a;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s, border-color 0.15s;
+}
+.perfil-pw-btn:hover {
+  background: #f0f9ff;
+  border-color: #17c4e8;
+  color: #0369a1;
+}
+
+.perfil-logout-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: #fff1f2;
+  border: 1px solid #fecdd3;
+  border-radius: 10px;
+  padding: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #e11d48;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s;
+}
+.perfil-logout-btn:hover { background: #ffe4e6; }
 </style>

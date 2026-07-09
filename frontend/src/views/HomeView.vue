@@ -197,6 +197,7 @@
 <script setup>
 import { RouterLink } from 'vue-router'
 import AppFooter from '@/components/AppFooter.vue'
+import { resolveFileUrl } from '@/helpers/fileUrl.js'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 
 const API_URL = import.meta.env.VITE_API_URL
@@ -320,9 +321,8 @@ const currentNoticia = ref(0)
 
 const resolveImage = (url) => {
   if (!url) return '/Home/IMAGENES/noticia-vacunacion.webp'
-  if (url.startsWith('http')) return url
   if (url.startsWith('/Home') || url.startsWith('/Promocion')) return url
-  return `${API_URL}${url}`
+  return resolveFileUrl(url, API_URL)
 }
 
 const formatFecha = (fecha) => {

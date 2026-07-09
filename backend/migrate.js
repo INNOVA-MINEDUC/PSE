@@ -1,58 +1,55 @@
+// ============================================================
+// Runner de migraciones (Umzug + Sequelize)
+//
+// Tracking en tabla `SequelizeMeta`: cada migración corre UNA vez.
+// Fail-fast: si una migración lanza error, el proceso sale con
+// código 1 (aborta el deploy).
+//
+// Uso (CLI):
+//   node migrate.js up          # aplica pendientes
+//   node migrate.js down        # revierte la última
+//   node migrate.js pending     # lista pendientes
+//   node migrate.js executed    # lista aplicadas
+//   node migrate.js create --name add-tabla.js
+// ============================================================
 import dotenv from "dotenv";
-import mysql from "mysql2/promise";
+import path from "path";
+import { fileURLToPath } from "url";
+import { Sequelize } from "sequelize";
+import { Umzug, SequelizeStorage } from "umzug";
 
 dotenv.config();
 
-const migrations = [
-  // metricas_llamadas
-  `ALTER TABLE metricas_llamadas ADD COLUMN casos_atendidos INT DEFAULT 0 AFTER total_llamadas`,
-  `ALTER TABLE metricas_llamadas ADD COLUMN usuarios_beneficiados INT DEFAULT 0 AFTER casos_atendidos`,
-  `ALTER TABLE metricas_llamadas ADD COLUMN video_url TEXT NULL AFTER periodo`,
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-  // metricas_funerario
-  `ALTER TABLE metricas_funerario ADD COLUMN apoyos_otorgados INT DEFAULT 0 AFTER familias_beneficiadas`,
-  `ALTER TABLE metricas_funerario ADD COLUMN cobertura VARCHAR(255) DEFAULT '' AFTER apoyos_otorgados`,
-  `ALTER TABLE metricas_funerario ADD COLUMN video_url TEXT NULL AFTER periodo`,
-  `ALTER TABLE metricas_funerario ADD COLUMN folleto_url TEXT NULL AFTER video_url`,
-  `ALTER TABLE metricas_funerario ADD COLUMN formulario_url TEXT NULL AFTER folleto_url`,
-
-  // noticias (campos existentes por si acaso)
-  `ALTER TABLE noticias ADD COLUMN miniatura_url TEXT NULL AFTER imagen_url`,
-  `ALTER TABLE noticias ADD COLUMN hero_url TEXT NULL AFTER miniatura_url`,
-  `ALTER TABLE noticias ADD COLUMN autor VARCHAR(255) NULL AFTER hero_url`,
-];
-
-async function run() {
-  const db = await mysql.createConnection({
+export const sequelize = new Sequelize(
+  process.env.DB_NAME,
+  process.env.DB_USER,
+  process.env.DB_PASSWORD,
+  {
     host: process.env.DB_HOST,
     port: Number(process.env.DB_PORT),
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
-  });
-
-  console.log("Conectado a la BD. Ejecutando migraciones...\n");
-
-  for (const sql of migrations) {
-    try {
-      await db.query(sql);
-      const col = sql.match(/ADD COLUMN (\w+)/)?.[1] ?? sql;
-      console.log(`  ✓ ${col}`);
-    } catch (err) {
-      if (err.code === "ER_DUP_FIELDNAME") {
-        const col = sql.match(/ADD COLUMN (\w+)/)?.[1] ?? "columna";
-        console.log(`  — ${col} (ya existe, omitida)`);
-      } else {
-        console.error(`  ✗ ERROR: ${err.message}`);
-      }
-    }
+    dialect: "mysql",
+    logging: false,
   }
+);
 
-  await db.end();
-  console.log("\nMigraciones completadas.");
-}
-
-run().catch((err) => {
-  console.error("Error de conexión:", err.message);
-  process.exit(1);
+export const umzug = new Umzug({
+  migrations: {
+    glob: ["migrations/[0-9]*.js", { cwd: __dirname }],
+  },
+  context: sequelize.getQueryInterface(),
+  storage: new SequelizeStorage({ sequelize, tableName: "SequelizeMeta" }),
+  logger: console,
 });
+
+// Ejecutar como CLI solo cuando se invoca directo (no al importar)
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  umzug
+    .runAsCLI()
+    .then(() => sequelize.close())
+    .catch((err) => {
+      console.error("Migración falló:", err.message);
+      process.exit(1);
+    });
+}

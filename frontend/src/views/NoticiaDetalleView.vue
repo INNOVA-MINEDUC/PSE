@@ -148,6 +148,7 @@
 import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import AppFooter from '@/components/AppFooter.vue'
+import { resolveFileUrl } from '@/helpers/fileUrl.js'
 
 const API_URL = import.meta.env.VITE_API_URL
 const route   = useRoute()
@@ -156,12 +157,7 @@ const noticia  = ref(null)
 const loading  = ref(true)
 const errorMsg = ref('')
 
-const resolveImage = (url) => {
-  if (!url) return ''
-  if (url.startsWith('http')) return url
-  if (url.startsWith('/uploads')) return `${API_URL}${url}`
-  return url
-}
+const resolveImage = (url) => resolveFileUrl(url, API_URL)
 
 onMounted(async () => {
   try {
@@ -170,9 +166,12 @@ onMounted(async () => {
     if (data.success) {
       noticia.value = {
         ...data.data,
-        hero_url:     resolveImage(data.data.imagen_url),
-        galeria:      [],
-        autor:        data.data.autor || 'Programa de Salud Escolar — MINEDUC',
+        hero_url: resolveImage(data.data.hero_url || data.data.imagen_url),
+        galeria:  (data.data.galeria || []).map((img) => ({
+          ...img,
+          imagen_url: resolveImage(img.imagen_url),
+        })),
+        autor: data.data.autor || 'Programa de Salud Escolar — MINEDUC',
       }
     } else {
       errorMsg.value = 'Noticia no encontrada.'

@@ -5,6 +5,9 @@ import {
   createNoticia,
   updateNoticia,
   deleteNoticia,
+  addGaleriaImage,
+  addGaleriaImagesBatch,
+  deleteGaleriaImage,
 } from "../controllers/noticias.controller.js";
 
 import { uploadNoticias } from "../meddleware/upload.middleware.js";
@@ -17,25 +20,22 @@ const router = express.Router();
 router.get("/", publicLimiter, getNoticias);
 router.get("/:id", publicLimiter, getNoticiaById);
 
-// Escritura protegida — requiere token ASISTO válido
+// Escritura protegida — requiere token válido (rol admin o user)
 router.post("/", protectedLimiter, requireToken, createNoticia);
 router.put("/:id", protectedLimiter, requireToken, updateNoticia);
 router.delete("/:id", protectedLimiter, requireToken, deleteNoticia);
 
+// Upload imagen miniatura/hero
 router.post("/upload", uploadLimiter, requireToken, uploadNoticias.single("imagen"), (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({
-      success: false,
-      error: "No se subió ninguna imagen",
-    });
+  if (!req.file || !req.storageFile) {
+    return res.status(400).json({ success: false, error: "No se subió ninguna imagen" });
   }
-
-  const url = `/uploads/noticias/${req.file.filename}`;
-
-  res.json({
-    success: true,
-    url,
-  });
+  res.json({ success: true, url: req.storageFile.key });
 });
+
+// Galería de imágenes adicionales
+router.post("/:id/galeria", uploadLimiter, requireToken, uploadNoticias.single("imagen"), addGaleriaImage);
+router.post("/:id/galeria/batch", uploadLimiter, requireToken, uploadNoticias.array("imagenes", 20), addGaleriaImagesBatch);
+router.delete("/:id/galeria/:imgId", protectedLimiter, requireToken, deleteGaleriaImage);
 
 export default router;

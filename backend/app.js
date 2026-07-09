@@ -2,7 +2,8 @@ import dotenv from "dotenv";
 import mysql from "mysql2/promise";
 import express from "express";
 import cors from "cors";
-import axios from "axios";
+import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
 import path from "path";
 import { fileURLToPath } from "url";
 
@@ -13,11 +14,19 @@ import medicamentosRoutes from "./routes/medicamentos.routes.js";
 import llamadasRoutes from "./routes/llamadas.routes.js";
 import funerarioRoutes from "./routes/funerario.routes.js";
 import archivosRoutes from "./routes/archivos.routes.js";
+import usuariosRoutes from "./routes/usuarios.routes.js";
+import auditoriaRoutes from "./routes/auditoria.routes.js";
+import { uploadLimiter, protectedLimiter } from "./middleware/rateLimiter.middleware.js";
+import { logAudit } from "./utils/logAudit.js";
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// App corre detrás de un reverse proxy (nginx). Confiar en el primer
+// hop para que express-rate-limit lea bien X-Forwarded-For.
+app.set("trust proxy", 1);
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -31,7 +40,7 @@ app.use(
       "https://saludescolar-dev.mineduc.edu.gt",
       "https://saludescolar.mineduc.edu.gt",
     ],
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     credentials: true,
   })
 );
@@ -66,188 +75,149 @@ app.get("/api/db-check", async (req, res) => {
   }
 });
 
-// Login con ASISTO
-app.post("/api/auth/login", async (req, res) => {
+// ── Login local (reemplaza ASISTO) ───────────────────────────
+app.post("/api/auth/login", uploadLimiter, async (req, res) => {
   try {
-    console.log("BODY LOGIN:", req.body);
+    const usuario  = String(req.body.usuario  || "").trim();
+    const password = String(req.body.password || "").trim();
 
-    const correoElectronico = String(req.body.correoElectronico || "").trim();
-    const clave = String(req.body.clave || "").trim();
-
-    if (!correoElectronico || !clave) {
+    if (!usuario || !password) {
       return res.status(400).json({
         success: false,
-        error: "Correo y contraseña son requeridos.",
+        error: "Usuario y contraseña son requeridos.",
       });
     }
 
-    const mutation = `
-      mutation IniciarSesion {
-        iniciarSesion(
-          clave: "${clave}"
-          correoElectronico: "${correoElectronico}"
-          sistemaClave: "ASISTO"
-        ) {
-          token
-        }
-      }
-    `;
-
-    const response = await axios.post(
-      process.env.API,
-      { query: mutation },
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
+    // Acepta nombre de usuario o correo electrónico
+    const [rows] = await db.query(
+      `SELECT id, full_name, email, usuario, password_hash, role, activo
+       FROM users
+       WHERE (usuario = ? OR email = ?) AND activo = 1
+       LIMIT 1`,
+      [usuario, usuario]
     );
 
-    console.log(
-      "RESPUESTA GRAPHQL LOGIN:",
-      JSON.stringify(response.data, null, 2)
+    if (!rows.length) {
+      await logAudit(req, {
+        accion: "LOGIN_FALLIDO",
+        modulo: "auth",
+        descripcion: `Intento fallido para usuario/correo: ${usuario}`,
+        usuario_override: { id: null, nombre: null, correo: null },
+      });
+      return res.status(401).json({
+        success: false,
+        error: "Credenciales incorrectas.",
+      });
+    }
+
+    const u = rows[0];
+    const match = await bcrypt.compare(password, u.password_hash);
+
+    if (!match) {
+      await logAudit(req, {
+        accion: "LOGIN_FALLIDO",
+        modulo: "auth",
+        descripcion: `Contraseña incorrecta para usuario: ${u.usuario}`,
+        usuario_override: { id: u.id, nombre: u.full_name, correo: u.email },
+      });
+      return res.status(401).json({
+        success: false,
+        error: "Credenciales incorrectas.",
+      });
+    }
+
+    const token = jwt.sign(
+      { id: u.id, usuario: u.usuario, rol: u.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "8h" }
     );
 
-    if (response.data.errors) {
-      return res.status(401).json({
-        success: false,
-        error: response.data.errors[0].message || "Credenciales incorrectas",
-      });
-    }
-
-    const token = response?.data?.data?.iniciarSesion?.token;
-
-    if (!token) {
-      return res.status(401).json({
-        success: false,
-        error: "No se recibió token desde ASISTO",
-      });
-    }
+    await logAudit(req, {
+      accion: "LOGIN_EXITOSO",
+      modulo: "auth",
+      descripcion: `Sesión iniciada por ${u.usuario} (${u.role})`,
+      usuario_override: { id: u.id, nombre: u.full_name, correo: u.email },
+    });
 
     return res.json({
       success: true,
       token,
+      user: {
+        id:      u.id,
+        nombre:  u.full_name,
+        correo:  u.email,
+        usuario: u.usuario,
+        rol:     u.role,
+      },
     });
   } catch (err) {
-    console.error("ERROR LOGIN:", err.response?.data || err.message);
-
-    return res.status(500).json({
-      success: false,
-      error: "Error interno en login",
-    });
+    console.error("ERROR LOGIN:", err.message);
+    return res.status(500).json({ success: false, error: "Error interno en login" });
   }
 });
 
-// Usuario actual
-app.get("/api/auth/me", async (req, res) => {
+// ── Usuario actual ────────────────────────────────────────────
+app.get("/api/auth/me", protectedLimiter, async (req, res) => {
   try {
     const authHeader = req.headers.authorization;
 
-    if (!authHeader) {
-      return res.status(401).json({
-        success: false,
-        error: "Token no proporcionado",
-      });
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(401).json({ success: false, error: "Token no proporcionado" });
     }
 
-    const query = `
-      query {
-        usuarioActual {
-          nombres
-          apellidos
-          roles {
-            clave
-            nombre
-          }
-        }
-      }
-    `;
+    const token   = authHeader.slice(7);
+    const payload = jwt.verify(token, process.env.JWT_SECRET);
 
-    const response = await axios.post(
-      process.env.API,
-      { query },
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: authHeader,
-        },
-      }
+    const [rows] = await db.query(
+      `SELECT id, full_name, email, usuario, role, activo
+       FROM users WHERE id = ? AND activo = 1 LIMIT 1`,
+      [payload.id]
     );
 
-    console.log(
-      "RESPUESTA GRAPHQL ME:",
-      JSON.stringify(response.data, null, 2)
-    );
-
-    if (response.data.errors) {
-      return res.status(401).json({
-        success: false,
-        error: response.data.errors[0].message || "Token inválido",
-      });
+    if (!rows.length) {
+      return res.status(401).json({ success: false, error: "Sesión inválida" });
     }
 
+    const u = rows[0];
     return res.json({
       success: true,
-      user: response?.data?.data?.usuarioActual || null,
+      user: {
+        id:      u.id,
+        nombre:  u.full_name,
+        correo:  u.email,
+        usuario: u.usuario,
+        rol:     u.role,
+      },
     });
-  } catch (err) {
-    console.error("ERROR /me:", err.response?.data || err.message);
-
-    return res.status(500).json({
-      success: false,
-      error: "Error al validar sesión",
-    });
+  } catch {
+    return res.status(401).json({ success: false, error: "Token inválido o expirado" });
   }
 });
 
-// Rutas del sistema
-app.use("/api/dashboard", dashboardRoutes);
-app.use("/api/noticias", noticiasRoutes);
-app.use("/api/atencion", atencionRoutes);
+// ── Rutas del sistema ─────────────────────────────────────────
+app.use("/api/dashboard",    dashboardRoutes);
+app.use("/api/noticias",     noticiasRoutes);
+app.use("/api/atencion",     atencionRoutes);
 app.use("/api/medicamentos", medicamentosRoutes);
-app.use("/api/llamadas", llamadasRoutes);
-app.use("/api/funerario", funerarioRoutes);
-app.use("/api/archivos", archivosRoutes);
+app.use("/api/llamadas",     llamadasRoutes);
+app.use("/api/funerario",    funerarioRoutes);
+app.use("/api/archivos",     archivosRoutes);
+app.use("/api/usuarios",     usuariosRoutes);
+app.use("/api/auditoria",   auditoriaRoutes);
 
-async function runMigrations(pool) {
-  const alteraciones = [
-    `ALTER TABLE metricas_llamadas ADD COLUMN casos_atendidos INT DEFAULT 0 AFTER total_llamadas`,
-    `ALTER TABLE metricas_llamadas ADD COLUMN usuarios_beneficiados INT DEFAULT 0 AFTER casos_atendidos`,
-    `ALTER TABLE metricas_llamadas ADD COLUMN video_url TEXT NULL AFTER periodo`,
-    `ALTER TABLE metricas_funerario ADD COLUMN apoyos_otorgados INT DEFAULT 0 AFTER familias_beneficiadas`,
-    `ALTER TABLE metricas_funerario ADD COLUMN cobertura VARCHAR(255) DEFAULT '' AFTER apoyos_otorgados`,
-    `ALTER TABLE metricas_funerario ADD COLUMN video_url TEXT NULL AFTER periodo`,
-    `ALTER TABLE metricas_funerario ADD COLUMN folleto_url TEXT NULL AFTER video_url`,
-    `ALTER TABLE metricas_funerario ADD COLUMN formulario_url TEXT NULL AFTER folleto_url`,
-    `ALTER TABLE noticias ADD COLUMN miniatura_url TEXT NULL AFTER imagen_url`,
-    `ALTER TABLE noticias ADD COLUMN hero_url TEXT NULL AFTER miniatura_url`,
-    `ALTER TABLE noticias ADD COLUMN autor VARCHAR(255) NULL AFTER hero_url`,
-  ];
-
-  for (const sql of alteraciones) {
-    try {
-      await pool.query(sql);
-    } catch (err) {
-      if (err.code !== "ER_DUP_FIELDNAME") {
-        console.warn("Migración omitida:", err.message);
-      }
-    }
-  }
-  console.log("Migraciones aplicadas.");
-}
-
+// Las migraciones NO corren en el arranque de la app.
+// Se ejecutan como paso aparte del pipeline (one-off container)
+// vía `node migrate.js up` antes del deploy. Ver migrate.js.
 async function start() {
   db = await mysql.createPool({
-    host: process.env.DB_HOST,
-    port: Number(process.env.DB_PORT),
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
+    host:             process.env.DB_HOST,
+    port:             Number(process.env.DB_PORT),
+    user:             process.env.DB_USER,
+    password:         process.env.DB_PASSWORD,
+    database:         process.env.DB_NAME,
     waitForConnections: true,
-    connectionLimit: 10,
+    connectionLimit:  10,
   });
-
-  await runMigrations(db);
 
   app.listen(PORT, "0.0.0.0", () => {
     console.log(`Servidor corriendo en http://localhost:${PORT}`);

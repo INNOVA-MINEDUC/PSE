@@ -159,9 +159,14 @@ jobs:
           password: ${{ secrets.DEV_SERVER_PASSWORD }}
           port: ${{ secrets.DEV_SERVER_PORT }}
           script: |
+            set -e
             cd /opt/public_html/PSE
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             docker compose pull
+            # Migraciones: one-off container con la imagen recién bajada.
+            # Fail-fast: si fallan, set -e aborta y NO se actualiza la app.
+            docker compose run --rm pse-backend node migrate.js up
+            docker compose run --rm -e NODE_ENV=development pse-backend node scripts/ensureAdmin.js
             docker compose up -d
             docker image prune -a -f
 
@@ -184,8 +189,12 @@ jobs:
           password: ${{ secrets.PROD_SERVER_PASSWORD }}
           port: ${{ secrets.PROD_SERVER_PORT }}
           script: |
+            set -e
             cd /opt/public_html/PSE
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             docker compose pull
+            # Migraciones: one-off container con la imagen recién bajada.
+            # Fail-fast: si fallan, set -e aborta y NO se actualiza la app.
+            docker compose run --rm pse-backend node migrate.js up
             docker compose up -d
             docker image prune -a -f
