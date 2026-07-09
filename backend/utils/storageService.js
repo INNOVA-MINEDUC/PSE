@@ -127,6 +127,27 @@ export async function uploadFiles(files) {
   }
 }
 
+/**
+ * Obtiene el archivo como stream directamente del bucketService, para que
+ * el backend actúe de proxy y el frontend nunca hable con bucketService
+ * directamente.
+ * @returns {Promise<{ stream: import('stream').Readable, contentType: string }>}
+ */
+export async function getFileStream(key) {
+  try {
+    const response = await getClient().get(`/${key}/view`, {
+      headers: { ...getApiKeyHeader() },
+      responseType: "stream",
+    });
+    return {
+      stream: response.data,
+      contentType: response.headers["content-type"] || "application/octet-stream",
+    };
+  } catch (err) {
+    throw normalizeError(err);
+  }
+}
+
 export async function deleteFile(key) {
   try {
     const { data } = await getClient().delete(`/${key}`, {
